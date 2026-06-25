@@ -1,0 +1,468 @@
+[
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-0-row-1",
+    "scene": "表格 1",
+    "fields": {
+      "日语": "Reccoの簡単なご紹介： • 概要 Reccoは、録音するだけで内容を自動的に構造化されたノート・要約・ToDoに整理してくれるAIメモアプリです。 • 対象ユーザー ビジネスパーソン、学生、またはより効率的にメモを取りたい方。 • 主な機能 – タイピング不要、録音するだけ – 音声の文字起こし＋AI要約＋ToDo生成 – ノートに対して質問できるAIチャット機能 – 話者識別（誰が話したかを自動判別） – シンプルで使いやすいUIと高速な操作性 • 他との違い – 一つのアプリで完結（アップロード不要） – 録音後すぐに自動整理 – 高価な専用デバイスは不要 詳細はこちら： https://www.instagram.com/reccoapp.official/ または無料版をダウンロードしてお試しください",
+      "繁中": "Recco 簡介： • 是什麼 Recco 是一款 AI 筆記 App，只需錄音，就能即時將內容整理成結構化筆記、摘要與待辦事項。 • 適合誰 職場人士、學生，或任何想更快速、輕鬆做筆記的人。 • 主要功能 – 不需要打字，只要按下錄音 – 即時語音轉文字＋AI 摘要＋待辦事項 – 內建 AI 對話功能，可針對筆記提問 – 聲紋辨識（清楚分辨誰說了什麼） – 介面簡潔，流程快速高效 • 與其他工具的不同 – 一站式完成，無需上傳或額外步驟 – 錄音後立即自動整理 – 不需要額外購買昂貴設備 了解更多： https://www.instagram.com/reccoapp.official/ 或直接下載 App，免費試用！",
+      "西语": "Resumen rápido de Recco: • Qué es Recco es una app de notas con IA que convierte cualquier grabación en notas estructuradas, resúmenes y tareas automáticamente. • Para quién es Profesionales, estudiantes o cualquier persona que quiera tomar notas de forma más rápida y sencilla. • Funciones principales – No necesitas escribir, solo grabar – Transcripción instantánea + resúmenes + listas de tareas – Chat con IA para hacer preguntas sobre tus notas – Identificación de hablantes (quién dijo qué) – Interfaz limpia, rápida y fácil de usar • Qué lo hace diferente – Todo en una sola app, sin subir archivos – Todo ocurre inmediatamente después de grabar – No necesitas hardware adicional costoso Más información aquí: https://www.instagram.com/reccoapp.official/ O descárgala y prueba la versión gratuit",
+      "英语": "Quick overview of Recco: • What it does Recco is an AI note-taking app that turns any recording into structured notes, summaries, and action items — instantly. • Who it’s for Professionals, students, or anyone who wants faster and easier note-taking. • Key features – No typing needed — just hit record – Instant transcription, summaries & to-do lists – Built-in AI chat to ask your notes questions – Speaker recognition (who said what) – Clean, simple, and fast workflow • What makes it different – All-in-one: no uploads or extra steps – Everything happens right after recording – No extra expensive hardware needed You can learn more here: https://www.instagram.com/reccoapp.official/ Or download the app and try the free version anytime!"
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-1-row-1",
+    "scene": "目前合作中，没有聊过好评",
+    "fields": {
+      "column_0": "目前合作中，没有聊过好评",
+      "繁中": "另外，我們目前正在尋找體驗過 App 的用戶幫忙留下評論。 1️⃣請在 App Store 給 App 五星評價 2️⃣評論內容需超過 20 字 完成評論後，我們將額外提供 5 USD 報酬。 如果您有興趣，請在評論完成後將以下截圖發送給我們！",
+      "韩语": "추가로, 현재 앱을 사용해보신 분들을 대상으로 리뷰 이벤트를 진행하고 있습니다. 1️⃣App Store에서 별점 5점을 남겨주세요 2️⃣리뷰 내용은 20자 이상 작성해주세요 리뷰 완료 후 추가로 5USD를 지급해드립니다. 관심 있으시다면 리뷰 완료 후 아래 스크린샷을 보내주세요!",
+      "日语": "また、現在アプリを体験したユーザー様向けに、レビュー投稿のご協力をお願いしております。 1️⃣App Store にて★5レビューをお願いします 2️⃣レビュー本文は20文字以上でお願いいたします レビュー完了後、追加で5USDをお支払いします。 ご興味がありましたら、レビュー後に以下のスクリーンショットをご送付ください！",
+      "西语": "Además, actualmente estamos buscando usuarios que hayan probado la app para dejarnos una reseña. 1️⃣Por favor, deja una reseña de 5 estrellas en la App Store 2️⃣El comentario debe tener más de 20 caracteres Después de completar la reseña, ofreceremos un pago adicional de 5 USD. Si estás interesado(a), por favor envíanos la siguiente captura de pantalla después de publicar la reseña.",
+      "葡语": "Além disso, atualmente estamos procurando usuários que já experimentaram o app para deixar uma avaliação. 1️⃣Por favor, dê 5 estrelas na App Store 2️⃣O comentário deve ter mais de 20 caracteres Após concluir a avaliação, ofereceremos um pagamento adicional de 5 USD. Se tiver interesse, envie a captura de tela abaixo após publicar a avaliação!"
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-2-row-1",
+    "scene": "tl吩咐去聊合作的人。固定合作条件： 6个月，每个月2视频，单视频价格在原来的基础上-50刀，涨价最多涨到100刀以内",
+    "fields": {
+      "column_0": "tl吩咐去聊合作的人。固定合作条件： 6个月，每个月2视频，单视频价格在原来的基础上-50刀，涨价最多涨到100刀以内",
+      "繁中": "嗨～想跟您聊聊長期合作的可能性 🙌 📌 合作週期：6 個月 📌 每月：2 支影片 因為是長期穩定合作，且會固定安排合作量，想詢問單支是否可以給到 XXXX 美金作為長期合作優惠？ 對您來說也會是比較穩定的收入來源，後續有新功能／新主題也會優先找您合作～ 如果您這邊有興趣，我們可以再擬一份新的長期合作合約給您確認～",
+      "韩语": "안녕하세요~ 장기 협업 가능성에 대해 이야기 나누고 싶어요 🙌 📌 협업 기간: 6개월 📌 매월: 영상 2개 장기적이고 안정적으로 협업을 진행할 예정이며, 매달 꾸준히 작업을 진행할 수 있기 때문에 혹시 장기 협업 조건으로 영상 1개당 XXXX USD로 진행 가능할지 문의드리고 싶습니다. 크리에이터님 입장에서도 보다 안정적인 수익원이 될 수 있고, 추후 새로운 기능이나 새로운 주제가 나올 때도 우선적으로 협업 제안을 드릴 예정입니다~ 관심 있으시다면 장기 협업 계약서를 새로 작성해서 전달드릴게요 🙂",
+      "日语": "こんにちは〜 長期的なコラボの可能性についてご相談したいです 🙌 📌 契約期間：6ヶ月 📌 毎月：動画2本 長期かつ安定したコラボとなり、毎月継続的に案件をご依頼できるため、 長期契約価格として、1本あたり XXXX USD でご相談可能でしょうか？ クリエイター様にとっても安定した収入源になるかと思いますし、 今後新機能や新しいテーマが出た際にも優先的にご依頼させていただきます〜 もしご興味がありましたら、長期契約用の新しい契約書をご用意いたします 🙂",
+      "西语": "¡Hola! Nos gustaría hablar contigo sobre una posible colaboración a largo plazo 🙌 📌 Duración de la colaboración: 6 meses 📌 Cada mes: 2 videos Como sería una colaboración estable y continua, con un volumen fijo cada mes, queríamos preguntarte si sería posible ofrecer una tarifa especial de largo plazo de XXXX USD por video. Para ti también sería una fuente de ingresos más estable, y además te contactaremos primero para futuras funciones o nuevas ideas de contenido~ Si te interesa, podemos prepararte un nuevo contrato de colaboración a largo plazo para revisarlo 🙂",
+      "葡语": "Oi~ Gostaríamos de conversar sobre a possibilidade de uma parceria de longo prazo 🙌 📌 Duração da parceria: 6 meses 📌 Por mês: 2 vídeos Como seria uma colaboração estável e contínua, com uma quantidade fixa de trabalhos todos os meses, queríamos saber se seria possível oferecer um valor especial de longo prazo de XXXX USD por vídeo. Para você também seria uma fonte de renda mais estável, e além disso, daremos prioridade para você em futuras campanhas, novos recursos e novos temas~ Se tiver interesse, podemos preparar um novo contrato de parceria de longo prazo para sua análise 🙂"
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-3-row-1",
+    "scene": "私信和邮件",
+    "fields": {
+      "中文": "私信和邮件",
+      "日语": "1️⃣私信通用 こんにちは、ReccoというAIアプリのチームです。 あなたの動画を拝見し、コンテンツの雰囲気がとても素敵だと思いご連絡いたしました。 Reccoは、音声を録音するだけで自動的に文字起こし・要約・ToDo整理まで行えるAIメモアプリです。 現在、約40秒のショート動画（Reels / TikTok / YouTube Shorts）でのコラボレーションをお願いできる方を探しております。 本案件は広告利用（広告配信）も想定しております。 ご興味がございましたら、ご希望の料金をご教示いただけますと幸いです。 よろしくお願いいたします。 2️⃣邮件通用 【Recco】AIアプリ・コラボレーションのご相談 クリエイター様 お世話になっております。 Recco AIチームのBellaと申します。 いつも投稿を拝見しており、その独創的で魅力的なコンテンツスタイルが、弊社のブランドイメージと非常に親和性が高いと感じ、ご連絡させていただきました。 この度、短尺動画のキャンペーンにおいて、ぜひお力添えをいただきたく考えております。 詳細は以下の通りです。 【案件概要】 1.内容：指定のテーマに沿った動画制作（構成・脚本は事前にご相談・確認させていただきます） 2.形式：縦型動画（40秒以内） 3.投稿先：Instagram Reels / TikTok / YouTube Shorts 4.二次利用：二次利用について ＋ 広告運用（Spark Ads等） もし本案件にご興味をお持ちいただけましたら、上記パッケージでの**ご実施料金（お見積り）**をご教示いただけますでしょうか。 お忙しいところ恐縮ですが、ご検討のほど何卒よろしくお願い申し上げます。 Recco Team Bella {name}様 X 【Recco】コラボレーションのご相談 {name}様 お世話になっております。 Recco AIチームのBellaと申します。 いつも{name}様の投稿を拝見しており、その独創的で魅力的なコンテンツスタイルが、弊社のブランドイメージと非常に親和性が高いと感じ、ご連絡させていただきました。 この度、短尺動画のキャンペーンにおいて、ぜひ{name}様にお力添えをいただきたく考えております。 詳細は以下の通りです。 商品名： Recco (レコ) カテゴリー： AI録音・自動文字起こし・メモ管理アプリ ターゲット： 効率化オタク、ビジネスパーソン 【案件概要】 内容：指定のテーマに沿った動画制作（構成・脚本は事前にご相談・確認させていただきます） 形式：縦型動画（40秒以内） 投稿先：Instagram Reels / TikTok / YouTube Shorts 二次利用：二次利用について ＋ 広告運用（Spark Ads等） もし本案件にご興味をお持ちいただけましたら、上記パッケージでの**ご実施料金（お見積り）**をご教示いただけますでしょうか。 ご検討のほど、何卒よろしくお願い申し上げます。 Recco Team Bella 3️⃣邮件一人分饰两角 コラボのご相談 | Recco AI Note はじめまして。 AIメモアプリ**「Recco（レコ）」**チームの Bella（ベラ） です。 貴殿のクリエイティビティ溢れる動画を拝見し、ぜひプロモーションをご相談したくご連絡しました。 【ご依頼内容】 内容：一人二役のドラマ仕立てで、職場や私生活のトラブル（言った言わない等）をReccoで解決するシーン。 形式：40秒以内の縦型動画。 公開：Instagram Reels / TikTok / YouTube Shortsの3プラットフォームへの投稿。 二次利用：弊社アカウントでの広告運用（広告譲渡）を含む。 参考動画をお送りしますので、まずはこちらをご確認ください。 https://www.instagram.com/reel/DONvrbcD-fo/?igsh=NHpsODAzM2I1M2pl もしご興味をお持ちいただけましたら、**上記内容での制作費用（目安）**をご提示いただけますでしょうか。 ご検討のほど、よろしくお願いいたします。 Recco Team Bella 4️⃣邮件短剧发布 〇〇様へ｜コラボのご相談 | Recco AI Note xxx様 はじめまして。ReccoチームのVickyと申します。 この度は、スキット（寸劇）形式の動画コラボにご興味があるかお伺いしたく、ご連絡いたしました。 Reccoは、音声をAIで自動的にノート化できるAIメモアプリで、現在は夫婦間や職場でのトラブルをテーマに、「録音＋AIノート」で自分の権利を守るというコンセプトの動画制作をご相談しております。 具体的には、 約60秒の広告動画を制作していただき、 Instagram Reels・TikTok・YouTube Shortsのいずれか（または複数）に投稿していただく形を想定しております。 もしご興味がございましたら、 ご希望の料金をお知らせいただけますと幸いです。 ご返信をお待ちしております。 どうぞよろしくお願いいたします。 Recco Team Vicky 5️⃣邮件短剧，发布还是不发布，各自的价格 〇〇様へ｜コラボのご相談 | Recco AI Note 〇〇様 はじめまして。ReccoチームのVickyと申します。 この度は、スキット（寸劇）形式の動画コラボについてご相談させていただきたく、ご連絡いたしました。 Reccoは、音声をAIで自動的にノート化できるAIメモアプリで、 現在は「録音＋AIノートで自分の権利を守る」というコンセプトのショートドラマ動画を制作しております。 内容としては、**夫婦間や職場でのトラブルをテーマにした短いストーリー動画（約60秒）**を想定しております。 今回のコラボでは、以下の2つの形式をご提案可能です。 ① 投稿コラボ形式 ・動画を制作いただき、 Instagram Reels / TikTok / YouTube Shorts などのアカウントに投稿していただく形 ② 制作（バイアウト）形式 ・動画を撮影・編集していただき、 完成動画を弊社に納品いただく形（投稿は弊社アカウントで行います） もしご興味がございましたら、 それぞれの形式について**ご希望の料金（お見積り）**をお知らせいただけますと幸いです。 ご検討のほど、よろしくお願いいたします。 Recco Team Vicky",
+      "繁中": "邮件通用 {name} X 【Recco】AI筆記APP合作邀約 您好 {name}， 我是 Recco 團隊的 Bella，很高興與您聯繫。 平時都有關注您的內容，覺得您的風格非常有特色，也與我們品牌調性相當契合，因此特別來與您聯繫合作事宜。 我們目前正在推廣一款新產品 Recco，是一款結合 AI 錄音、逐字稿與筆記管理 的應用程式。 以下為本次合作概要： 📌 目標族群：重視效率的創作者、上班族 📌 合作內容： 依指定主題製作影片（腳本可事前一起討論） 形式：直式短影音（40 秒內） 發布平台：Instagram Reels / TikTok / YouTube Shorts 使用權：包含廣告投放（如 Spark Ads） 和二次利用（如上傳recco官方賬號推廣） 若您有興趣，想請您提供本次合作的報價與相關資訊，方便我們進一步討論。 期待有機會與您合作，謝謝！ 邮件-无名字的 【Recco】AI筆記APP合作邀約 您好， 我是 Recco 團隊的 Bella，很高興與您聯繫。 平時都有關注您的內容，覺得您與我們品牌調性相當契合，因此特別來與您聯繫合作事宜。 我們目前正在推廣一款新產品 Recco，是一款結合 AI 錄音、逐字稿與筆記管理的應用程式。 了解更多： https://www.instagram.com/reccoapp.official/ 或直接下載 App，免費試用！ 以下為本次合作概要： 📌 目標族群：重視效率的創作者、上班族 📌 合作內容： 依指定主題製作影片（腳本可事前一起討論） 形式：直式短影音（40 秒內） 發布平台：Instagram Reels / TikTok / YouTube Shorts 使用權：包含廣告投放（如 Spark Ads） 和二次利用（如上傳recco官方賬號推廣） 若您有興趣，想請您提供本次合作的報價與相關資訊，方便我們進一步討論。 期待有機會與您合作，謝謝！ 私信",
+      "西语": "私信 🫡Colaboración Pagada ¡Hola! Somos el equipo de Recco y nos encanta tu contenido. Creemos que tu estilo encaja perfectamente con nuestra marca. Recco es una app de IA que transforma grabaciones en notas limpias, resúmenes y listas de tareas (to-do lists). Buscamos una colaboración para un video de unos 50s en Instagram, TikTok y YouTube. Si estás interesado/a, ¿podrías enviarnos tus tarifas? ¡Nos encantaría trabajar contigo! gmass邮件 📚[红人名字] x Recco App | Propuesta de Colaboración Pagada Hola, [红人名字]: Somos el equipo de Recco App. Nos encanta tu contenido y creemos que tu estilo es perfecto para nuestra marca. Recco es una app de IA que convierte grabaciones en notas limpias, resúmenes y listas de tareas. Buscamos una colaboración para un video de ~50s (IG Reels, TikTok y YouTube Shorts). Si estás disponible, por favor envíanos tus tarifas (rates). Puedes buscarnos en Instagram como @reccoapp.official para ver más detalles. Quedo atento a tu respuesta. Saludos, Vicky Recco Team 普通邮件 📚Propuesta de Colaboración Pagada | Recco App Hola, Somos el equipo de Recco App. Nos encanta tu contenido y creemos que tu estilo es perfecto para nuestra marca. Recco es una app de IA que convierte grabaciones en notas limpias, resúmenes y listas de tareas. Buscamos una colaboración para un video de ~50s (IG Reels, TikTok y YouTube Shorts). Si estás disponible, por favor envíanos tus tarifas (rates). Puedes buscarnos en Instagram como @reccoapp.official para ver más detalles. Quedo atento a tu respuesta. Saludos, Vicky Recco Team",
+      "葡语": "🫡 Colaboração Paga Olá! Somos a equipe do Recco e adoramos o seu conteúdo. Acreditamos que o seu estilo combina perfeitamente com a nossa marca. O Recco é um app de IA que transforma gravações em notas limpas, resumos e listas de tarefas (to-do lists). Buscamos uma colaboração para um vídeo de cerca de 50s no Instagram, TikTok e YouTube. Se você tiver interesse, poderia nos enviar as suas tarifas? Adoraríamos trabalhar com você! 邮箱 📚 [红人id] x Recco App | Proposta de Colaboração Paga Olá, [红人id]: Somos a equipe da Recco App. Adoramos o seu conteúdo e acreditamos que o seu estilo combina perfeitamente com a nossa marca. A Recco é um aplicativo de IA que transforma gravações em notas organizadas, resumos e listas de tarefas. Estamos procurando uma colaboração para um vídeo de aproximadamente 50 segundos (IG Reels, TikTok e YouTube Shorts). Se tiver disponibilidade, por favor envie os seus valores (rates). Você pode nos encontrar no Instagram em @reccoapp.official para conhecer mais sobre o projeto. Fico aguardando sua resposta. Atenciosamente, Vicky Recco Team",
+      "韩语": "안녕하세요! Recco 팀입니다. 😊 평소에 올려주신 콘텐츠를 잘 보고 있으며, 크리에이터님의 스타일이 저희 브랜드와 잘 맞는다고 생각하여 협업 제안을 드립니다. 현재 저희는 Recco라는 새로운 제품을 홍보하고 있습니다. Recco는 AI 녹음, 텍스트 변환, 노트 관리 기능을 결합한 앱입니다. 📌 협업 개요: 타겟: 생산성을 중요시하는 직장인 콘텐츠: 지정된 주제로 영상 제작 (스크립트 사전 협의 가능) 형식: 세로형 숏폼 영상 (40초 이내) 플랫폼: Instagram Reels / TikTok / YouTube Shorts 사용권: 광고 활용(Spark Ads) 및 2차 활용 포함 관심 있으시다면 협업 비용과 관련 정보를 공유해주시면 감사하겠습니다. 좋은 협업 기회가 되길 기대합니다! 私信2 🫡 유료 협업 제안 안녕하세요! 저희는 Recco 팀입니다 😊 평소 콘텐츠를 정말 재미있게 보고 있었고, 크리에이터님의 스타일이 저희 브랜드와 잘 어울린다고 생각해 연락드리게 되었습니다. Recco는 녹음 파일을 AI로 정리하여 노트, 요약, To-do 리스트까지 만들어주는 앱입니다. 현재 Instagram / TikTok / YouTube Shorts용 약 50초 분량의 협업 영상을 함께 제작해 주실 크리에이터를 찾고 있습니다 🙂 관심 있으시다면 가능하신 단가를 공유해 주실 수 있을까요? 함께 좋은 협업을 할 수 있으면 좋겠습니다!",
+      "英语": "Paid Collaboration 🥰 Hi! This is the Recco app team. We love your videos and think your style would be a great match for Recco. Recco is an AI app that helps turn audio into notes, with automatic summaries and to-do lists. We’re looking for a 50-second video highlighting the app’s features on your instagram, TikTok and YouTube. If you’re interested, please share your rates. Thanks so much! 🤍 私聊版本2 🤍Paid Collaboration Hi there! We’re the Recco app team, and we think your style would be perfect for showcasing our product. Recco is an AI app that converts audio into clean notes, summaries, and to-do lists. We’re looking for a ~50s video on Instagram, TikTok, and YouTube. Would love to hear your rates if you're open to collaborating! 邮件 {name} X Recco AI APP– Collaboration Inquiry Hi {name}, I’m Bella from the Recco AI team. We’ve been following your content and think your style is a perfect match for what we’re looking for! We’d love to partner with you for a short-form video campaign. Here’s a quick brief: 1️⃣Content: We will provide you a topic and we can discuss the script together. 2️⃣Format: Vertical video (< 40 seconds). 3️⃣Platforms: IG Reels, TikTok, and YouTube Shorts. 4️⃣Usage: Repost + Spark Ads / Whitelisting. If you’re interested, could you please share your estimated rates for this package? Best, Bella Recco Team"
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-4-row-1",
+    "scene": "对面主动私信我们了，问一下对面价格，有参考就给参考",
+    "fields": {
+      "中文": "对面主动私信我们了，问一下对面价格，有参考就给参考",
+      "日语": "お世話になっております。 この度は、素敵なご提案をいただき誠にありがとうございます！ 以下のパッケージ内容での「ご実施料金（お見積り）」をご教示いただけますでしょうか？ ■ご依頼内容（想定）： ・内容：Recco（AI録音・文字起こしアプリ）の紹介動画制作 ・形式：ショート動画（縦型） ・投稿先：Instagram / TikTok / YouTube ・二次利用：広告運用など よろしくお願いいたします。",
+      "繁中": "\"} 您好， 非常感謝您提供這麼棒的合作提案！ 想請問一下，針對以下合作內容，您的合作報價大約是多少呢？ ■ 合作內容（預計） ・內容：Recco（AI 錄音／語音轉文字 App）介紹影片製作 ・形式：短影音（直式） ・發布平台：Instagram / TikTok / YouTube ・二次使用：廣告投放等用途 期待您的回覆，謝",
+      "西语": "口播 ¡Muchas gracias por tu interés en colaborar con nosotros! 🙌 ¿Podrías compartirnos tu tarifa para el siguiente paquete? 1️⃣Contenido: video de presentación de Recco (app de grabación y transcripción con IA) 2️⃣Formato: video corto en vertical 3️⃣Plataformas: Instagram / TikTok / YouTube 4️⃣Uso adicional: uso publicitario y reutilización del contenido 5️⃣Referencia: Muchas gracias de antemano 😊 街采 ¡Muchas gracias por tu interés en colaborar con nosotros! 🙌 ¿Podrías compartirnos tu tarifa para el siguiente paquete? 1️⃣Contenido: video en formato de entrevista en la calle (street interview) presentando Recco (app de grabación y transcripción con IA) 2️⃣Formato: video corto en vertical 3️⃣Plataformas: Instagram / TikTok / YouTube 4️⃣Uso adicional: uso publicitario y reutilización del contenido 5️⃣Referencia: Muchas gracias de antemano 😊",
+      "葡语": "4\"} Olá, Muito obrigado pela excelente proposta de colaboração! Gostaríamos de saber qual seria o seu orçamento para o seguinte pacote: ■ Detalhes da colaboração (previstos): ・Conteúdo: Vídeo apresentando o Recco (app de gravação e transcrição com IA) ・Formato: Vídeo curto vertical ・Plataformas: Instagram / TikTok / YouTube ・Uso secundário: anúncios/publicidade, etc. Ficamos no aguardo da sua resposta. Muito obriga",
+      "韩语": "안녕하세요. 좋은 협업 제안을 보내주셔서 감사합니다! 아래와 같은 조건으로 진행할 경우, 예상 견적(비용)을 공유해주실 수 있을까요? ■ 협업 내용(예정) ・내용: Recco(AI 녹음 및 음성 텍스트 변환 앱) 소개 영상 제작 ・형식: 숏폼 영상(세로형) ・업로드 플랫폼: Instagram / TikTok / YouTube ・2차 활용: 광고 운영 등 답변 기다리겠습니다. 감사합니다!"
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-5-row-1",
+    "scene": "小影其他项目合作过的红人，可以给rc复用的，会拉你进入她们的群聊，你介绍自己，然后询问是否可以新合作 注意一定要提及是否可以用之前的价格和合同。然后拉新群讨论 要涨价的再另说 话术： 您好！我是 Recco 团队的工作人员。 “Recco”",
+    "fields": {
+      "中文": "小影其他项目合作过的红人，可以给rc复用的，会拉你进入她们的群聊，你介绍自己，然后询问是否可以新合作 注意一定要提及是否可以用之前的价格和合同。然后拉新群讨论 要涨价的再另说 话术： 您好！我是 Recco 团队的工作人员。 “Recco”是一个AI 备忘录应用，它与 Rythmix/.../ 出自同一团队。我联系您是因为非常希望再次与您合作！ 我们可以以上次相同的定价和合同条款推进合作。 如果您有兴趣，我会创建一个群组，并提供更多详细信息。 谢谢",
+      "日语": "在其他产品群里介绍自己，拉新群 こんにちは！ReccoチームのBellaです。 Rythmixと同じチームのAIメモアプリ「Recco」を現在展開しており、 担当者からのご紹介でぜひまたご一緒できればと思いご連絡しました！ 条件は前回と同様の価格・契約でご相談可能です。 ご興味ありましたら、グループを作成して詳細をご案内させていただきます。 よろしくお願いいたします！",
+      "繁中": "您好！我是 Recco 團隊的 Bella 我們最近開發了一款新產品 Recco（與 Rythmix 同團隊）， 這次是透過您的聯絡人介紹，希望能再次與您合作 🙌 合作條件這邊可以 沿用上次的價格與合約方式。 如果您有興趣，我會幫忙建立群組並提供更詳細資訊～ 謝謝您！",
+      "西语": "1️⃣rm群里 ¡Hola! Soy del equipo de Recco (de los creadores de Rythmix). Te contacto porque nos gustaría colaborar contigo otra vez. Mantendríamos el mismo precio y términos de la última vez. Si te parece bien, puedo crear un grupo para coordinar los detalles. ¡Quedo atento/a a tu respuesta! Gracias.",
+      "韩语": "안녕하세요! Recco 팀입니다. Recco는 AI 메모 앱으로, 이전에 협업했던 Rythmix와 같은 팀에서 개발되었습니다. 다시 한 번 함께 협업할 수 있기를 희망합니다 😊 이전과 동일한 조건으로 진행 가능합니다. 관심 있으시면 그룹을 만들어 상세 안내 드리겠습니다. 감사합니다! 请到新群里推进合作~",
+      "葡语": "Olá! Sou da equipe da Recco 😊 A “Recco” é um aplicativo de anotações com IA, criado pela mesma equipe da Rythmix. Estou entrando em contato porque gostaríamos muito de colaborar com você novamente! Podemos seguir com o mesmo valor e os mesmos termos do contrato da parceria anterior. Se tiver interesse, vou criar um grupo e compartilhar mais detalhes da colaboração. Muito obrigada!",
+      "英语": "Hello! I’m from the Recco team. Recco is an AI memo app developed by the same team behind AI Catch. We’re reaching out because we’d really love to collaborate with you again on an English video to be posted on your platforms. We can proceed with the same pricing and contract terms as our previous collaboration. If you’re interested, I’ll create a group chat and share more detailed information with you. Looking forward to hearing from you — thank you so much!"
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-6-row-1",
+    "scene": "比如对面只回复自己感兴趣但是不报价，或者对面让你报价。你就发送合作详情（参考视频+brief），然后反问他价格 谢谢！ 我会发给你一个参考视频，请先看一下。 我设想的风格和方法大概是这样的。 在这种情况下，您期望的报酬是多少？ 这是我们的b",
+    "fields": {
+      "中文": "比如对面只回复自己感兴趣但是不报价，或者对面让你报价。你就发送合作详情（参考视频+brief），然后反问他价格 谢谢！ 我会发给你一个参考视频，请先看一下。 我设想的风格和方法大概是这样的。 在这种情况下，您期望的报酬是多少？ 这是我们的brief，请您查看后告知我们您的期望报酬",
+      "日语": "ありがとうございます！ 参考動画をお送りしますので、まずはこちらをご確認ください。 このような雰囲気・切り口を想定しているのですが、 この場合、ご希望の報酬はいくらくらいになりますでしょうか？",
+      "繁中": "感謝回復~ 以下是我們的參考視頻和brief，請查看后給出您的報價！",
+      "韩语": "아래 브리프를 확인하신 후, 희망하시는 협업 비용을 알려주시면 감사하겠습니다."
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-7-row-1",
+    "scene": "口播类",
+    "fields": {
+      "中文": "口播类",
+      "日语": "拉踩录音上传ai卡组鸭脚本 1. 今回のコンセプト 2025年現在、日本のクリエイターの間では「AI Chat」を活用したノート整理が話題となっています。 一方で、Reccoは「録音から整理、AIへの質問までをすべて1つのアプリで完結できる」という、よりシームレスな体験を提供します。 2. 訴求ポイント / セールスポイント ・オールインワン：録音、文字起こし、要約、整理までを1つのアプリで完結 ・チャット機能：自分のメモ内容をもとに、ChatGPTやGeminiのように質問が可能 ・話者識別：話者ごとの音声認識に対応 ・ウィジェット：シンプルで素早くアクセス可能 3. 構成・台本イメージ（参考） ・フック（冒頭） 「まだ録音したデータをわざわざAIサイトにアップロードしてノート作ってるの？正直ちょっと面倒じゃない？」 ・導入（Recco紹介） 「Reccoなら、録音から整理まで全部アプリ内で完結できるんです。」 ・チュートリアル（操作紹介） 「こんな感じで録音すると、自動で文字起こし・要約までしてくれて、 さらに自分のノートをもとにチャットで質問もできます。」 ・締め 「ノート管理はこれ1つで十分かも。」 4. 制作リファレンス ・スタイル：テンポの良い編集 ・形式：実際の操作画面を見せるガジェット紹介風 5.広告利用について ・今回の動画については、**広告利用およびコンテンツの二次利用（例：弊社公式アカウントでの投稿など）**の許可をお願いしております。 拉踩硬件 ① ハードウェア系AI録音機器との比較 Hook 「まだ高価なAI録音デバイスを使っていますか？ 録音とメモのためだけに、そんなにお金をかける必要はありません。」 ※ECサイト上の複数の録音デバイス価格を表示（特定商品を強調しない） 解決策 「Reccoなら、これらのデバイスにある機能をほぼすべて搭載。しかも、もっと手頃な価格です。」 APP DEMO アプリ画面録画で2〜3機能を紹介（10〜20秒程度） 拉踩传统笔记（notion等传统笔记类app） 従来のノートアプリとの比較（Notionなど） Hook 「まだ昔ながらの方法でメモしてる？」 悩み 手入力だと時間がかかるし、重要ポイントを見逃しやすい。 解決策 Reccoなら、録音後すぐにAIノートを自動生成。 チュートリアル APP DEMOで使い方を紹介。 快速会议会后遗忘 Hook 「30秒で会議メモ完成！」 悩み 会議が終わった後、あるいは会議中ですら内容を忘れてしまう。 解決策 Reccoなら、録音するだけでAIが自動でノート生成。 チュートリアル APP DEMOで使い方を紹介。 走心理战不被老板骂 「今回の動画構成について、以下の『流れ』と『キーワード』を盛り込んでいただけますでしょうか？ 1.冒頭のフック（状況設定）： 上司から『今日の会議録、まだ？』と催促されたり、詰められたりする緊迫したシーンや、大量のメモに追われる『会議録の悩み』からスタートしてください。 2.解決策（Reccoの導入）： そこでReccoを使い、『録音・文字起こし・AI要約』までをスマホ1つで爆速で終わらせる様子を見せてください。 3.ベネフィット（職場の成功）： 単なる便利ツールではなく、『これ1つで仕事がデキる人になれる』『余裕を持って会議に集中できる』といった、職場での成功や効率化のメリットを強調していただければ幸いです。 [您]のいつものスタイルで、視聴者が『これさえあればもう怒られない！』と思えるような、インパクトのある脚本をお待ちしております！」",
+      "繁中": "快速会议会后遗忘 hook：30秒做会议记录！ 痛点：会议之后，甚至会议中就已经把会议内容忘得七七八八了 解决：使用recco，录完音直接生成笔记 教程：app demo展示 拉踩gpt 否定GPT整理录音流程→ 一键录音/免费试用替代 → 展示声纹识别与AI提问能力 → CTA 功能需提到“识别不同人的声音” 画面需有“开会时手机丢桌上按录音”，用户容易理解怎么用。 拉踩录音上传ai卡组鸭脚本 Hook 「你還在把錄音檔下載下來，再上傳到 AI 才整理筆記嗎？其實已經不用這麼麻煩了。」 ·解決方案 「Recco 可以直接在 App 裡完成錄音、整理、摘要，甚至還能直接問問題。」 賣點 一個 App 完成全部流程 不用再上傳 可直接對筆記做 AI 問答 結論 「如果你常做筆記整理，這個真的會方便很多。」 拉踩硬件 Hook 「你還在使用昂貴的ai錄音設備嗎？爲了一個筆記和錄音花這麽多錢真沒必要」展示購物平臺這些硬件的價格，不要給某一個產品特寫 ·解決方案 「Recco具備這些硬件擁有的所有功能，而且還更便宜」 ·APP DEMO app錄屏挑選2-3個功能使用，10-20秒左右 拉踩传统笔记（notion等传统笔记类app） hook：还在用传统的方式记笔记吗？ 痛点： 解决：使用recco，录完音直接生成笔记 教程：app demo展示 会议偷录脚本 主题：職場打工人“保护自己”必備的app！ Hook（可以用AI畫面） 「如果你要進會議室談事情，記得先做一件事——先把這個軟體打開。」 （手機在桌下偷偷打開recco錄音） 口播 「不是多心，是你真的需要保護自己。很多話當下聽過就忘，之後根本說不清楚。」 「我現在都會用這個 App——Recco，先錄下來。」 （畫面：點擊錄音） 「但重點不是錄音，是它會自動幫你整理成 AI 筆記。」 （畫面：語音 → 文字 → 重點整理） 强卖点 「你不用自己記、也不用重聽，重點直接幫你抓好。」 「有紀錄、有整理，事情才講得清楚。」 CTA 「如果你也想在職場多一點保障，這個真的可以試試。」",
+      "西语": "拉踩录音上传ai卡组鸭脚本 仅idea版本 Propuesta de Guion (puedes adaptarlo a tu estilo): -Hook (Gancho): \"¿Sigues descargando audios para luego subirlos a otra IA y recién ahí organizar tus notas? Ya no tiene que ser tan complicado\". -Solución: \"Recco te permite grabar, organizar y resumir directamente en la app. Incluso puedes hacerle preguntas específicas a tus notas\". -Puntos clave (Selling Points): Todo el proceso en una sola app. Sin necesidad de subir archivos externos. Chat con IA directamente sobre tus notas. 比较全版本 Hola! Te comparto un brief rápido para la colaboración: 1️⃣Video Tema: Google ai studio vs Recco Duración: menos de 60s Guion: lo proporcionamos nosotros Referencia: te la dejamos abajo 2️⃣Plataformas: Instagram Reels + TikTok + YouTube Shorts 3️⃣Uso: incluiría uso para ads y repost en nuestras cuentas 4️⃣Timing: borrador en unos 3 días tras confirmar publicación coordinada 5️⃣Pago: vía PayPal, 3–5 días después de recibir links + ad codes ¿Podrías compartirnos tu tarifa basada en este brief? 😊 拉踩昂贵硬件 Empezar mostrando dispositivos caros de grabación con IA (puedes mostrar precios en Amazon u otras plataformas, pero sin mencionar una marca específica). Después, explicar que Recco es una opción mucho más práctica y económica, con todas las funciones necesarias integradas en una sola app. 拉踩传统笔记（notion等传统笔记类app） Comparación con apps tradicionales de notas (Notion, etc.) Hook “¿Todavía tomas notas de la forma tradicional?” Dolor Escribir manualmente toma tiempo y es fácil perder información importante. Solución Con Recco, grabas el audio y las notas se generan automáticamente. Tutorial Mostrar APP DEMO. 快速会议会后遗忘 Olvidar el contenido de reuniones rápidamente Hook “¡Haz notas de reunión en solo 30 segundos!” Dolor Después de la reunión —o incluso durante ella— ya olvidaste gran parte del contenido. Solución Con Recco, solo grabas y la app genera automáticamente las notas. Tutorial Mostrar el funcionamiento con APP DEMO.",
+      "韩语": "拉踩录音上传ai卡组鸭脚本 1️⃣ 영상 주제: Other AI vs Recco 길이: 60초 이하 스크립트: 제공 예정 2️⃣ 플랫폼: Instagram / TikTok / YouTube Shorts 3️⃣ 사용: 광고 활용 및 리포스트 포함 4️⃣ 일정: 초안 3일 내 제출 5️⃣ 결제: PayPal, 게시 후 3~5일 내 지급 拉踩录音上传ai卡组鸭脚本，具体版本 Hook \"녹음 파일을 따로 다운로드해서 AI에 다시 업로드하고 계신가요?\" 솔루션 \"Recco 하나로 녹음부터 정리, 요약까지 모두 가능합니다.\" 포인트 하나의 앱으로 모든 과정 해결 업로드 필요 없음 AI 질문 가능 결론 \"노트 정리를 자주 한다면 정말 편리합니다!\" 拉踩昂贵硬件 AI 녹음 하드웨어 비교 Hook “아직도 비싼 AI 녹음 기기를 사용하고 있나요? 단순 녹음과 메모를 위해 그렇게 많은 돈을 쓸 필요는 없어요.” ※ 쇼핑몰에서 여러 기기의 가격을 보여주되 특정 제품 클로즈업은 하지 않기 해결 방법 “Recco는 이런 기기들이 가진 기능을 대부분 제공하면서도 훨씬 저렴합니다.” APP DEMO 앱 화면 녹화로 2~3가지 기능 소개 (10~20초 정도) 拉踩传统笔记（notion等传统笔记类app） 전통적인 노트 앱 비교 (Notion 등) Hook “아직도 전통적인 방식으로 메모하시나요?” 문제점 직접 입력하느라 시간이 오래 걸리고 중요한 내용을 놓치기 쉽다. 해결 방법 Recco는 녹음 후 바로 AI 노트를 자동 생성해준다. 튜토리얼 APP DEMO로 기능 시연. 快速会议会后遗忘 Hook “30초 만에 회의록 완성!” 문제점 회의가 끝난 후는 물론, 회의 중에도 내용을 거의 잊어버린다. 해결 방법 Recco로 녹음만 하면 바로 AI 노트 생성. 튜토리얼 APP DEMO로 사용 방법 소개.",
+      "葡语": "拉踩录音上传ai卡组鸭脚本 🎬 Hook “Você ainda baixa o áudio e depois envia para uma IA para organizar as notas? Na verdade, isso já não precisa ser tão complicado.” 💡 Solução “O Recco permite gravar, organizar, resumir e até fazer perguntas diretamente dentro do app.” ✨ Pontos principais • Todo o processo em um único app • Sem precisar fazer upload • IA integrada para conversar com suas anotações ✅ Conclusão “Se você faz muitas anotações ou reuniões, isso realmente pode facilitar bastante a sua rotina.” 拉踩昂贵硬件 Hook “Ainda usa equipamentos caros de gravação com IA? Não faz sentido gastar tanto dinheiro só para gravar e fazer anotações.” ※ Mostrar preços de vários dispositivos em plataformas de compra, sem destacar uma marca específica. Solução “O Recco oferece praticamente todas as funções desses dispositivos — e ainda custa menos.” APP DEMO Mostrar 2-3 funções usando gravação de tela do app (10-20 segundos). 拉踩传统笔记（notion等传统笔记类app） Comparação com apps tradicionais de notas (Notion etc.) Hook “Ainda faz anotações da forma tradicional?” Problema Digitar tudo manualmente leva tempo e é fácil perder pontos importantes. Solução Com o Recco, você grava e o AI gera automaticamente as notas. Tutorial Mostrar APP DEMO. 快速会议会后遗忘 Hook “Faça atas de reunião em apenas 30 segundos!” Problema Depois da reunião — ou até durante ela — você já esqueceu boa parte do conteúdo. Solução Com o Recco, basta gravar o áudio e as notas são geradas automaticamente. Tutorial Mostrar o funcionamento com APP DEMO. 街采 拉踩gpt Scene 1 Interviewer: ChatGPT ou Recco? Qual você usa mais para fazer anotações? Pessoa A: Recco! Interviewer: Por quê? Pessoa A: \"Porque eu não gosto de ficar pensando no prompt perfeito toda hora. Eu só aperto gravar e o Recco já transforma tudo em notas organizadas.\" Scene 2 Interviewer: Se você acabou de sair de uma reunião, ChatGPT ou Recco? Pessoa B: Recco, com certeza. Interviewer: Sério? Por quê? Pessoa B: \"Com o ChatGPT eu ainda preciso organizar as informações antes. No Recco ele já separa os pontos principais e as tarefas sozinho.\" Scene 3 Interviewer: Qual é o seu aplicativo de IA favorito para produtividade: ChatGPT ou Recco? Pessoa C: Recco. Interviewer: Por quê? Pessoa C: \"ChatGPT é ótimo para conversar, mas eu só quero registrar minhas ideias rápido. O Recco faz tudo automaticamente e me economiza muito tempo.\" Reasons(alternative) 1 \"Eu uso o Recco porque não preciso digitar nada. Falo normalmente e ele já organiza tudo para mim.\" 2 \"Com o ChatGPT eu preciso explicar o contexto toda vez. O Recco entende minhas gravações e já entrega tudo pronto.\" 3 \"Eu sou muito distraído para fazer anotações. O Recco lembra dos detalhes que eu normalmente esqueceria.\" 4 \"Depois de uma reunião eu não quero passar mais vinte minutos organizando notas. O Recco faz isso em segundos.\" 5 \"Eu gosto do ChatGPT para pesquisar coisas. Mas para registrar ideias e reuniões, o Recco é muito mais prático.\" 6 \"Eu só coloco o celular na mesa e começo a falar. Quando termino, minhas notas já estão prontas.\" 7 \"ChatGPT me ajuda a pensar. Recco me ajuda a não esquecer.\" 8 \"Eu uso Recco todos os dias porque ele transforma conversas longas em resumos claros e fáceis de revisar.\" 9 \"Com o Recco eu encontro as tarefas importantes muito mais rápido. Não preciso reler páginas de anotações.\" 10 \"Eu queria algo mais simples que o ChatGPT para reuniões e aulas. Foi por isso que comecei a usar o Recco.\" [Scene 4] App Demo Interviewer: \"Vou te mostrar rapidinho.\" \"Imagina que você acabou de sair de uma reunião.\" \"Em vez de abrir o ChatGPT e escrever um monte de instruções...\" \"Eu simplesmente abro o Recco e começo a gravar.\"",
+      "英语": "小组件 Product Details -Recco is an AI app that turns recordings into clear, structured notes and summaries. -For more details, you can download the app (it has a free version) or check out our Instagram: https://www.instagram.com/reccoapp.official/ Script Concept (Feel free to adapt to your style): -The Hook: start by showing the widget of Recco \"Want this cute recording and notetaking widget?.\" -Show how Recco records, organizes, and summarizes everything in one place. -Key Selling Points: All-in-one workflow (no external uploads). Direct AI Chat feature to ask your notes specific questions. Simple widgets to work more efficient Ideal Timeline: -Day 1: Finalize script/concept. -Day 3: Delivery of the edited video. -Within 7 Days: Video goes live. Let me know if this works for you! ai小说 Here’s the content direction we have in mind: Recco is an AI note-taking app that can polish users’ writing, chat with them, expand ideas, and even help generate full articles or stories. For this campaign, we’d love to create a concept where a female user uploads her own novel idea / diary / story concept, and Recco turns it into a complete article or even a short novel automatically. Timeline: Script finalized within 3 days after confirmation Filming completed within 5 days Video posted within 7 days"
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-7-row-2",
+    "scene": "街采类",
+    "fields": {
+      "中文": "街采类",
+      "繁中": "拉踩gpt",
+      "西语": "Hola! Te comparto un brief rápido para la colaboración: 1️⃣Video Tema: Notion vs Recco Duración: menos de 60s Guion: lo proporcionamos nosotros Referencia: te la dejamos abajo 2️⃣Plataformas: Instagram Reels + TikTok + YouTube Shorts 3️⃣Uso: incluiría uso para ads y repost en nuestras cuentas 4️⃣Timing: borrador en unos 3 días tras confirmar publicación coordinada 5️⃣Pago: vía PayPal, 3–5 días después de recibir links + ad codes ¿Podrías compartirnos tu tarifa basada en este brief? 😊",
+      "葡语": "Olá! Compartilho aqui um brief rápido para a colaboração 😊 1️⃣ Vídeo Tema: Notion vs Recco Duração: menos de 60s Roteiro: será fornecido por nós Referência: deixaremos abaixo 2️⃣ Plataformas Instagram Reels + TikTok + YouTube Shorts 3️⃣ Uso Inclui uso para anúncios e repost nas nossas contas 4️⃣ Prazo Primeiro rascunho em cerca de 3 dias após a confirmação + publicação coordenada 5️⃣ Pagamento Via PayPal, em 3–5 dias após recebermos os links e códigos de anúncio Você poderia compartilhar o seu valor com base neste brief? 😊"
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-7-row-3",
+    "scene": "剧情类 1.内容：本次合作是一个剧情视频，分享脚本： 2. 对于首次合作我们一般是只合作一条并发布三个平台 3. 一般推荐优先使用paypal支付，但是没有的话用银行也可以 4. 截止时间希望是确定合作后的3天内给出初稿 7天内完成发布 5",
+    "fields": {
+      "中文": "剧情类 1.内容：本次合作是一个剧情视频，分享脚本： 2. 对于首次合作我们一般是只合作一条并发布三个平台 3. 一般推荐优先使用paypal支付，但是没有的话用银行也可以 4. 截止时间希望是确定合作后的3天内给出初稿 7天内完成发布 5.需要获得您的广告授权与内容二次使用权（例如我们会上传到官方账号进行宣传）",
+      "日语": "一男一女 以下、今回のコラボに関する簡単な概要（Brief）をご共有いたします。 【1. 動画内容】 ・今回の動画はスキット（寸劇）形式のストーリー動画を想定しております。 ・詳細については、脚本を共有いたしますのでご確認ください。 https://docs.google.com/document/d/1fPkZ4qLFpvVpWHjsfLidi5BP_Ftjzjlc/edit 【2. 動画本数・投稿】 ・初回コラボのため、1本の動画を制作いただき、YouTube Shorts / TikTok / Instagram Reels の3媒体に投稿いただく形を想定しております。 【3. お支払い方法】 ・基本的には PayPalでのお支払いを推奨しております。 ・もしPayPalが難しい場合は、銀行振込でも対応可能です。 【4. スケジュール】 ・コラボ確定後、3日以内に初稿をご提出いただき、 ・7日以内に動画公開をお願いできれば幸いです。 【5. 広告利用について】 ・今回の動画については、**広告利用およびコンテンツの二次利用（例：弊社公式アカウントでの投稿など）**の許可をお願いしております。 ご確認のほど、よろしくお願いいたします。 Recco Team Vicky 一人分饰两角 はじめまして。ご返信ありがとうございます。 以下、今回のコラボに関する簡単な概要（Brief）をご共有いたします。 【1. 内容】 ・今回の動画はスキット（寸劇）形式のストーリー動画を想定しております。 ・台本は2名出演を想定して作成しておりますが、もし可能であればお一人で二役の形にアレンジしていただいても問題ございません。 https://docs.google.com/document/d/1fPkZ4qLFpvVpWHjsfLidi5BP_Ftjzjlc/edit 【2. 動画本数・投稿】 ・初回コラボのため、1本の動画を制作いただき、YouTube Shorts / TikTok / Instagram Reels の3媒体に投稿いただく形を想定しております。 【3. お支払い方法】 ・基本的には PayPalでのお支払いを推奨しております。 ・もしPayPalが難しい場合は、銀行振込でも対応可能です。 【4. スケジュール】 ・基本的には、コラボ確定後7日以内の投稿を希望しておりますが、 ・スケジュールについてはみは様のご都合に合わせて調整可能です。 【5. 広告利用について】 ・今回の動画については、**広告利用およびコンテンツの二次利用（例：弊社公式アカウントでの投稿など）**の許可をお願いしております。 もしご不明点などございましたら、お気軽にご相談ください。 ご検討のほどよろしくお願いいたします。 Recco Team Vicky 很多男子 はじめまして。 ReccoチームのVickyです。 今回のコラボ内容について、簡単に概要をご共有いたします。 【1. 内容】 ・今回の動画はスキット（寸劇）形式のストーリー動画を想定しております。 ・脚本は一男一女の2名出演を想定して作成しておりますが、チャンネルのスタイルに合わせてアレンジしていただいて問題ございません。 脚本はこちらになります： https://docs.google.com/document/d/1fPkZ4qLFpvVpWHjsfLidi5BP_Ftjzjlc/edit 【2. お支払い方法】 ・基本的には PayPalでのお支払い を推奨しております。 ・もしPayPalが難しい場合は、銀行振込でも対応可能です。 【3. スケジュール】 ・通常は、コラボ確定後7日以内の投稿を希望しております。 ・ただし、スケジュールについてはご都合に合わせて調整可能です。 【4. 広告利用について】 ・今回の動画については、**広告利用およびコンテンツの二次利用（例：弊社公式アカウントでの投稿など）の許可をお願いしております。 ・使用期間は基本的に無期限（Unlimited）**を想定しておりますが、ご予算や条件に応じて調整することも可能です。 ご不明点などございましたら、お気軽にご相談ください。 ご検討のほど、どうぞよろしくお願いいたします。 Recco Team Vicky"
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-8-row-1",
+    "scene": "砍价常用具体可看话术，一般就是说 1️⃣没预算 2️⃣多做几个视频，这样单价优惠一点 3️⃣砍平台和广告期限 很高兴认识您。谢谢您的回复。 您提供的金额略微超出我们目前的预算， 所以，如果可以的话，能否商量一下78,000日元？ 我打算请您",
+    "fields": {
+      "中文": "砍价常用具体可看话术，一般就是说 1️⃣没预算 2️⃣多做几个视频，这样单价优惠一点 3️⃣砍平台和广告期限 很高兴认识您。谢谢您的回复。 您提供的金额略微超出我们目前的预算， 所以，如果可以的话，能否商量一下78,000日元？ 我打算请您制作一个视频，并发布到Instagram和TikTok上。 以后跟红人谈2个视频3个视频且多平台的时候 说清楚是几个不同的视频发布在不同的平台上哈 是拍2次不是发2次。可以说清楚是 Crossposting / Multi-platform distribution 多加5$给我们应用商店好评并截图ok吗？",
+      "日语": "好评！！ 「追加で5ドルお支払いするので、App Store に高評価レビューを書いてスクリーンショットを送っていただくことは可能ですか？」 预算不够砍价+双端 はじめまして。ご返信ありがとうございます。 ご提示いただいた金額ですが、弊社の今回の予算を少し超えてしまっておりまして、 もし可能でしたら 78,000円 でご相談させていただくことは可能でしょうか？ 内容としては、1本の動画を制作いただき、InstagramとTikTokの両方に投稿していただく形を想定しております。 预算紧张+减少平台砍价 ぜひご提案いただいた内容で進めたいところなのですが、今回は新アプリ（Recco）のリリース直後ということもあり、あいにく予算が非常にタイトでして…「450ドル」でなんとかお願いできないでしょうか。 その代わりと言っては何ですが、今回はマルチプラットフォーム展開（TikTok/YouTube）は抜きで、Instagramのリール投稿のみに絞っていただいても構いません。 これまでのご縁もありますので、この金額で一度お力添えいただけますと大変幸いです。ご検討のほど、何卒よろしくお願いいたします！ 预算紧张可以同意但是要催稿 ご相談ありがとうございます！ あいにく予算が非常にタイトなのですが、もし『3日以内に初稿』をいただけるようでしたら、なんとか調整して4万円（税込）でお願いしたいと考えております。 この条件でご了承いただけるようでしたら、すぐに社内で最終確認を進めさせていただきます！ タイトなスケジュールで恐縮ですが、ご検討いただけますと幸いです。何卒よろしくお願いいたします。",
+      "繁中": "好评返现5元！ 如果多加 5 美元，您可以幫我們在 App Store 留個好評並截圖給我們嗎？ 這邊很希望能照您提供的方案合作，不過目前因為新產品剛上線，預算確實比較有限 🙏 想詢問是否有機會以 450 USD 的預算進行合作呢？ 作為調整，我們這次也可以： 僅限 Instagram Reels 發布（不含其他平台） 也希望有機會延續之前的合作關係，謝謝您幫忙評估 🙇‍♀️ 這邊預算確實比較緊一點 🙏 如果可以在 3 天內提供初稿，我們可以協助調整到 4 萬日幣 的預算。 若您可以配合這個時程，我們會馬上安排內部確認！",
+      "葡语": "好评返现5元！ “Podemos adicionar mais 5 dólares se você puder deixar uma avaliação positiva na App Store e nos enviar um print, tudo bem?”",
+      "西语": "好评返现5元！ “¿Podemos añadir 5 USD extra si puedes dejarnos una buena reseña en la App Store y enviarnos una captura de pantalla?” 1.预算不够 Hola! Muchas gracias por compartir tu media kit Entendemos tus tarifas, pero para esta campaña tenemos un presupuesto más ajustado. Podríamos proponerte 150 USD por 2 video publicado en Instagram + TikTo",
+      "韩语": "好评返现5元！ “추가로 5달러를 드릴 테니, App Store에 좋은 리뷰를 남기고 스크린샷을 보내주실 수 있을까요?” 제안해주신 금액이 현재 예산을 약간 초과하고 있습니다. 혹시 조정 가능하실까요? 예시: 2개 영상 패키지로 단가 조정 가능 여부 Instagram + TikTok 포함 조건 단일 Reel 기준 가격 조정 预算不够 / 压价 현재 신규 제품 런칭 초기라 예산이 다소 제한적인 상황입니다 🙏 혹시 450 USD 예산으로 협업 진행 가능하실지 조심스럽게 여쭤보고 싶습니다. 또는 조정안으로, 이번에는 Instagram Reels 단독 업로드 형태로도 진행 가능합니다 🙂 加价换时效 현재 예산이 조금 타이트한 상황입니다 🙏 다만 3일 이내 초안 전달이 가능하시다면, 내부적으로 예산을 xxx 수준까지 조정해볼 수 있을 것 같습니다. 가능하신 경우 바로 내부 확인 진행하겠습니다! 这是我们的脚本和参考视频，如果您可以在本周给内给到初稿并发布的话，我们可以考虑35w韩元！ 이쪽은 저희 스크립트와 레퍼런스 영상입니다 🙂 만약 이번 주 내로 초안 전달 및 업로드까지 가능하시다면, 35만 원으로 진행도 긍정적으로 검토 가능합니다! 如果以上条件都可以的话，我们可以考虑30w！ 만약 위 조건들로 진행 가능하시다면, 30만 원으로도 긍정적으로 검토 가능합니다",
+      "英语": "Thanks for sharing! Since Recco is a new product, our budget is currently quite limited. For this stage, we’re typically working around $50 per video. Would that be something you’d be open to? Looking forward to your thoughts!"
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-9-row-1",
+    "scene": "支付相关的疑问",
+    "fields": {
+      "column_0": "支付相关的疑问",
+      "中文": "1️⃣询问我们是否会涵盖转账的手续费。yes。可以发送支付记录的截图（记得码掉kol的隐私信息），我们的支付金额不是一个整数，代表着我们会cover手续费 （例如合作金额是200刀，我们实际付款时202刀涵盖了手续费，对方实际收到的就是200刀，这些都会在支付记录上展示） 2️⃣需要预付的kol 先拒绝对面 给过往合作kol的支付聊天记录，安抚对方 3️⃣发了话术还坚持预付的，可以同意交初稿之后付一半，视频发布之后付另外一半，且仅支持paypal（paypal有撤回手段，银行无）",
+      "日语": "1️⃣手续费 PayPalの手数料は弊社で負担いたします！他クリエイター様への支払い実績のスクリーンショットを添付しますのでご確認ください。端数が出ているのは、手数料を含めて送金しているためです。 2️⃣拒绝预付 基本的には動画公開後のお支払いとなります。双方の安心のため、通常は契約書を締結させていただいております。もしご不安でしたら、過去の支払い実績も参考にしていただければと思います。 （发送截图） 3️⃣退一步方案：预付50%（初稿完成后支付） チームと相談したのですが、初稿（下書き）をご提出いただいた時点で50%を前払いし、残りの50%を動画公開後にお支払いする形であれば調整可能です。なお、この場合はPayPalでの送金のみとなりますが、いかがでしょうか？",
+      "繁中": "1️⃣ PayPal 手續費我們這邊會負擔， 也可以提供過往付款紀錄給您參考（已附截圖）。 2️⃣ 付款方式： 一般為 影片發布後付款（3–7 天內） 如果您有顧慮，也可以提供方案： 👉 初稿完成後先支付 50%，發布後再付 50%（PayPal）",
+      "韩语": "1️⃣ PayPal 수수료 PayPal 수수료는 저희가 부담하고 있습니다! 다른 크리에이터분들께 지급한 내역 캡처도 함께 첨부드리겠습니다. 금액 끝자리가 조금 다른 이유는 수수료까지 포함해 송금했기 때문입니다. 2️⃣ 선지급 관련 기본적으로는 영상 업로드 후 결제를 진행하고 있습니다. 양측 모두 안심하고 협업할 수 있도록 일반적으로 계약서를 함께 작성하고 있습니다 🙂 필요하시다면 이전 지급 내역도 참고해 주세요. (캡처 첨부) 3️⃣ 절충안 팀과 논의해본 결과, 초안 제출 시점에 50% 선지급 + 업로드 후 나머지 50% 지급 형태라면 조정 가능할 것 같습니다. 다만 이 경우 결제는 PayPal로만 가능한 점 참고 부탁드립니다 🙂",
+      "英语": "1️⃣Do you have paypal? Its a standard payment method for our company. Or you can choose bank transfer 2️⃣Yes, we do cover the service fee of paypal! Here are some screenshots of past payments made to other creators. You can see that the actual payment amounts are not rounded numbers, which indicates that we cover the transaction fees. 【发送其他红人付款截图，记得码隐私】 3️⃣Our standard collaboration process is to issue payment after the video has been published. To ensure both parties' interests, we typically sign a contract. If you have any concerns, we can provide screenshots of past payments made to other creators as a reference. （发送截图） 讲不通那就说预付一半 But I can discuss with the team. The best we can do for pre-payment, is to offer a 50% upfront payment once you submit the draft. The remaining 50% will be paid after the video is published. Please note that in this case, we can only process payments via PayPal."
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-10-row-1",
+    "scene": "您可以在google play 或 app store搜索【recco】下载app！ 这个应用有免费套餐，所以你可以直接使用，请不要点击订阅/试用。",
+    "fields": {
+      "中文": "您可以在google play 或 app store搜索【recco】下载app！ 这个应用有免费套餐，所以你可以直接使用，请不要点击订阅/试用。",
+      "日语": "このアプリには無料枠（チャージ）がありますので、有料プランに加入しなくてもそのままお使いいただけますよ。",
+      "韩语": "구글 플레이 또는 앱스토어에서 [recco]를 검색하셔서 다운로드해 주세요! 해당 앱은 무료로 사용할 수 있는 플랜이 있으니 바로 사용해 주시면 됩니다. 구독이나 체험판은 별도로 진행하지 않으셔도 됩니다 🙂"
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-11-row-1",
+    "scene": "1️⃣邮箱里让对方添加ig 完全没有问题！接下来请添加我的ins，我会在私信里和您一起推进合作 期待您的消息 2️⃣邮箱联系的 直接找对方ig打招呼 您好我是通过邮件和您联系的vicky 3️⃣私聊聊的，说拉群合作 4️⃣在其他项目群说要拉",
+    "fields": {
+      "中文": "1️⃣邮箱里让对方添加ig 完全没有问题！接下来请添加我的ins，我会在私信里和您一起推进合作 期待您的消息 2️⃣邮箱联系的 直接找对方ig打招呼 您好我是通过邮件和您联系的vicky 3️⃣私聊聊的，说拉群合作 4️⃣在其他项目群说要拉新群 5️⃣拉群失败了让对方帮忙拉一下 6️⃣提醒对面砍新群",
+      "日语": "1️⃣邮箱里让对方添加ig もちろん問題ございません！ それでは次のステップとして、私のInstagramを追加していただけますでしょうか。 https://www.instagram.com/recco.vip/ DMにて一緒にコラボの詳細を進めていければと思います。 ご連絡をお待ちしております。よろしくお願いいたします！ 2️⃣邮箱联系的 直接找对方ig打招呼 こんにちは。以前メールでご連絡差し上げた Bella と申します。 3️⃣私聊聊的，说拉群合作 ありがとうございます！それでは、今後のやり取りをスムーズにするため、専用のグループチャットを作成させていただきますね。少々お待ちください！ 4️⃣在其他项目群说要拉新群 ありがとうございます！ VivaVideoの件と混ざらないよう、新しく『Recco専用のグループ』",
+      "繁中": "1️⃣邮件联系对面私聊 感謝聯繫！請您私訊下我的ins帳號 https://www.instagram.com/recco.vip/ 我会拉一個 IG 群組，拉進同事一起來推進後續的合作喔。 2️⃣对面私聊我要说拉群合作 哈嘍！我這邊先拉一個 IG 群組，和同事一起來推進後續的合作喔。",
+      "西语": "3️⃣明白了我要拉群 ¡Entendido! Crearé un nuevo grupo. 5️⃣拉群失败 ¡Hola! Intenté crear el grupo pero no pude. ¿Podrías ayudarnos creando un nuevo grupo e invitando a @reccoapp.offcial y @recco.creator? 您好！刚刚我试图创建群组的时候失败了！如果您同意合作的话，可以帮忙创建一个新群组拉@reccoapp.offcial y @recco.creator?吗？ ¡Hola! Acabo de intentar crear el grupo pero no lo logré. Si estás de acuerdo con la colaboración, ¿podrías ayudarnos creando un nuevo grupo e invitando a @reccoapp.offcial y @recco.creator? 6️⃣提醒对面看新群 ¡Hola! Cuando tengas un momento, por favor revisa el nuevo grupo. ¡Gracias! 6️⃣请在手机上点击链接进入新群聊！entra al nuevo grupo haciendo clic en el enlace desde tu teléfono 邮件来的人拉群 ¡Gracias por tu apoyo a la colaboración! Ahora crearé un grupo en Instagram para avanzar con los siguientes pasos 😊",
+      "韩语": "拉群 좋습니다! 이제 Instagram 그룹을 만들어 협업을 진행하겠습니다 😊 拉群失败了 안녕하세요! 방금 그룹 채팅 생성 시도를 했는데 오류로 실패했습니다 😥 협업 진행 괜찮으시다면 새 그룹을 생성하셔서 @reccoapp.official @recco.creator 를 초대해 주실 수 있을까요? 请查看新的群聊 새 그룹 채팅 확인 부탁드립니다"
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-12-row-1",
+    "scene": "仅应用于和小影其他项目合作过的情况下，对面对合作流程很熟悉了 你好！ 我是 Recco 团队的 Bella。 首先，从 App Store 下载 Recco。 这个应用有免费套餐（A增值），所以你可以直接使用，无需订阅付费套餐。",
+    "fields": {
+      "中文": "仅应用于和小影其他项目合作过的情况下，对面对合作流程很熟悉了 你好！ 我是 Recco 团队的 Bella。 首先，从 App Store 下载 Recco。 这个应用有免费套餐（A增值），所以你可以直接使用，无需订阅付费套餐。",
+      "日语": "こんにちは！Reccoチームの Bella です。 まず、App Storeから [Recco] をダウンロードしてください。このアプリには無料枠（チャージ）がありますので、有料プランに加入しなくてもそのままお使いいただけますよ。",
+      "繁中": "您好～我是 Recco 團隊的 Bella 請先到 App Store 下載 Recco 目前有免費額度可以使用，不需要訂閱也可以體驗功能喔！",
+      "西语": "打招呼 ¡Hola! A partir de ahora, gestionaremos la colaboración de Recco en este nuevo grupo 😊 口播 Aquí te comparto la idea para el primer video de nuestra colaboración: 1.Producto: Por favor, primero descarga Recco en la App Store/Google Play. Actualmente tiene una cuota gratuita, así que puedes probar todas las funciones sin necesidad de suscribirte. 2.Propuesta de Guion (puedes adaptarlo a tu estilo): -Hook (Gancho): \"¿Sigues descargando audios para luego subirlos a otra IA y recién ahí organizar tus notas? Ya no tiene que ser tan complicado\". -Solución: \"Recco te permite grabar, organizar y resumir directamente en la app. Incluso puedes hacerle preguntas específicas a tus notas\". -Puntos clave (Selling Points): Todo el proceso en una sola app. Sin necesidad de subir archivos externos. Chat con IA directamente sobre tus notas. 3.Cronograma ideal: En 1 día: Entrega del guion final. En 3 días: Grabación y edición terminada. Dentro de esta semana: Publicación del video. Quedo atento a tus comentarios. 街采 Aquí está la idea para el primer video de nuestra colaboración: 1.Producto: Por favor, descarga Recco desde la App Store o Google Play. Actualmente ofrece una prueba gratuita, por lo que puedes probar todas las funciones sin necesidad de suscribirte. 2.Propuesta de guion: -Formato de entrevistas en la calle -Entrevistar a tres personas preguntando: “¿Notion o Recco?” Los entrevistados responden “Recco” y explican sus razones -El guion detallado y el video de referencia se enviarán más tarde 3.Calendario ideal: -Dentro de 3 días: completar grabación y edición -Dentro de esta semana: publicar el video Quedamos atentos a tu feedback.",
+      "葡语": "Primeiro, baixe o Recco na App Store. O aplicativo também oferece um plano gratuito, então você pode começar a usar sem precisar assinar um plano pago.",
+      "韩语": "먼저 App Store에서 Recco를 다운로드하세요. 이 앱은 무료 플랜도 제공해서, 유료 구독 없이 바로 사용할 수 있어요."
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-13-row-1",
+    "scene": "合作步骤 拉群之后发的第一句话 已经确认要好评了",
+    "fields": {
+      "column_0": "合作步骤 拉群之后发的第一句话 已经确认要好评了",
+      "中文": "首先，请允许我向您说明合作流程。 1.请从App Store下载[Recco]。※请勿点击订阅按钮。 2.拍摄前，我们将共同确认剧本及详细内容。 3.拍摄完成后，请在截止日期前提交初稿。如有必要，可能会请您进行一些小幅修改。 4.内容经审核通过后，请将视频发布至您的账号（根据情况，我们也可能会在Instagram/TikTok/Facebook的官方账号上将该视频作为广告使用。届时，可能会对视频的顺序、功能介绍、语言等进行轻微编辑。） 5.发布成功后，请分享全平台发布链接、广告代码（Ad Code）以及应用商店评价截图。 6.一切完成后我们将处理付款事宜（通常在3至7天内）。",
+      "日语": "まず、コラボの流れについてご説明させていただきます。 1️⃣App Store から [Recco] をダウンロードしてください。※サブスクリプションボタンは押さないでください。 2️⃣撮影前に、台本および詳細内容を一緒に確認します。 3️⃣撮影完了後、締切前に初稿をご提出ください。必要に応じて、軽微な修正をお願いする場合があります。 4️⃣内容確認後、動画をご自身のアカウントに投稿してください。 （状況に応じて、Instagram/TikTok/Facebook の公式アカウントにて広告として使用する場合があります。その際、動画の順番、機能紹介、言語などを軽く編集する可能性があります。） 5️⃣投稿完了後、全プラットフォームのリンク、広告コード（Ad Code）、および App Store レビューのスクリーンショットをご共有ください。 6️⃣すべて完了後、お支払い手続きを行います（通常3〜7日以内）。",
+      "繁中": "首先，請允許我向您說明合作流程。 1️⃣請從 App Store 下載 [Recco]。※請勿點擊訂閱按鈕。 2️⃣拍攝前，我們將共同確認劇本及詳細內容。 3️⃣拍攝完成後，請在截止日期前提交初稿。如有必要，可能會請您進行一些小幅修改。 4️⃣內容經審核通過後，請將影片發布至您的帳號。 （根據情況，我們也可能會在 Instagram/TikTok/Facebook 的官方帳號上將該影片作為廣告使用。屆時，可能會對影片的順序、功能介紹、語言等進行輕微編輯。） 5️⃣發布成功後，請分享全平台發布連結、廣告代碼（Ad Code）以及應用商店評價截圖。 6️⃣一切完成後，我們將處理付款事宜（通常在 3 至 7 天內）。",
+      "西语": "Primero, permíteme explicarte el proceso de colaboración. 1️⃣Descarga [Recco] desde la App Store. ※Por favor, no hagas clic en el botón de suscripción. 2️⃣Antes de grabar, confirmaremos juntos el guion y los detalles. 3️⃣Una vez terminada la grabación, envíanos el primer borrador antes de la fecha límite. Si es necesario, podremos solicitar pequeñas modificaciones. 4️⃣Después de la aprobación del contenido, publica el video en tu cuenta. （Dependiendo de la situación, también podremos utilizar el video como anuncio en nuestras cuentas oficiales de Instagram/TikTok/Facebook. En ese caso, podríamos realizar pequeñas ediciones como cambios en el orden, funciones o idioma.） 5️⃣Después de publicar, comparte los enlaces de todas las plataformas, el código publicitario (Ad Code) y la captura de pantalla de la reseña en la App Store. 6️⃣Una vez completado todo, procesaremos el pago（normalmente dentro de 3 a 7 días）。",
+      "韩语": "먼저 협업 진행 절차에 대해 안내드리겠습니다. 1️⃣App Store에서 [Recco]를 다운로드해주세요. ※구독 버튼은 클릭하지 말아주세요. 2️⃣촬영 전, 대본과 세부 내용을 함께 확인합니다. 3️⃣촬영 완료 후 마감 전까지 초안을 제출해주세요. 필요 시 간단한 수정 요청이 있을 수 있습니다. 4️⃣콘텐츠 검수가 완료되면 영상을 본인 계정에 업로드해주세요. （상황에 따라 해당 영상은 Instagram/TikTok/Facebook 공식 계정 광고로 활용될 수 있으며, 이 과정에서 영상 순서, 기능 소개, 언어 등이 일부 수정될 수 있습니다.） 5️⃣업로드 완료 후 모든 플랫폼 링크, 광고 코드(Ad Code), 그리고 앱 스토어 리뷰 스크린샷을 공유해주세요. 6️⃣모든 절차가 완료되면 결제를 진행해드리겠습니다（보통 3~7일 소요）。",
+      "葡语": "Primeiro, deixe-me explicar o processo da colaboração. 1️⃣Baixe o [Recco] na App Store. ※Por favor, não clique no botão de assinatura. 2️⃣Antes da gravação, confirmaremos juntos o roteiro e os detalhes. 3️⃣Após finalizar a gravação, envie o primeiro rascunho antes do prazo. Se necessário, poderemos solicitar pequenas alterações. 4️⃣Depois da aprovação do conteúdo, publique o vídeo em sua conta. （Dependendo da situação, também poderemos utilizar o vídeo como anúncio em nossas contas oficiais do Instagram/TikTok/Facebook. Nesse caso, pequenas edições poderão ser feitas, como ajustes na ordem, funções ou idioma.） 5️⃣Após a publicação, compartilhe os links de todas as plataformas, o código de anúncio (Ad Code) e a captura de tela da avaliação na App Store. 6️⃣Depois que tudo estiver concluído, processaremos o pagamento（normalmente em 3 a 7 dias）。"
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-13-row-2",
+    "scene": "砍价的时候明确拒绝好评",
+    "fields": {
+      "column_0": "砍价的时候明确拒绝好评",
+      "中文": "首先，请允许我向您说明合作流程。 1.请从App Store下载[Recco]。※请勿点击订阅按钮。 2.拍摄前，我们将共同确认剧本及详细内容。 3.拍摄完成后，请在截止日期前提交初稿。如有必要，可能会请您进行一些小幅修改。 4.内容经审核通过后，请将视频发布至您的账号（根据情况，我们也可能会在Instagram/TikTok/Facebook的官方账号上将该视频作为广告使用。届时，可能会对视频的顺序、功能介绍、语言等进行轻微编辑。） 5.一切完成后我们将处理付款事宜（通常在3至7天内）。",
+      "日语": "まず、コラボの流れを共有させてください。 1.App Storeから [Recco] をダウンロードしてください。※サブスクリプションはクリックしないでください。 2.撮影前に、台本や詳細を一緒に確認します。 3.撮影後、締切前に**初稿**をお送りください。必要に応じて小さな修正をお願いする場合があります。 4.内容が承認されましたら、ご自身のアカウントに動画を投稿し、広告コード（Ad Code）をご共有ください。 （場合によっては、Instagram / TikTok / Facebook の弊社アカウントでも広告として使用させていただくことがあります。その際、順番・機能紹介・言語などの軽微な編集を行う可能性があります。） 5.投稿確認後、お支払いを処理いたします（通常3〜7日以内）。",
+      "繁中": "合作流程如下： 1️⃣ 下載 App（請不要點擊訂閱/試用） 2️⃣ 拍攝前確認腳本 3️⃣ 拍攝後提交初稿（可能會有小修改） 4️⃣ 確認後發布影片並提供廣告碼 （之前也有和您提到過有二次使用的情況，視頻可能會上傳到官方Instagram/tiktok/facebook等平臺進行推廣） 5️⃣ 完成後付款（3–7 天）",
+      "西语": "Primero, déjame enviarte una guía paso a paso para la colaboración: 1️⃣Descarga Recco desde la App Store o Google Play. (Por favor, no hagas clic en la suscripción.) 2️⃣Confirmamos juntos el guion y todos los detalles antes de grabar. 3️⃣Graba el video y envíanos el primer borrador antes de la fecha límite. Es posible que pidamos algunos ajustes pequeños. 4️⃣Una vez aprobado, publica el video final en tu cuenta y compártenos el código de anuncio para que podamos promocionarlo. (En algunos casos, también podríamos usar tu video en nuestras cuentas — Instagram/TikTok/Facebook — con pequeñas ediciones como el orden, funciones o idioma.) 5️⃣Después de la publicación, procesaremos el pago (normalmente dentro de 3–7 días).",
+      "韩语": "우선 협업 진행 과정을 간단히 안내드리겠습니다 🙂 1️⃣ Recco 앱 다운로드 (App Store / Google Play에서 다운로드 부탁드립니다!) ※ 구독이나 체험판은 클릭하지 않으셔도 됩니다. 2️⃣ 촬영 전 스크립트 및 세부 내용을 함께 확인합니다. 3️⃣ 촬영 및 초안 전달 촬영 후 마감 전까지 초안을 전달해 주세요. 필요 시 간단한 수정 요청이 있을 수 있습니다. 4️⃣ 최종 업로드 최종 승인 후 업로드 진행 부탁드립니다. 업로드 후 광고 코드도 함께 공유 부탁드립니다. (일부 경우 Instagram / TikTok / Facebook 계정에서 약간의 편집 후 리포스트될 수 있습니다.) 5️⃣ 결제 업로드 완료 후 일반적으로 3~7일 내 결제 진행됩니다 🙂",
+      "葡语": "Primeiramente, deixe-me enviar um guia passo a passo para a colaboração: 1️⃣ Baixe o Recco na App Store ou Google Play. (Por favor, não clique na assinatura.) 2️⃣ Confirmaremos juntos o roteiro e todos os detalhes antes da gravação. 3️⃣ Grave o vídeo e envie-nos o primeiro rascunho antes do prazo final. É possível que peçamos alguns pequenos ajustes. 4️⃣ Após a aprovação, publique o vídeo final em sua conta e compartilhe conosco o código do anúncio (ads code) para que possamos promovê-lo. (Em alguns casos, também poderemos usar seu vídeo em nossas contas — Instagram/TikTok/Facebook — com pequenas edições, como na ordem, funções ou idioma.) 5️⃣ Após a publicação, processaremos o pagamento (normalmente dentro de 3 a 7 dias).",
+      "英语": "First let me send you a Step-by-Step Collaboration Guide 1.Download [Recco] in the app store. Don't click on subscription. 2.Confirm the script and details together before filming 3.Record and send us the first draft before the deadline. We may request a few small revisions. 4.ONEC APPROVED, post the final video on your account and share the ad code so we can promote it. (Sometimes we may also use your video for ads on our accounts — Insta/TikTok/Facebook — with only minor edits like order, features, or language.) 5.After posting, we’ll process your payment (normally 3–7 days)."
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-14-row-1",
+    "scene": "合同 拉群之后发的第二句话",
+    "fields": {
+      "column_0": "合同 拉群之后发的第二句话",
+      "中文": "台灣人： paypal付台币 银行付美金 日本人： 银行付美金可能出错，尽量PayPal",
+      "日语": "优先发这段，问对方是bank还是paypal支付 問題なければ、次のステップとして下記情報をご共有ください。 1️⃣法的氏名（Legal name） 2️⃣契約書送付先メールアドレス(Email to receive contract) 3️⃣お支払い方法 (手数料は弊社負担) a.PayPal/payoneer（推奨）：登録名 + アカウントメール b.銀行振込をご希望の場合： -受取人名義（IN ENGLISH） -受取人の住所 -受取人の郵便番号 -受取銀行名 -受取銀行の支店名+code -受取銀行の口座番号 -受取銀行のSWIFTコード 如果之前确认了是银行支付 問題なければ、次のステップとして下記情報をご共有ください。 1️⃣法的氏名（Legal name） 2️⃣Email to receive contract 3️⃣お支払い方法 -受取人名義 -受取人の住所 -受取人の郵便番号 -受取銀行名 -受取銀行の支店名+code -受取銀行の口座番号 -受取銀行のSWIFTコード 如果之前确认了是paypal支付 問題なければ、次のステップとして下記情報をご共有ください。 1️⃣法的氏名（Legal name） 2️⃣Email to receive contract 3️⃣お支払い方法 a.PayPal登録名 b.PayPalアカウントメール",
+      "繁中": "信息無誤的話，請提供以下資訊以便簽訂合約與付款： 1️⃣ 法定姓名（合約簽署名稱）： 2️⃣ 接收合約的 Email： 3️⃣ 付款資訊（擇一提供） 👉 PayPal（優先） PayPal 名稱 ： PayPal 帳號（Email） ： 👉 銀行匯款 收款人姓名（英文） ： 收款人地址 ： 收款人郵遞區號 ： 銀行名稱 ： SWIFT Code ： 銀行帳號 ：",
+      "西语": "Si estás de acuerdo con lo anterior, por favor envíanos la siguiente información para el contrato: 1️⃣ Nombre legal 2️⃣ Correo electrónico para recibir el contrato 3️⃣ Nombre en PayPal 4️⃣ Cuenta de PayPal (correo electrónico) 收到！稍后给您发送合同 ¡Recibido! Te enviaré el contrato en breve. 合同已发送！ ¡Contrato enviado!",
+      "韩语": "정보에 문제가 없다면 계약 및 결제를 위해 아래 내용을 전달 부탁드립니다 🙂 1️⃣ 법적 성함 (계약서 작성 이름) 2️⃣ 계약서 수신 이메일 3️⃣ 결제 정보 (택1) 👉 PayPal (우선 선호) PayPal 이름: PayPal 이메일: 👉 은행 송금 수취인 영문명: 수취인 주소: 우편번호: 은행명: SWIFT Code: 계좌번호:",
+      "葡语": "Se você estiver de acordo com o que foi dito acima, por favor, envie-nos as seguintes informações para o contrato: 1️⃣ Nome legal 2️⃣ E-mail para receber o contrato 3️⃣ Nome no PayPal 4️⃣ Conta do PayPal (e-mail)",
+      "英语": "Paypal If you agree with the above, please provide your info for contract. 1' Legal Name: 2' Email to receive contract: 3' PayPal Name: 4' PayPal Account (email):"
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-15-row-1",
+    "scene": "充值积分",
+    "fields": {
+      "column_0": "充值积分",
+      "中文": "以防万一对面说自己积分不够了（比如合作多个视频）可以给对面冲个积分。让对面按照指示把id给我们（注意试着一串数字，不是他们用户名昵称之类的，还有人习惯发自己注册的邮件，这样我查不到id的）",
+      "日语": "以下の手順に従って、User ID を共有してください。アプリで使用できるクレジットを追加いたします。",
+      "繁中": "請按照以下步驟將您的 User ID 分享給我們，以便我們為您充值積分使用 App。",
+      "西语": "Por favor, sigue los pasos a continuación para compartirnos tu User ID y así podamos añadir créditos para que uses la app.",
+      "韩语": "아래 단계를 따라 User ID를 공유해 주세요. 앱 사용을 위한 크레딧을 충전해드리겠습니다.",
+      "葡语": "Por favor, siga os passos abaixo para compartilhar seu User ID conosco, para que possamos adicionar créditos para usar o app.",
+      "英语": "Please follow the steps below to share your User ID with us so we can add credits for you to use the app."
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-16-row-1",
+    "scene": "广告授权和二次使用是啥？",
+    "fields": {
+      "column_0": "广告授权和二次使用是啥？",
+      "中文": "1.合作了reel和tiktok那么我们会通过adcode来给你的帖子投流 2.除此之外还会上传您的视频在我们的官号上（ins，tt，fb）投广告，可能会有微调，比如bgm标题视频顺序等",
+      "日语": "1️⃣ 広告利用について Instagram Reels や TikTok にご投稿いただいた動画について、 広告コード（Ad Code / Ad Authorization Code） を共有いただき、 そのコードを使って投稿された動画をそのまま広告配信させていただく形です。 2️⃣ 二次利用について ご投稿いただいた動画を、弊社の公式アカウント（Instagram / TikTok / Facebook など）にも掲載し、広告として活用させていただく可能性がございます。 その際、BGM・タイトル・動画の順番などに関して、軽微な調整を加える場合がございます。"
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-16-row-2",
+    "scene": "红人为什么问我们什么时候开始投广告？",
+    "fields": {
+      "column_0": "红人为什么问我们什么时候开始投广告？",
+      "中文": "一、红人为什么会这么想 红人认知里，广告=你们要给我这条视频买量 他们不理解品牌投放和账号自然流量是两套机制 还有一些红人以前接过别的商单，对方确实会把“投广告”包装成“帮你冲流量”，所以他们容易直接套用 所以红人才会反过来问：“什么时候开始投？是不是投了我就有流量？” 二、实际原理是什么 素材先进入广告测试 如果没有效果，预算花不出去，素材不会继续放量；也就是没有流量 只有跑出效果，预算才会持续花出去，流量才会明显放大 三、应该怎么回复红人 1️⃣付完钱了不用管他了 这边都有在正常推进哈，只是投放节奏和效果判断会综合看，这部分属于我们内部投放安排，通常不會再單獨往後同步細節，感谢理解~ 2️⃣还没付钱可以搪塞一下 这边合作流程和付款都会按约定正常走哈，投放侧会按内部安排推进。 具体广告节奏我们一般不单独展开同步，主要还是内部根据整体效果来判断。",
+      "繁中": "1️⃣付完钱了不用管他了 這邊都有在正常推進🙂 只是投放節奏和效果判斷會綜合評估，這部分屬於我們內部的投放安排，因此通常不會再另外同步太多細節，感謝您的理解～ 2️⃣还没付钱可以搪塞一下 這邊合作流程和付款都會按照約定正常進行🙂 投放部分則會依照我們內部安排推進。 具體的廣告節奏通常不會單獨詳細同步，主要還是會根據整體效果由內部綜合判斷。",
+      "韩语": "1️⃣付完钱了不用管他了 현재 정상적으로 진행되고 있습니다 🙂 다만 광고 집행 일정과 성과 판단은 종합적으로 검토하여 진행되며, 해당 부분은 내부 광고 운영 범위에 해당하기 때문에 일반적으로 별도로 상세 공유는 드리지 않고 있습니다. 양해 부탁드립니다~ 2️⃣还没付钱可以搪塞一下 협업 진행 및 결제는 모두 기존 약정대로 정상적으로 진행될 예정입니다 🙂 광고 집행 측은 내부 운영 일정에 따라 진행되고 있습니다. 구체적인 광고 운영 리듬은 일반적으로 별도로 상세 공유하지 않으며, 전체적인 성과를 기준으로 내부적으로 판단하고 있습니다.",
+      "日语": "1️⃣付完钱了不用管他了 こちらは問題なく進行しております🙂 ただ、広告配信のスケジュールや効果判断については総合的に確認しており、社内での運用内容となるため、通常は個別に詳細共有は行っておりません。ご理解いただけますと幸いです〜 2️⃣还没付钱可以搪塞一下 こちらのコラボ進行およびお支払いについては、予定通り問題なく進めております🙂 広告運用については社内スケジュールに沿って進行しております。 具体的な配信ペースに関しては、通常個別で詳細共有は行っておらず、全体的な効果をもとに社内で判断しております。",
+      "西语": "1️⃣付完钱了不用管他了 Todo se está gestionando con normalidad 🙂 Sin embargo, el ritmo de las campañas y la evaluación de resultados se revisan de manera integral y forman parte de nuestra planificación interna, por lo que normalmente no compartimos detalles adicionales de forma individual. ¡Gracias por tu comprensión! 2️⃣还没付钱可以搪塞一下 El proceso de colaboración y el pago se realizarán con normalidad según lo acordado 🙂 La parte de publicidad seguirá avanzando según nuestra planificación interna. Normalmente no compartimos en detalle el ritmo específico de las campañas, ya que todo se evalúa internamente según el rendimiento general.",
+      "葡语": "1️⃣付完钱了不用管他了 Está tudo seguindo normalmente por aqui 🙂 No entanto, o ritmo das campanhas e a análise de desempenho fazem parte do nosso planejamento interno de mídia, então normalmente não compartilhamos detalhes específicos separadamente. Agradecemos pela compreensão~ 2️⃣还没付钱可以搪塞一下 O processo de colaboração e o pagamento seguirão normalmente conforme combinado 🙂 A parte de anúncios continuará sendo conduzida de acordo com nosso planejamento interno. Normalmente não compartilhamos detalhes específicos sobre o ritmo das campanhas, pois tudo é avaliado internamente com base no desempenho geral.",
+      "英语": "1️⃣付完钱了不用管他了 2️⃣还没付钱可以搪塞一下"
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-17-row-1",
+    "scene": "街采的话 尽量选择年龄较大的上班族；没有上班族那就看起来像大学生的，总之就是尽量看起来是这个app的受众群体 白天室外拍摄为佳，自然光线充足；可选择繁华街道等人来人往之处，保持收音清晰 若是夜晚拍摄请在室内光线明亮之处 请注意人物着装符合广",
+    "fields": {
+      "中文": "街采的话 尽量选择年龄较大的上班族；没有上班族那就看起来像大学生的，总之就是尽量看起来是这个app的受众群体 白天室外拍摄为佳，自然光线充足；可选择繁华街道等人来人往之处，保持收音清晰 若是夜晚拍摄请在室内光线明亮之处 请注意人物着装符合广告审核",
+      "西语": "街采的 Propuesta de guion: -Formato de entrevistas en la calle -Entrevistar a tres personas preguntando: “¿Notion o Recco?” Los entrevistados responden “Recco” y explican sus razones -El guion detallado y el video de referencia se enviarán más tarde Notas importantes: 1.Intenta elegir personas que parezcan trabajadores adultos; si no es posible, que al menos parezcan estudiantes universitarios. En general, que se vean como el público objetivo de la app. 2.Es preferible grabar de día en exteriores, con buena luz natural; puedes elegir calles concurridas, asegurando que el audio sea claro. 3.Si grabas de noche, hazlo en un interior bien iluminado. 4.Asegúrate de que la vestimenta de las personas cumpla con las normas de publicidad. Calendario ideal: -Dentro de 3 días: completar grabación y edición -Dentro de esta semana: publicar el video Quedamos atentos a tu feedback. 口播： Propuesta de Guion (puedes adaptarlo a tu estilo): -Hook (Gancho): \"¿Sigues descargando audios para luego subirlos a otra IA y recién ahí organizar tus notas? Ya no tiene que ser tan complicado\". -Solución: \"Recco te permite grabar, organizar y resumir directamente en la app. Incluso puedes hacerle preguntas específicas a tus notas\". -Puntos clave (Selling Points): Todo el proceso en una sola app. Sin necesidad de subir archivos externos. Chat con IA directamente sobre tus notas. Cronograma ideal: En 1 día: Entrega del guion final. En 3 días: Grabación y edición terminada. Dentro de esta semana: Publicación del video. Quedo atento a tus comentarios.",
+      "英语": "Script: Scene 1 - Hook On-screen text (keep throughout): “Want this cute recording widget?” Visual: Close-up of phone home screen. Swipe, zoom, and lightly scroll. Pause briefly on the Recco widget. Tap the widget → opens Recco → tap record. Voiceover: “Want this cute recording widget?” “Just tap to start recording or taking notes.” Scene 2 - Comparison Visual: Show a typical workflow: Record in one app → switch to another app (AI / notes app) Voiceover / Text: “Most other apps? You record…” “…then open another app…” “…and organize everything yourself.” Scene 3 - App Demo Visual: Back to Recco → stop recording → auto-generated notes appear. Show clearly: Summary, Key points, To-do list Voiceover / Text: “But With Recco, you don’t have to.” “It’s already organized for you.” Scene 4 -End Visual: Scroll through the notes smoothly. Voiceover / Text: “No extra steps.” “No switching apps.” “Everything in one place.”"
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-18-row-1",
+    "scene": "表格 19",
+    "fields": {
+      "日语": "お送りしたブリーフについて、内容に無理がないか、または「もっとこうしたい」などのアレンジ案があればぜひ教えてください。 準備が整いましたら、具体的な撮影予定日を共有いただければと思います。勝手ながら、3日以内に初稿をチェックさせていただけると非常に助かります！ ご不明点があればいつでもご連絡ください。よろしくお願いします。",
+      "繁中": "關於我們提供的 brief， 如果有任何不合適或想調整的地方，都歡迎跟我們說 🙌 也請幫忙提供預計拍攝時間， 若可以在 3 天內提供初稿會非常理想！"
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-19-row-1",
+    "scene": "或者直接给日程安排",
+    "fields": {
+      "column_0": "或者直接给日程安排",
+      "中文": "理想情况下，我们希望按照以下时间表进行： 1 天内：完成剧本（大纲） 3 天内：完成拍摄和剪辑 本周末前：发布 您觉得这个时间表可行吗？",
+      "日语": "理想的なスケジュールとしては、以下のような流れで進められればと考えております。 1日以内：構成案（脚本）の完成 3日以内：撮影・編集の完了 今週末まで：公開・リリース こちら、ご対応可能でしょうか？",
+      "繁中": "理想時程如下： 1 天內：完成腳本 3 天內：完成拍攝剪輯 本週內：發布 請問您這邊是否可以配合呢？",
+      "西语": "Idealmente, nos gustaría seguir el siguiente cronograma: • Dentro de 1 día: finalizar el guion (estructura) • Dentro de 3 días: completar la grabación y edición • Antes de este fin de semana: publicar el video ¿Crees que este cronograma sería posible para ti?",
+      "韩语": "이상적인 일정은 아래와 같습니다 🙂 1일 내: 스크립트(대본) 완성 3일 내: 촬영 및 편집 완료 이번 주말 전: 업로드 해당 일정으로 진행 가능하실까요?",
+      "葡语": "Idealmente, gostaríamos de seguir o cronograma abaixo: • Em até 1 dia: finalizar o roteiro (estrutura) • Em até 3 dias: concluir a gravação e edição • Até o final desta semana: publicar o vídeo Você acha que esse cronograma funciona para você?"
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-20-row-1",
+    "scene": "何时交初稿？",
+    "fields": {
+      "column_0": "何时交初稿？",
+      "日语": "お世話になっております。初稿のご提出について、おおよその目ど（時間）を伺えますでしょうか？",
+      "繁中": "您好～想確認一下初稿大約什麼時候可以提供呢？🙏",
+      "西语": "期待您的视频！¡Genial! ¡Esperamos tu video! 那么期待您的视频！大概哪一天提交初稿呢？Entonces, ¡esperamos tu video! ¿Aproximadamente qué día podrás enviarnos el primer borrador? 您好进度如何了？我们什么时候能够收到脚本/初稿？¡Hola! ¿Cómo va el progreso? ¿Cuándo crees que podremos recibir el guion o el primer borrador? 周一来催：周末愉快，视频怎么样了？¡Buen fin de semana! ¿Cómo va el video? 进展如何？¿Cómo va el progreso? 这周是否能收到初稿？¿Crees que podríamos recibir el video esta semana? 放假： 放假Como empezamos vacaciones el 1 de mayo, sería genial si pudieras enviarnos el primer borrador antes de que termine abril 还有一件事我想通知您，我们公司将于5.1-5.5号间法定假日，我们会尽可能及时关注您的消息，期间可能会造成回复消息不及时，付款延后的情况，特此提前通知您，您也可以更合理的安排自己的日程。5.3还会安排一次打款，可以在此之前发布。感谢！ Hay algo más que queremos informarte: Nuestra empresa estará de vacaciones oficiales del 1 al 5 de mayo. Durante ese periodo, intentaremos seguir atentos a tus mensajes, pero es posible que haya retrasos en las respuestas o en los pagos. Durante el periodo de vacaciones, realizaremos un pago el 3 de mayo. Si puedes publicar antes de esa fecha, podremos gestionar tu pago a tiempo. ¡Muchas gracias por tu comprensión!",
+      "韩语": "您好视频如何了？안녕하세요~ 영상은 어떻게 진행되고 있으실까요? 영상 기대하고 있겠습니다 😊我很期待这个视频😊 대략 언제쯤 초안 전달 가능하실까요?大概什么时候可以发草稿？ 안녕하세요! 진행 상황은 어떻게 되실까요?你好！进展如何？ 스크립트/초안은 언제쯤 받아볼 수 있을까요? 🙂我什么时候能收到剧本/草稿？🙂 주말 잘 보내고 계실까요? 영상은 어떻게 진행되고 있으실까요?视频制作进展如何？ 이번 주 내로 초안 전달 가능하실지 궁금합니다 🙂请问这周能发草稿吗？🙂 放假 저희는 5월 1일부터 휴무가 시작됩니다. 가능하시다면 4월 내로 초안을 전달해 주시면 정말 감사하겠습니다 🙂 放假： 추가로 한 가지 안내드릴 내용이 있습니다 저희 회사는 5월 1일부터 5월 5일까지 공식 휴무 기간입니다. 해당 기간에도 최대한 메시지 확인은 하겠지만, 답변이나 결제 진행이 다소 지연될 수 있는 점 양해 부탁드립니다. 이해해 주셔서 감사합니다! 5.3还会安排一次打款，可以在此之前发布 저희가 휴무 기간 중에도 5월 3일에 한 번 결제 진행이 예정되어 있어서, 가능하시다면 그 전에 영상 업로드가 이루어지면 빠르게 결제 신청을 도와드릴 수 있을 것 같습니다. 항상 협조해 주셔서 감사합니다!"
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-20-row-2",
+    "scene": "其他",
+    "fields": {
+      "column_0": "其他",
+      "西语": "请问第二只视频什么时候发送？¿Cuándo crees que podrás enviarnos el segundo video? 😊 “您好我们已经放假回来了！请问您是否可以尽快发布视频？我们好尽快为您支付” ¡Hola! Ya hemos vuelto de las vacaciones 😊 ¿Crees que podrías publicar el video lo antes posible? Así podremos gestionar tu pago cuanto antes. “您好我们已经放假回来了！请问视频大概什么时候给到呢？” ¡Hola! Ya hemos vuelto de las vacaciones 😊 ¿Aproximadamente cuándo crees que podrás enviarnos el video?"
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-21-row-1",
+    "scene": "（最有效的方法是提前问清楚ddl+扩大红人池子，确定鸽掉之后建议直接换人。） 以金钱诱惑之，可以先让对方开始拍视频，强调对方给了视频我们立马就会付钱。再不回复就终止合作之； 234的情况都是签了合同之后消失的，比较严重，考虑“威胁”之： 催",
+    "fields": {
+      "中文": "（最有效的方法是提前问清楚ddl+扩大红人池子，确定鸽掉之后建议直接换人。） 以金钱诱惑之，可以先让对方开始拍视频，强调对方给了视频我们立马就会付钱。再不回复就终止合作之； 234的情况都是签了合同之后消失的，比较严重，考虑“威胁”之： 催素材的频率： 确认合作后先让对方明确给出哪一天能给初稿（一般就是一周内，p0级别的三天内） 没有给出明确回答的，就问到回答，或者说直接问周x能不能给我们（直接以三天为期限） 然后保证的日期的前三天可以每天问一遍已经在拍了吗？有没有什么问题？ 到了保证日期当天问一遍，视频拍好了吗？我们今天收得到吗？ -对方可能回答，可以的马上发，那么今天就要盯紧了 -有几率会说突然出了事情，那么也是先问到具体给稿日期 已经是延迟交稿的，一般来说我们会有备胎，这种情况下直接威胁 -第一遍，你已经保证了xxx，但是还没有给我们，是发生了什么事情吗？我们的团队希望您今天就给我们 -第二遍，还没有，直接说我们取消合作吧（综合一下那个拉黑行业黑名单的话术）",
+      "英语": "Hello! If you like, we can start to film the content first. As soon as we review and approve the video, and you post it, we’ll make the payment right away! Otherwise, if we don’t hear back from you, we may assume the collaboration isn’t moving forward at this time. Looking forward to hearing from you soon! you have promised ... but I did not get .... It is unethical to break the agreement between us. As a company in the app industry, if you continue to ghost us, we will be forced to send a formal notice and submit your account to our industry’s blacklist. This could negatively impact your future collaboration opportunities, so we kindly ask that you do not push us to take this action."
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-22-row-1",
+    "scene": "审核视频",
+    "fields": {
+      "column_0": "审核视频",
+      "中文": "您好，感谢您向我们发送您的作品！ 看起来不错！ 我会将其发送给团队并尽快回复您并提供反馈。",
+      "日语": "“動画をお送りいただきありがとうございます！拝見しました。現在チーム内で確認しておりますので、フィードバックをお待ちください。”",
+      "西语": "¡Perfecto! Lo compartiré con el equipo y volveré contigo con feedback lo antes posible.",
+      "韩语": "감사합니다! 팀에 전달하여 검토 후 최대한 빠르게 피드백드리겠습니다 🙂",
+      "英语": "Hey! Thanks for sending your work over – looks great! I’ll share it with the team and circle back with feedback ASAP!"
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-23-row-1",
+    "scene": "要求修改",
+    "fields": {
+      "column_0": "要求修改",
+      "中文": "我的经理已经检查了一切，他真的很喜欢你的工作！ 只有几件事需要调整。 1. 2. 3. 4.请不要使用任何bgm以造成版权问题 调整完所有内容后，请将您的视频发送到群组，让我们进行最后检查。 谢谢你！",
+      "日语": "マネージャーがすべて確認し、あなたの作品をとても気に入っていました！ ただ、いくつか調整をお願いしたい点があります。 著作権問題を避けるため、背景音楽は使用しないでください。 すべて修正完了後、最終確認のためグループに動画を送ってください。 ありがとうございます！",
+      "繁中": "我的主管已經確認過所有內容了，他真的非常喜歡您的作品！ 目前只有幾個地方需要稍微調整： 請不要使用任何 BGM，以避免產生版權問題。 所有內容調整完成後，請將影片發送到群組中，方便我們進行最終確認。 謝謝您！",
+      "西语": "¡Mi manager ya revisó todo y realmente le encantó tu trabajo! Solo hay algunas cosas que necesitan ajustarse: Por favor, no uses música de fondo para evitar problemas de copyright. Una vez realizados todos los cambios, envía el video al grupo para que podamos hacer la revisión final. ¡Muchas gracias!",
+      "韩语": "매니저가 모든 내용을 확인했고, 작업물을 정말 마음에 들어 했어요! 다만 몇 가지 수정이 필요합니다. 저작권 문제를 방지하기 위해 배경음악은 사용하지 말아주세요. 모든 수정이 완료되면 최종 확인을 위해 그룹 채팅에 영상을 보내주세요. 감사합니다!",
+      "葡语": "Meu gerente já revisou tudo e realmente adorou o seu trabalho! Só precisamos ajustar alguns pontos: Por favor, não utilize música de fundo para evitar problemas de direitos autorais. Depois de concluir todos os ajustes, envie o vídeo no grupo para fazermos a revisão final. Muito obrigado!",
+      "英语": "My manager has checked everything and he really loves your work! There are only a few things that need to be adjusted. 1. 2. 3. After you adjust everything, please send your video to the group and let's do a final check. Thank you!"
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-24-row-1",
+    "scene": "发布 （红人同意好评的版本）",
+    "fields": {
+      "column_0": "发布 （红人同意好评的版本）",
+      "中文": "第一段： 视频审核已完成，请发布！上传时请按照以下指南操作。 1. 上传前请不要使用任何bgm以造成版权问题 2. 在Instagram上请标记 @reccoapp.official @recco.ip @recco.vip @recco.creators，并发送合作邀请。 3. 前往应用商店为recco留下五星评价，文字部分不少于20字 4. 分享帖子链接、TikTok和Instagram Reels的广告代码（获取方法请参考附件中的教程）和应用商店好评截图 5. 付款将在以上步骤完成后进行 ps：如先前所述，您发布的视频将由我司账号作为广告进行二次利用。届时可能会进行轻微编辑，敬请谅解。 第二段 評論截圖格式參考： 第三段： 以上结束会申请付款 第四段 【记得发送获得广告code的两个视频教程】",
+      "日语": "動画の確認が完了しましたので、投稿をお願いいたします！ 1️⃣アップロード前に、著作権問題を避けるため背景音楽は使用しないでください。 2️⃣nstagramでは @reccoapp.official @recco.ip @recco.vip @recco.creators をタグ付けし、コラボ招待を送ってください。 3️⃣App Store にて Recco へ★5レビューを投稿してください。レビュー本文は20文字以上でお願いいたします。 4️⃣投稿後、投稿リンク、TikTok と Instagram Reels の広告コード（取得方法は添付チュートリアルをご参照ください）、および App Store レビューのスクリーンショットをご共有ください。 レビューのスクリーンショット形式はこちらをご参考ください： お支払いは、上記すべてのステップ完了後に行われます。 ※事前にご案内した通り、投稿いただいた動画は弊社アカウントにて広告として二次利用される場合があります。その際、軽微な編集を行う可能性がありますのでご了承ください。",
+      "繁中": "影片審核已完成，請進行發布！ 1️⃣上傳前請不要使用任何 BGM，以避免產生版權問題。 2️⃣在 Instagram 上請標記 @reccoapp.official @recco.ip @recco.vip @recco.creators，並發送合作邀請。 3️⃣請前往 App Store 為 Recco 留下五星評價，評論文字需不少於 20 字。 4️⃣發布後，請分享貼文連結、TikTok 與 Instagram Reels 的廣告代碼（獲取方式請參考附件教學），以及 App Store 評價截圖。 第二段 評論截圖格式參考： 第三段 以上步驟全部完成後，我們將進行付款。 ※ 如先前所述，您發布的影片將可能由我司官方帳號作為廣告進行二次利用，期間可能會進行些微編輯，敬請理解。 【记得发送获得广告code的两个视频教程】",
+      "西语": "¡La revisión del video ha sido completada! 1️⃣Antes de subir el video, por favor no uses música de fondo para evitar problemas de copyright. 2️⃣En Instagram, por favor etiqueta a @reccoapp.official @recco.ip @recco.vip @recco.creators y envía la invitación de colaboración. 3️⃣Deja una reseña de 5 estrellas para Recco en la App Store. El texto de la reseña debe tener al menos 20 caracteres. 4️⃣Comparte el enlace de la publicación, los códigos publicitarios de TikTok e Instagram Reels (consulta el tutorial adjunto para obtenerlos) y la captura de pantalla de la reseña en la App Store. 第二段 Referencia del formato de la captura de pantalla de la reseña: 第三段 El pago se realizará una vez completados todos los pasos anteriores. ※ Como mencionamos anteriormente, el video publicado podrá ser reutilizado como anuncio en nuestras cuentas oficiales. Podrían realizarse pequeñas ediciones. Gracias por tu comprensión. 【记得发送获得广告code的两个视频教程】",
+      "韩语": "영상 검수가 완료되었습니다. 업로드 부탁드립니다! 1️⃣업로드 전 저작권 문제를 방지하기 위해 배경음악은 사용하지 말아주세요. 2️⃣Instagram 업로드 시 @reccoapp.official @recco.ip @recco.vip @recco.creators 계정을 태그하고 협업 초대를 보내주세요. 3️⃣App Store에서 Recco에 별점 5점 리뷰를 남겨주세요. 리뷰 내용은 20자 이상으로 부탁드립니다. 4️⃣게시 후 게시물 링크, TikTok 및 Instagram Reels 광고 코드(첨부된 튜토리얼 참고), 그리고 앱스토어 리뷰 스크린샷을 공유해주세요. 第二段 리뷰 스크린샷 형식은 아래 예시를 참고해주세요: 第三段 결제는 위 모든 절차 완료 후 진행됩니다. ※ 이전에 안내드린 것처럼, 업로드된 영상은 당사 계정 광고로 2차 활용될 수 있으며, 이 과정에서 가벼운 편집이 진행될 수 있습니다. 【记得发送获得广告code的两个视频教程】",
+      "葡语": "A revisão do vídeo foi concluída. 1️⃣Antes de publicar o vídeo, por favor não utilize música de fundo para evitar problemas de direitos autorais. 2️⃣No Instagram, marque @reccoapp.official @recco.ip @recco.vip @recco.creators e envie o convite de colaboração. 3️⃣Deixe uma avaliação de 5 estrelas para o Recco na App Store. O texto da avaliação deve ter pelo menos 20 caracteres. 4️⃣Compartilhe o link da publicação, os códigos de anúncio do TikTok e Instagram Reels (consulte o tutorial anexado para saber como obtê-los) e a captura de tela da avaliação na App Store. 第二段 Formato de referência para a captura de tela da avaliação: 第三段 O pagamento será processado após a conclusão de todas as etapas acima. ※ Conforme informado anteriormente, o vídeo publicado poderá ser reutilizado como anúncio em nossas contas oficiais. Pequenas edições poderão ser realizadas. Agradecemos sua compreensão. 【记得发送获得广告code的两个视频教程】"
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-24-row-2",
+    "scene": "发布 （红人拒绝好评的版本）",
+    "fields": {
+      "column_0": "发布 （红人拒绝好评的版本）",
+      "中文": "视频审核已完成，请发布！上传时请按照以下指南操作。 虽然对字幕没有具体要求，但在Instagram上请标记 @reccoapp.official @recco.ip @recco.vip @recco.creators，并发送合作邀请。 发布后，请一并分享帖子链接以及TikTok和Instagram Reels的广告代码（获取方法请参考附件中的教程）。 如先前所述，您发布的视频将由我司账号作为广告进行二次利用。届时可能会进行轻微编辑，例如微调时间点、更改特效或制作多语言版本等，敬请谅解。 上传前请检查视频中的bgm是可商用无版权风险的音乐，否则可能会联系下架修改再上线 期待您的发布！ 【记得发送获得广告code的两个视频教程】",
+      "日语": "お疲れ様です！動画の確認が完了しましたので、公開をお願いします！アップロードの際は、以下のガイドラインに沿って進めてください。 1️⃣字幕に関する指定はありませんが、Instagramでは @reccoapp.official @recco.ip @recco.vip @recco.creators をタグ付けし、コラボ招待を送ってください。 2️⃣投稿後、投稿リンクと TikTok / Instagram Reels の広告コードを共有してください。（取得方法は添付のチュートリアルをご確認ください） 3️⃣事前にご案内した通り、投稿いただいた動画は弊社アカウントにて広告として二次利用させていただきます。その際、タイミング調整・エフェクト変更・多言語版制作などの軽微な編集を行う場合がありますので、あらかじめご了承ください。 4️⃣アップロード前に、著作権問題を避けるため背景音楽は使用しないでください。 【记得发送获得广告code的两个视频教程】",
+      "繁中": "影片審核已完成，請進行發布！ 上傳時請依照以下指南操作： 1️⃣雖然對字幕沒有特別要求，但在 Instagram 上請標記 @reccoapp.official @recco.ip @recco.vip @recco.creators，並發送合作邀請。 2️⃣發布後，請一併分享貼文連結以及 TikTok 和 Instagram Reels 的廣告代碼。（獲取方式請參考附件教學） 3️⃣如先前所述，您發布的影片將由我司帳號作為廣告進行二次利用。屆時可能會進行些微調整，例如時間點微調、更換特效或製作多語言版本等，敬請理解。 4️⃣上傳前請不要使用任何 BGM，以避免產生版權問題。 【记得发送获得广告code的两个视频教程】",
+      "西语": "¡La revisión del video ya está completa! Por favor, publícalo siguiendo las siguientes indicaciones. 1️⃣Aunque no tenemos requisitos específicos para los subtítulos, en Instagram por favor etiqueta a @reccoapp.official @recco.ip @recco.vip @recco.creators y envía la invitación de colaboración. 2️⃣Después de publicar, comparte también el enlace de la publicación y los códigos publicitarios de TikTok e Instagram Reels. (Consulta el tutorial adjunto para saber cómo obtenerlos). 3️⃣Como mencionamos anteriormente, el video publicado podrá ser reutilizado como anuncio en nuestras cuentas oficiales. Esto puede incluir pequeños ajustes como cambios de timing, efectos o versiones en otros idiomas. Gracias por tu comprensión. 4️⃣Antes de subir el video, por favor no uses música de fondo para evitar problemas de copyright. 【记得发送获得广告code的两个视频教程】",
+      "韩语": "영상 검수가 완료되었습니다. 업로드 부탁드립니다! 업로드 시 아래 가이드를 따라주세요. 1️⃣자막에는 별도 제한이 없지만, Instagram 업로드 시 @reccoapp.official @recco.ip @recco.vip @recco.creators 계정을 태그하고 협업 초대를 보내주세요. 2️⃣업로드 후 게시물 링크와 TikTok / Instagram Reels 광고 코드를 함께 공유해주세요. (코드 확인 방법은 첨부된 튜토리얼 참고) 3️⃣이전에 안내드린 것처럼, 업로드된 영상은 당사 계정에서 광고 용도로 2차 활용될 예정입니다. 이 과정에서 타이밍 조정, 효과 변경, 다국어 버전 제작 등의 가벼운 수정이 진행될 수 있으니 양해 부탁드립니다. 4️⃣업로드 전 저작권 문제를 방지하기 위해 배경음악은 사용하지 말아주세요. 【记得发送获得广告code的两个视频教程】",
+      "葡语": "A revisão do vídeo foi concluída. Por favor, publique seguindo as orientações abaixo. 1️⃣Não temos requisitos específicos para as legendas, mas no Instagram pedimos que marque @reccoapp.official @recco.ip @recco.vip @recco.creators e envie o convite de colaboração. 2️⃣Após publicar, compartilhe também o link da postagem e os códigos de anúncio do TikTok e Instagram Reels. (Confira o tutorial anexado para saber como obter os códigos). 3️⃣Conforme informado anteriormente, o vídeo publicado poderá ser reutilizado como anúncio em nossas contas oficiais. Isso pode incluir pequenos ajustes, como alteração de timing, troca de efeitos ou versões em outros idiomas. Agradecemos sua compreensão. 4️⃣Antes de publicar o vídeo, por favor não utilize música de fundo para evitar problemas de direitos autorais.",
+      "英语": "The video review has been completed — please go ahead and post it! Before uploading, please follow the guidelines below: 1️⃣While we don’t have any specific requirements for captions, please tag @reccoapp.official @recco.ip @recco.vip @recco.creators on Instagram and send collaborator invites. 2️⃣After posting, please share the post link along with the TikTok and Instagram Reels ad codes. (Please refer to the attached tutorial for instructions on how to obtain them.) 3️⃣As mentioned previously, your posted video may be reused as an advertisement on our official accounts. This may include minor edits such as timing adjustments, effect changes, or multilingual versions. Thank you for your understanding. 4️⃣Before uploading, please make sure the BGM used in the video is copyright-safe and cleared for commercial use. Otherwise, we may need to request edits and re-uploading before the video can go live again."
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-24-row-3",
+    "scene": "目前合作中，没有聊过好评",
+    "fields": {
+      "column_0": "目前合作中，没有聊过好评",
+      "中文": "适用于目前：已经拉群后的红人，前期没有和他们聊过好评的事情； 发布前的话术和拒绝的话术是一模一样的，但是呢需要额外发送这一个：",
+      "日语": "また、現在アプリを体験したユーザー様向けに、レビュー投稿のご協力をお願いしております。 1️⃣App Store にて★5レビューをお願いします 2️⃣レビュー本文は20文字以上でお願いいたします レビュー完了後、追加で5USDをお支払いします。 ご興味がありましたら、レビュー後に以下のスクリーンショットをご送付ください！",
+      "繁中": "另外，我們目前正在尋找體驗過 App 的用戶幫忙留下評論。 1️⃣請在 App Store 給 App 五星評價 2️⃣評論內容需超過 20 字 完成評論後，我們將額外提供 5 USD 報酬。 如果您有興趣，請在評論完成後將以下截圖發送給我們！",
+      "西语": "Además, actualmente estamos buscando usuarios que hayan probado la app para dejarnos una reseña. 1️⃣Por favor, deja una reseña de 5 estrellas en la App Store 2️⃣El comentario debe tener más de 20 caracteres Después de completar la reseña, ofreceremos un pago adicional de 5 USD. Si estás interesado(a), por favor envíanos la siguiente captura de pantalla después de publicar la reseña.",
+      "韩语": "추가로, 현재 앱을 사용해보신 분들을 대상으로 리뷰 이벤트를 진행하고 있습니다. 1️⃣App Store에서 별점 5점을 남겨주세요 2️⃣리뷰 내용은 20자 이상 작성해주세요 리뷰 완료 후 추가로 5USD를 지급해드립니다. 관심 있으시다면 리뷰 완료 후 아래 스크린샷을 보내주세요!",
+      "葡语": "Além disso, atualmente estamos procurando usuários que já experimentaram o app para deixar uma avaliação. 1️⃣Por favor, dê 5 estrelas na App Store 2️⃣O comentário deve ter mais de 20 caracteres Após concluir a avaliação, ofereceremos um pagamento adicional de 5 USD. Se tiver interesse, envie a captura de tela abaixo após publicar a avaliação!"
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-24-row-4",
+    "scene": "少点东西",
+    "fields": {
+      "column_0": "少点东西",
+      "中文": "等到您把链接和code都发给我之后，我会尽快为您申请付款",
+      "日语": "リンクとコードを送っていただけましたら、できるだけ早くお支払い申請を進めます。",
+      "繁中": "等您把連結和 code 都發給我之後，我會盡快幫您申請付款。",
+      "西语": "Una vez que me envíes el enlace y los códigos, solicitaré el pago lo antes posible.",
+      "韩语": "링크와 광고 코드를 보내주시면 최대한 빠르게 결제 신청 진행해드리겠습니다.",
+      "葡语": "Assim que você me enviar o link e os códigos, vou solicitar o pagamento o mais rápido possível.",
+      "英语": "Once you send me the link and the codes, I’ll apply for your payment as soon as possible."
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-24-row-5",
+    "scene": "少点东西",
+    "fields": {
+      "column_0": "少点东西",
+      "中文": "本次合作我们需要发送 xx，xx和xx平台，请您发送所有链接至群内，以及对应的广告代码~",
+      "西语": "Para esta colaboración, necesitamos publicaciones en las plataformas de Instagram, tiktok y Youtube. Por favor, envíanos en el grupo todos los enlaces de las publicaciones junto con los códigos de anuncio correspondientes"
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-26-row-1",
+    "scene": "出现了这样的情况，需要下架重上",
+    "fields": {
+      "column_0": "出现了这样的情况，需要下架重上",
+      "中文": "不好意思，我们这边发现您的视频带有版权音乐，导致无法投放广告。希望您可以删掉视频，去掉bgm后重新上架。届时请将新链接和广告代码都发给我们~感谢！",
+      "繁中": "您好！不好意思，我們發現您的影片包含版權音樂，因此無法用於廣告投放。 麻煩您刪除目前的影片，移除背景音樂後重新上架。 重新發布後，請將新的影片連結以及廣告授權碼發給我們。 非常感謝您的協助！",
+      "日语": "こんにちは。 申し訳ございませんが、動画内に著作権付きの音楽が含まれているため、広告配信を行うことができません。 お手数ですが、現在の動画を削除し、BGMを削除したうえで再投稿していただけますでしょうか。 再投稿後、新しい動画リンクと広告コードをお送りください。 ご協力ありがとうございます！",
+      "韩语": "안녕하세요! 죄송하지만 업로드하신 영상에 저작권이 있는 음악이 포함되어 있어 광고 집행이 불가능합니다. 번거로우시겠지만 영상을 삭제한 후 배경음악(BGM)을 제거하여 다시 업로드해 주실 수 있을까요? 재업로드 후 새로운 링크와 광고 코드도 함께 보내주세요. 감사합니다!",
+      "葡语": "Olá! Desculpe, mas notamos que o seu vídeo contém música protegida por direitos autorais, o que impede a veiculação de anúncios. Você poderia remover a música de fundo e publicar o vídeo novamente? Depois disso, envie-nos o novo link e o código de autorização para anúncios. Muito obrigado pela sua ajuda!",
+      "西语": "¡Hola! Lo sentimos, pero hemos notado que tu video contiene música con derechos de autor, por lo que no podemos utilizarlo para campañas publicitarias. ¿Podrías eliminar el video actual y volver a subirlo sin la música de fondo? Una vez publicado de nuevo, por favor envíanos el nuevo enlace y el código de autorización para anuncios. ¡Muchas gracias por tu ayuda!",
+      "英语": "Hi! Sorry, but we noticed that your video contains copyrighted music, which prevents us from running ads on it. Could you please remove the background music and re-upload the video? Once it's live again, please send us the new link and the ad authorization code. Thank you so much for your help!"
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-27-row-1",
+    "scene": "解释支付时间",
+    "fields": {
+      "column_0": "解释支付时间",
+      "中文": "收到！我尽快为您申请报酬，将于3天左右送达！届时会发送相关凭证截图 收到！由于明天是周末，款项将于周一~周二送达！届时会发送相关凭证截图",
+      "繁中": "收到！我會盡快為您申請報酬，預計約三天內送達！屆時會提供相關憑證截圖。 收到！由於明天是週末，款項將於週一～週二入帳！屆時也會提供相關憑證截圖給您。",
+      "西语": "正常情况 ¡Perfecto! Solicitaré el pago lo antes posible. Debería llegar en aproximadamente 3 días. En ese momento te enviaré el comprobante. 版本2：周末情况 ¡Perfecto! Como mañana es fin de semana, el pago debería llegar entre lunes y martes. Te enviaré el comprobante en cuanto esté realizado.",
+      "韩语": "확인했습니다! 최대한 빠르게 결제 신청 진행하겠습니다 🙂 영업일 기준 3일 이내 입금 예정이며, 입금 완료 후 관련 캡처도 함께 전달드리겠습니다. 확인했습니다! 내일이 주말이라 결제는 다음 주 영업일에 진행될 예정입니다 🙂 입금 완료 후 관련 캡처도 함께 전달드리겠습니다."
+    }
+  },
+  {
+    "source": "本地导出话术",
+    "stable_id": "table-27-row-2",
+    "scene": "支付成功发送凭证截图",
+    "fields": {
+      "column_0": "支付成功发送凭证截图",
+      "中文": "您好款项已经发出！请查收！",
+      "日语": "お世話になっております。先ほどお支払いが完了いたしました！ご確認をお願いいたします。",
+      "韩语": "안녕하세요! 결제가 이미 발송되었습니다 🙂 확인 부탁드립니다!"
+    }
+  }
+]

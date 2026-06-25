@@ -1,0 +1,35 @@
+/* KOL 提醒 · 会话内「问 DDL」内嵌小条 */
+.kol-ddl-hint {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 12px;
+  padding: 8px 12px;
+  border: 1px solid #f0c36d;
+  background: #fff8e6;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #5a4500;
+  z-index: 2147483000;
+}
+.kol-ddl-tip {
+  flex: 1 1 auto;
+  min-width: 160px;
+  font-weight: 600;
+}
+.kol-ddl-btn {
+  flex: 0 0 auto;
+  border: 1px solid #d9a93c;
+  background: #ffe9b0;
+  color: #5a4500;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.kol-ddl-btn:hover {
+  background: #ffdf8c;
+}
+.kol-ddl-record { display: flex; flex-basis: 100%; gap: 6px; margin-top: 6px; }
+.kol-ddl-record input { flex: 1 1 auto; border: 1px solid #d9a93c; border-radius: 8px; padding: 5px 9px; font-size: 13px; }

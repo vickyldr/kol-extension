@@ -1,0 +1,6 @@
+# Chrome 商店打包产物（本地生成，不进库）
+kol-assistant-v*.zip
+.store-stage/
+node_modules/
+*.log
+.DS_Store

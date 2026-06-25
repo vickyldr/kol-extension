@@ -1,0 +1,170 @@
+[
+  {
+    "id": "cold_outreach_dm",
+    "category": "触达",
+    "name": "冷启动私信",
+    "description": "首次通过 Instagram 私信联系红人",
+    "chinese_intent": "友好介绍我们是 {{product_name}} 团队，说明觉得对方的内容风格适合产品，邀请进行短视频合作，询问对方是否感兴趣以及报价。不要擅自填写视频时长、发布平台或授权条件。",
+    "required_variables": ["product_name"]
+  },
+  {
+    "id": "cold_outreach_email",
+    "category": "触达",
+    "name": "冷启动邮件",
+    "description": "首次通过邮件正式邀约",
+    "chinese_intent": "写一封正式但不生硬的合作邀约邮件：用通用问候开头（不要带对方名字），介绍 {{product_name}}，表达对红人内容的认可，说明希望讨论短视频合作，并询问报价与档期。未确认的平台、时长和授权条件不要编造。",
+    "required_variables": ["product_name"]
+  },
+  {
+    "id": "ask_rate",
+    "category": "主动询问",
+    "name": "询问报价",
+    "description": "对方感兴趣但没有报价",
+    "chinese_intent": "感谢对方有兴趣，表示可以提供合作详情和参考内容，并请对方告知本次合作的报价与近期档期。",
+    "required_variables": []
+  },
+  {
+    "id": "ask_availability",
+    "category": "主动询问",
+    "name": "询问档期",
+    "description": "确认对方近期是否能拍摄",
+    "chinese_intent": "礼貌询问对方近期是否有时间承接合作，以及预计最快可以在什么时候提交初稿。不要替对方设定日期。",
+    "required_variables": []
+  },
+  {
+    "id": "ask_missing_details",
+    "category": "主动询问",
+    "name": "补充确认条件",
+    "description": "确认价格、平台、授权等缺失信息",
+    "chinese_intent": "礼貌说明为了继续推进合作，需要确认以下信息：{{missing_details}}。请对方逐项回复，语气清晰但不要显得强势。",
+    "required_variables": ["missing_details"]
+  },
+  {
+    "id": "follow_up_no_reply",
+    "category": "催促",
+    "name": "催回复",
+    "description": "邀约后对方没有回复",
+    "chinese_intent": "友好跟进之前的合作邀约，询问对方是否有机会查看，并表示如果需要更多信息可以随时告诉我们。不要施压。",
+    "required_variables": []
+  },
+  {
+    "id": "follow_up_draft",
+    "category": "催促",
+    "name": "催初稿",
+    "description": "已经合作但尚未收到初稿",
+    "chinese_intent": "礼貌询问初稿进度，提醒原计划的提交日期是 {{deadline}}，请对方确认新的预计提交时间。如果遇到困难可以提前沟通。",
+    "required_variables": ["deadline"]
+  },
+  {
+    "id": "follow_up_revision",
+    "category": "催促",
+    "name": "催修改稿",
+    "description": "修改意见发出后尚未收到新版",
+    "chinese_intent": "礼貌跟进修改进度，询问预计何时可以收到更新版本，并说明收到后我们会尽快审核。",
+    "required_variables": []
+  },
+  {
+    "id": "follow_up_post",
+    "category": "催促",
+    "name": "催发布",
+    "description": "视频审核通过但还未发布",
+    "chinese_intent": "提醒对方视频已经审核通过，询问预计发布时间，并请对方发布后发送帖子链接和已确认需要提供的材料。不要自行添加未确认的平台或广告代码要求。",
+    "required_variables": []
+  },
+  {
+    "id": "second_collaboration",
+    "category": "再次合作",
+    "name": "二次合作",
+    "description": "邀请合作过的红人再次合作",
+    "chinese_intent": "感谢对方上次合作，表示团队很认可合作效果，希望邀请对方参与 {{product_name}} 的新一期合作，询问是否有兴趣、近期档期和最新报价。",
+    "required_variables": ["product_name"]
+  },
+  {
+    "id": "multiple_collaboration",
+    "category": "再次合作",
+    "name": "多条合作",
+    "description": "询问一次合作多条内容",
+    "chinese_intent": "询问对方是否愿意一次合作制作 {{video_count}} 条视频，并请对方提供多条合作的整体报价或优惠单价。不要擅自承诺数量以外的条件。",
+    "required_variables": ["video_count"]
+  },
+  {
+    "id": "long_term_collaboration",
+    "category": "再次合作",
+    "name": "长期合作",
+    "description": "讨论按月或多月稳定合作",
+    "chinese_intent": "邀请对方讨论长期合作：合作周期 {{collaboration_period}}，每月 {{videos_per_month}} 条视频。说明稳定合作会有持续项目，并询问长期合作单价。价格需要运营自己填写或让对方报价。",
+    "required_variables": ["collaboration_period", "videos_per_month"]
+  },
+  {
+    "id": "cross_product_reuse",
+    "category": "再次合作",
+    "name": "其他产品转新合作",
+    "description": "曾与公司其他产品合作，询问当前产品",
+    "chinese_intent": "说明我们之前曾通过 {{previous_product}} 与对方合作，这次负责新的产品 {{product_name}}。询问对方是否愿意讨论新合作，以及是否可以沿用之前的合作价格和合同条件；如有变化请对方说明。",
+    "required_variables": ["previous_product", "product_name"]
+  },
+  {
+    "id": "group_greeting",
+    "category": "拉群后",
+    "name": "拉群后第一句",
+    "description": "新群建立后的欢迎和身份介绍",
+    "chinese_intent": "在新群里友好打招呼，介绍自己负责 {{product_name}} 的合作推进，感谢对方加入，并说明接下来会在群里确认合作详情、合同、内容和时间安排。",
+    "required_variables": ["product_name"]
+  },
+  {
+    "id": "group_process",
+    "category": "拉群后",
+    "name": "说明合作流程",
+    "description": "简要说明后续合作步骤",
+    "chinese_intent": "清晰说明合作步骤：确认合作条件、签署合同、确认脚本或 Brief、拍摄并提交初稿、审核修改、发布或交付、完成约定材料后申请付款。不要添加未确认的具体日期或额外要求。",
+    "required_variables": []
+  },
+  {
+    "id": "send_contract",
+    "category": "拉群后",
+    "name": "发送合同",
+    "description": "提醒查收并填写合同",
+    "chinese_intent": "告诉对方合同已经发送，请核对合作条件并完成需要填写和签署的部分；如有疑问可以在群里提出。不要说对方已经签署。",
+    "required_variables": []
+  },
+  {
+    "id": "send_brief",
+    "category": "制作",
+    "name": "发送 Brief",
+    "description": "发送脚本或内容要求",
+    "chinese_intent": "发送本次合作的 Brief：{{brief_link}}。请对方先阅读，并确认是否理解内容要求、是否有执行困难以及预计拍摄时间。",
+    "required_variables": ["brief_link"]
+  },
+  {
+    "id": "request_revision",
+    "category": "制作",
+    "name": "要求修改",
+    "description": "发送审核修改意见",
+    "chinese_intent": "先肯定对方的制作，再说明团队审核后需要调整以下内容：{{revision_points}}。解释这些修改是为了确保信息准确和符合合作要求，礼貌询问预计何时可以提供新版。",
+    "required_variables": ["revision_points"]
+  },
+  {
+    "id": "approved_to_post",
+    "category": "发布支付",
+    "name": "审核通过可发布",
+    "description": "通知视频通过审核",
+    "chinese_intent": "告诉对方视频已经审核通过，可以发布。提醒仅遵循此前已经确认的发布平台、账号标记和材料要求；发布后请发送链接。",
+    "required_variables": []
+  },
+  {
+    "id": "payment_applied",
+    "category": "发布支付",
+    "name": "已申请付款",
+    "description": "完成交付后告知付款申请",
+    "chinese_intent": "告诉对方已经提交付款申请，预计到账时间是 {{payment_eta}}，付款完成后会发送凭证。不要使用未由财务确认的时间。",
+    "required_variables": ["payment_eta"]
+  },
+  {
+    "id": "payment_sent",
+    "category": "发布支付",
+    "name": "付款已发出",
+    "description": "发送付款凭证",
+    "chinese_intent": "告诉对方款项已经发出，请查收；同时发送付款凭证。如未到账，请对方告知。",
+    "required_variables": []
+  }
+]

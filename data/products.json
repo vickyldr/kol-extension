@@ -1,0 +1,117 @@
+[
+  {
+    "id": "generic",
+    "name": "通用产品（不带品牌细节）",
+    "status": "active",
+    "description": "当产品资料尚未录入时使用。只生成通用回复，不填写产品名、账号、链接或授权条件。",
+    "social_accounts": {},
+    "download_links": {},
+    "audience": "",
+    "selling_points": [],
+    "subscription_rule": "",
+    "default_platforms": [],
+    "usage_policy": "",
+    "payment_policy": "",
+    "brief_links": [],
+    "forbidden_claims": [
+      "不得自行编造产品信息",
+      "不得自行编造社媒账号或链接"
+    ]
+  },
+  {
+    "id": "recco",
+    "name": "Recco",
+    "status": "example",
+    "description": "AI 笔记应用，可将录音整理为文字、摘要、待办事项，并支持针对笔记提问。",
+    "social_accounts": {
+      "instagram": "@reccoapp.official"
+    },
+    "download_links": {
+      "instruction": "在 App Store 或 Google Play 搜索 Recco"
+    },
+    "audience": "职场人士、学生及希望提高记录效率的人",
+    "selling_points": [
+      "录音转文字",
+      "AI 摘要和待办",
+      "说话人识别",
+      "针对笔记进行 AI 问答"
+    ],
+    "subscription_rule": "存在免费套餐；具体项目如需临时会员，应以项目资料为准。",
+    "default_platforms": [
+      "Instagram Reels",
+      "TikTok",
+      "YouTube Shorts"
+    ],
+    "usage_policy": "广告授权期限、二次使用平台和剪辑权限必须逐次确认，不得默认永久授权。",
+    "payment_policy": "完成约定交付后提交付款申请，具体到账日期由运营确认。",
+    "brief_links": [],
+    "forbidden_claims": [
+      "不得承诺未确认的广告授权期限",
+      "不得承诺未确认的付款日期",
+      "不得把内部预算上限发给红人"
+    ]
+  },
+  {
+    "id": "rythmix",
+    "name": "Rythmix",
+    "status": "active",
+    "description": "AI 音乐 App（与 AI Catch 同一团队）。详细卖点和账号待运营补充。",
+    "social_accounts": {},
+    "download_links": {},
+    "audience": "",
+    "selling_points": [],
+    "subscription_rule": "",
+    "default_platforms": [],
+    "usage_policy": "广告授权期限、二次使用平台和剪辑权限必须逐次确认，不得默认永久授权。",
+    "payment_policy": "完成约定交付后提交付款申请，具体到账日期由运营确认。",
+    "brief_links": [],
+    "forbidden_claims": [
+      "不得自行编造产品卖点、账号或链接",
+      "不得承诺未确认的广告授权期限",
+      "不得承诺未确认的付款日期",
+      "不得把内部预算上限发给红人"
+    ]
+  },
+  {
+    "id": "aicatch",
+    "name": "AI Catch",
+    "status": "active",
+    "description": "AI 应用。详细卖点和账号待运营补充。",
+    "social_accounts": {},
+    "download_links": {},
+    "audience": "",
+    "selling_points": [],
+    "subscription_rule": "",
+    "default_platforms": [],
+    "usage_policy": "广告授权期限、二次使用平台和剪辑权限必须逐次确认，不得默认永久授权。",
+    "payment_policy": "完成约定交付后提交付款申请，具体到账日期由运营确认。",
+    "brief_links": [],
+    "forbidden_claims": [
+      "不得自行编造产品卖点、账号或链接",
+      "不得承诺未确认的广告授权期限",
+      "不得承诺未确认的付款日期",
+      "不得把内部预算上限发给红人"
+    ]
+  },
+  {
+    "id": "vivavideo",
+    "name": "VivaVideo",
+    "status": "active",
+    "description": "视频剪辑 App。详细卖点和账号待运营补充。",
+    "social_accounts": {},
+    "download_links": {},
+    "audience": "",
+    "selling_points": [],
+    "subscription_rule": "",
+    "default_platforms": [],
+    "usage_policy": "广告授权期限、二次使用平台和剪辑权限必须逐次确认，不得默认永久授权。",
+    "payment_policy": "完成约定交付后提交付款申请，具体到账日期由运营确认。",
+    "brief_links": [],
+    "forbidden_claims": [
+      "不得自行编造产品卖点、账号或链接",
+      "不得承诺未确认的广告授权期限",
+      "不得承诺未确认的付款日期",
+      "不得把内部预算上限发给红人"
+    ]
+  }
+]

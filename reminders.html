@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>KOL 今日待办</title>
+    <link rel="stylesheet" href="sidepanel.css" />
+    <style>
+      body { margin: 0; padding: 14px 16px; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #fbfcff; }
+      .todo-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+      .todo-head h1 { font-size: 18px; margin: 0; }
+      .todo-head .sub { font-size: 12px; color: #8b90a0; }
+      #todo-window-list { display: flex; flex-direction: column; gap: 8px; }
+      .twl-empty { color: #8b90a0; font-size: 14px; padding: 20px 0; text-align: center; }
+    </style>
+  </head>
+  <body>
+    <div class="todo-head">
+      <div>
+        <h1>🔔 该处理的红人</h1>
+        <div class="sub" id="todo-window-sub"></div>
+      </div>
+      <button id="todo-window-refresh" class="status archive-entry">刷新</button>
+    </div>
+    <div id="todo-window-list" class="reminder-list"></div>
+    <script src="reminders.js"></script>
+  </body>
+</html>

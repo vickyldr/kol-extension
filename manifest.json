@@ -1,0 +1,48 @@
+{
+  "manifest_version": 3,
+  "name": "KOL 双语沟通助手",
+  "version": "0.24.0",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvqDlOnxyzrnaBSFO3i+CjqAIENAy6lw+jNjV9eOBm6yo00swHKbpNAgdXDPD/9wHwFbqOqPfaSTDVjI5aZ3E/yT8FKu/DUVd+C5iZD+VICRDYVswErrQWl3/q6JpXbB5nLfLmxMSSve/wwD/OCo8rB1NxPFsjGHQX9b0fprMh9+hDQgqBFUfP4Hi9+efkwwSdC4/3knnUfd8gL33Ymbd2/OfdimGz/31rH0CPsSvPr0uYkT99AGjXsqNAJI/TKZLpf9EdbTGvlptbcY2aMhn1XdrT2OurOZTr9kGrGdx8YsBacTBkumNxIQ9XQDy2RR35cjSUDFM0I3uwPgFryEv0QIDAQAB",
+  "description": "理解红人消息、匹配内部话术并生成双语回复建议，并提醒待回复 / 待跟进的红人。",
+  "permissions": ["activeTab", "contextMenus", "sidePanel", "storage", "alarms", "notifications"],
+  "host_permissions": [
+    "http://127.0.0.1:3210/*",
+    "http://106.54.206.174/*",
+    "https://www.instagram.com/*",
+    "https://mail.google.com/*",
+    "https://outlook.live.com/*",
+    "https://outlook.office.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.instagram.com/*",
+        "https://mail.google.com/*",
+        "https://outlook.live.com/*",
+        "https://outlook.office.com/*"
+      ],
+      "js": ["content.js", "kol-reminder.js"],
+      "css": ["content.css", "kol-reminder.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "action": {
+    "default_title": "打开 KOL 双语沟通助手",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  }
+}
