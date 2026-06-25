@@ -99,6 +99,25 @@ curl -s localhost:3399/health
 - 改 `server.js`：VPS 上 `git pull` + 重启 node 服务。成员无感。
 - 改话术/知识库：用插件「📥 团队库」上传 Word，或直接改 VPS `~/kol-data/`。成员无感（实时取）。
 
+#### VPS 实际目录和操作（2026-06 迁移后）
+- **仓库位置**：`/home/ubuntu/kol-repo/`（注意：`bilingual-extension/` 子目录是旧结构残留，已空，别在那里操作）
+- **启动服务**：
+  ```bash
+  cd /home/ubuntu/kol-repo
+  nohup node server.js >> ~/kol.log 2>&1 &
+  ```
+- **更新代码**：
+  ```bash
+  cd /home/ubuntu/kol-repo
+  git pull   # SSH 已配置，直接拉
+  kill <旧PID>
+  nohup node server.js >> ~/kol.log 2>&1 &
+  curl -s localhost:3210/health   # 看到 ok:true 就成功
+  ```
+- **查当前进程**：`ps aux | grep server.js`
+- **看日志**：`tail -50 ~/kol.log`
+- **git 用 SSH**（已配置，不用 token）：remote 是 `git@github.com:vickyldr/kol-extension.git`
+
 ---
 
 ## 6. 约定
@@ -147,3 +166,6 @@ build-store-zip.sh     打商店 zip（FILES 白名单！）
 3. **docx 解析靠浏览器 API**（`DOMParser` / `DecompressionStream`），node 里没有 DOMParser，测要用真 Chromium。
 4. **`sidepanel.js` 里 `API_BASE` 默认是 VPS IP**，本机调试记得在「服务器设置」里改成 `http://127.0.0.1:3210`。
 5. 后端**零依赖**是有意为之（VPS 裸跑），加依赖前三思。
+6. **VPS git pull 要在 `/home/ubuntu/kol-repo/` 下运行**，不是 `bilingual-extension/`（那个目录是旧结构残留，已空）。
+7. **manifest.json 不能带 `key` 字段上传商店**，会报"key 字段值与当前内容不符"。`key` 只在本地开发时用，打商店包前确认已删除。
+8. **VPS GitHub 认证用 SSH**（`~/.ssh/id_ed25519`），不用 token，`git remote` 地址必须是 `git@github.com:...` 格式，不能是 `https://` 格式。
