@@ -146,17 +146,21 @@
           </div>
           <div id="kol-profile-body" class="kol-profile-body hidden">
             <div class="kol-profile-fields">
-              <label>App User ID
-                <input id="kp-appid" type="text" placeholder="例如：TikTok / YouTube / 品牌后台 ID" />
+              <label>App User ID（给 ta 充积分用）
+                <input id="kp-appid" type="text" placeholder="红人在 App 里的 User ID（按图示让对方复制发来）" />
               </label>
-              <label>付款信息
-                <textarea id="kp-payment" rows="2" placeholder="PayPal / 银行卡号 / 收款方式备注"></textarea>
+              <div class="kol-profile-subhead">📄 合同信息（付款信息合并在这里）</div>
+              <label>法定名称（合同抬头）
+                <input id="kp-legalname" type="text" placeholder="红人/公司的法定全称，用于合同抬头" />
               </label>
-              <label>合同信息
-                <textarea id="kp-contract" rows="2" placeholder="合同编号 / 签署日期 / 授权期限 / 平台范围"></textarea>
+              <label>合同寄送邮箱
+                <input id="kp-email" type="text" placeholder="给红人寄合同的邮箱地址" />
               </label>
-              <label>备注
-                <textarea id="kp-notes" rows="2" placeholder="其他固定信息（折扣率、特殊要求……）"></textarea>
+              <label>完整付款信息
+                <textarea id="kp-payment" rows="4" placeholder="按对方用的收款方式填，例如：&#10;· PayPal：邮箱&#10;· Payoneer：邮箱/账号&#10;· 银行：户名 / 账号 / SWIFT 或 IBAN（印度看 IFSC、日本看支店）"></textarea>
+              </label>
+              <label>备注（手写其他固定信息）
+                <textarea id="kp-notes" rows="2" placeholder="折扣率、特殊要求、平台范围、授权期限……随手记"></textarea>
               </label>
             </div>
             <div class="kol-profile-actions">

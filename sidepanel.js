@@ -3861,8 +3861,9 @@ initGuide();
   const statusEl = document.getElementById("kol-profile-status");
   const fields = {
     appid: document.getElementById("kp-appid"),
+    legalname: document.getElementById("kp-legalname"),
+    email: document.getElementById("kp-email"),
     payment: document.getElementById("kp-payment"),
-    contract: document.getElementById("kp-contract"),
     notes: document.getElementById("kp-notes")
   };
   if (!nameInput) return;
@@ -3904,8 +3905,9 @@ initGuide();
 
   function fillFields(profile) {
     fields.appid.value = profile?.appid || "";
+    fields.legalname.value = profile?.legalname || "";
+    fields.email.value = profile?.email || "";
     fields.payment.value = profile?.payment || "";
-    fields.contract.value = profile?.contract || "";
     fields.notes.value = profile?.notes || "";
   }
 
@@ -3927,8 +3929,9 @@ initGuide();
     const profiles = await getProfiles();
     profiles[name] = {
       appid: fields.appid.value.trim(),
+      legalname: fields.legalname.value.trim(),
+      email: fields.email.value.trim(),
       payment: fields.payment.value.trim(),
-      contract: fields.contract.value.trim(),
       notes: fields.notes.value.trim(),
       updatedAt: new Date().toISOString()
     };

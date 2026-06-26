@@ -465,3 +465,4 @@ dialog::backdrop { background: rgba(20,24,36,.4); }
 .kol-profile-list-title { font-size: 11px; color: #9ca3af; margin-bottom: 6px; }
 .kol-profile-chip { display: inline-block; margin: 3px 4px 3px 0; padding: 4px 10px; border: 1px solid #ddd6fe; border-radius: 20px; background: #f5f3ff; color: #6d28d9; font-size: 12px; cursor: pointer; }
 .kol-profile-chip:hover { background: #ede9fe; }
+.kol-profile-subhead { margin: 4px 0 2px; font-size: 12px; font-weight: 700; color: #6d28d9; }
