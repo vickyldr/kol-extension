@@ -78,9 +78,11 @@
       /new\s*messages?|新消息|条新消息|未读/i.test(t) ||
       /^(在线|online|active\s*now|active\s*\d|正在输入|typing\.{0,3})$/i.test(t) ||
       /active\s*now/i.test(t) ||
-      /^\d+\s*(分钟|小时|天|周|秒|分|min|mins?|hr?|hrs?|d|w)\b/i.test(t) ||
-      /^(昨天|今天|刚刚|just\s*now)/i.test(t) ||
-      /^\d{1,2}[:：]\d{2}/.test(t) ||
+      // 时间戳/时长：必须整行就是它（加 $ 锚定），否则像"5 min crafts""20:00 Club"
+      // 这类含数字的真名字会被误判成状态行而丢掉。
+      /^\d+\s*(分钟|小时|天|周|秒|分|min|mins?|hr?|hrs?|d|w)(前|ago)?$/i.test(t) ||
+      /^(昨天|今天|刚刚|just\s*now)$/i.test(t) ||
+      /^\d{1,2}[:：]\d{2}$/.test(t) ||
       /便签|分享一件|^note$/i.test(t)
     );
   }
@@ -787,12 +789,13 @@
           // 用列表里那条更完整的名字来显示
           const inboxRow = inbox.find((r) => r.id === key);
           // 兜底：群聊里气泡左右/颜色判断不稳，我发的消息可能没被认成 "me"，
-          // 导致已回复却仍报"待回复"。只要①整段最后一条是我发的，或②收件箱预览是"你: …"，
-          // 就强制视为已回复（needsReplyRaw=false）。这是反复"已回还提醒"的根因修复。
+          // 导致已回复却仍报"待回复"。只要整段精读到的最后一条是我发的，就视为已回复。
+          // 注意：这里只信"精读到的最后一条"(last)，不再用收件箱列表预览的 lastFromMe——
+          // 列表预览有延迟，红人刚发新消息但列表还显示"你: …"时，会误把真待回复也压掉。
+          // 列表那条的判断已在第 1 步(myLastMsg)处理，这里以精读为准。
           const lastIsMine = last && last.from === "me";
-          const inboxSaysMine = Boolean(inboxRow && inboxRow.lastFromMe);
           const needsReplyRaw =
-            lastCreatorIdx >= 0 && !myReplyAfter && !reactedLast && !lastIsMine && !inboxSaysMine;
+            lastCreatorIdx >= 0 && !myReplyAfter && !reactedLast && !lastIsMine;
           const displayName = (inboxRow && inboxRow.title) || name;
           // 记到累积缓冲，供"离开时自动更新合作进展"
           convBuffer.key = key;

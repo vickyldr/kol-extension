@@ -3884,7 +3884,9 @@ initGuide();
 
   async function saveProfiles(profiles) {
     await chrome.storage.local.set({ [PROFILE_KEY]: profiles });
-    if (typeof triggerCloudBackup === "function") triggerCloudBackup();
+    // 写 kolProfiles 会触发 storage.onChanged → scheduleCloudBackup（kolProfiles 在 BACKUP_KEYS 里），
+    // 这里直接显式调一次，确保即时备份。
+    if (typeof scheduleCloudBackup === "function") scheduleCloudBackup();
   }
 
   // 按规范化 key 查找（兼容旧数据：若 normalized key 找不到，回退原始 key）
