@@ -19,13 +19,14 @@
 
 | 块 | 是什么 | 跑在哪 | 关键文件 |
 |---|---|---|---|
-| **① Chrome 插件（前端）** | 装在每个运营 Chrome 里的界面 | 每个人的浏览器 | `manifest.json` `sidepanel.*` `content.js` `background.js` `kol-reminder.js` `reminders.*` `knowledge.js` `docx-import.js` |
+| **① Chrome 插件（前端）** | 装在每个运营 Chrome 里的界面 | 每个人的浏览器 | `manifest.json` `sidepanel.*` `content.js` `background.js` `kol-reminder.js` `reminders.*` `knowledge.js` `docx-import.js` `react-guard.js` |
 | **② Node 后端（server）** | 调 AI、存/取话术与物料的"大脑" | 团队的 VPS（单人也可本机） | `server.js`（**纯 Node，零 npm 依赖**，只用 `node:http/fs/path/crypto`） |
 | **③ 数据** | 话术 / 知识库 / 物料 / 产品资料 | 见 §3 的三层边界 | `data/*.json` `data/assets/` |
 
 - 插件通过 HTTP 调后端（`sidepanel.js` 顶部 `API_BASE` 默认指向 VPS IP，可在「服务器设置」里改）。
-- 后端 AI 用 **阿里云百炼 / Qwen**（`DASHSCOPE_API_KEY`）。模型：`MODEL`=`qwen-flash`（快，用户面前的都用它）、`MODEL_SMART`=`qwen-plus`（只给后台提醒判断用）。
+- 后端 AI 用 **阿里云百炼 / Qwen**（`DASHSCOPE_API_KEY`）。模型：`MODEL` / `MODEL_FAST`=`qwen-flash`（用户面前的都用它）。`MODEL_SMART` 现在线上也设成 `qwen-flash`（systemd 的 `model.conf` 里 `DASHSCOPE_MODEL_SMART=qwen-flash`，省钱；`/api/judge` 那次从 qwen-plus 改过来）。`/health` 返回的 `model/model_fast/model_smart` 三个字段是实时真相，以它为准。
 - **打包给商店的 zip 不含 `server.js` 和 `data/`**（见 `build-store-zip.sh` 的 FILES 白名单）——同事的插件不携带任何话术，运行时才从服务器取。
+- **`react-guard.js` 必须最早、在「页面主世界」注入**（manifest `world:"MAIN"` + `run_at:"document_start"`，单独一条 content_scripts）：给 `Node.prototype.removeChild/insertBefore` 加防御，避免我们的内联翻译节点打断 IG/Gmail 的 React 渲染导致整页白屏。详见 §2 红线7 / §9.11。
 
 ---
 
@@ -39,6 +40,11 @@
 4. **翻译要忠实，不改红人原语言**（别把对方的西语回复"顺手"翻成英语再发）。
 5. **写数据永远写线上目录（`KOL_DATA_DIR`），绝不回写代码种子 `data/`。**
    见 §3。这条踩过坑：`KNOWLEDGE_PATH` 若在启动时一次性解析、线上文件还没生成时会指向种子，导入会覆盖仓库种子。**读用 `knowledgeReadPath()`（每次动态判断），写用 `KNOWLEDGE_LIVE_PATH`（永远 `DATA_DIR`）。** 新增任何"可写"的数据文件都照此办。
+6. **回复风格分层，日语必须礼貌，别让「极简」污染日语。**（`server.js`）
+   风格 = `REPLY_STYLE_CORE`（纯业务规则，任何语言都生效）+ **互斥语气层**：非日语用 `REPLY_STYLE_DEFAULT`（极简口语），日语用 `REPLY_STYLE_JA`（敬语 です・ます体、委婉请求、缓冲表达）。
+   所有生成回复的 prompt 一律用 `replyStyleFor(replyLanguage, sampleText)` 拼装——**两套语气永不同时进 prompt**（否则"简洁"和"礼貌"会互相打架）。判定日语：`reply_language` 标日语，或样本文本含假名。改回复 prompt 时务必保持这个分层，别把语气写死进 CORE。
+7. **绝不能因为我们的注入把 IG/Gmail 整页搞白屏。**
+   IG/Gmail/Outlook 都是 React。内联翻译往 React 管理的 DOM 插节点，重渲染时会让 React 的 `removeChild/insertBefore` 抛 `NotFoundError` → 整棵树卸载 → 白屏。三层防御缺一不可：① 少扰动（`content.js` 的 MutationObserver 不观察 `characterData`）；② 插入前查 `isConnected` + 整段 try/catch，失败放弃这条而非连累整页；③ 兜底护栏 `react-guard.js`（§9.11）。**别删 react-guard，别恢复 characterData 观察。**
 
 > 改动若触碰以上任何一条，必须在 PR/说明里点名，并保留原有保护逻辑。
 
@@ -61,7 +67,7 @@
 | `products.json` | 产品资料 | 有 `generic` 兜底 + `forbidden_claims` |
 | `scenario-archive.json` | 用户存的话术存档 | 用户数据，放 `KOL_DATA_DIR` |
 | `assets.json` + `assets/` | 物料库（图片/链接/备注） | 图片文件存 `assets/<id>.<ext>` |
-| `backups/<insid>.json` | 各人浏览器数据的云端备份（按 ins id） | 进度/提醒/待办/个人快捷，`/api/backup` 读写，id 已清洗成安全文件名 |
+| `backups/<insid>.json` | 各人浏览器数据的云端备份（按 ins id） | 进度/提醒/待办/个人快捷/**红人档案(kolProfiles)**，`/api/backup` 读写，id 已清洗成安全文件名。前端 `BACKUP_KEYS` 决定备份哪些 key |
 
 ---
 
@@ -82,7 +88,25 @@
 ## 3c. 云端备份 + 设置收口（v0.24.7）
 
 - **配置唯一入口 = 「⚙️ 服务器设置」**：服务地址 + 团队口令 + **你的 ins id** + **你负责的产品**。ins id 同时当提醒里「我自己的号」，产品同时当「我负责的产品」（保存时写进 `kolReminderSettings`，见 `syncReminderIdentity()`）。已删掉主框的产品选择条、提醒里重复的「身份设置」表单。没填 ins id/产品时顶部出橙色软提示横幅（不锁按钮）。
-- **云端自动备份（按 ins id）**：进度/提醒/待办/个人快捷（`BACKUP_KEYS`）改动后防抖 2.5s 自动 POST 到 `/api/backup`，存 `~/kol-data/backups/<insid>.json`。换电脑/清缓存后填同一个 ins id → 启动静默恢复，或点「☁️ 从云端恢复」。恢复时对象按 key 合并、其余「本地为空才填」，不覆盖更新的本地数据。原「💾导出/📂导入文件」离线备份仍保留。
+- **云端自动备份（按 ins id）**：进度/提醒/待办/个人快捷/红人档案（`BACKUP_KEYS`，含 `kolProfiles`）改动后防抖 2.5s 自动 POST 到 `/api/backup`，存 `~/kol-data/backups/<insid>.json`。换电脑/清缓存后填同一个 ins id → 启动静默恢复，或点「☁️ 从云端恢复」。恢复时对象按 key 合并、其余「本地为空才填」，不覆盖更新的本地数据。原「💾导出/📂导入文件」离线备份仍保留。
+
+---
+
+## 3d. 提醒引擎 + 红人档案（v0.25–0.26 大改，改这块前必读）
+
+**提醒判定（`background.js` 的 `computeReminders` + `kol-reminder.js` 的 `scan`）三条并列、互不冲突，按"等最久"降序排：**
+1. **已读不回**（打开过对话但没回）→ 满 **5 分钟**提醒一次。对方在线**不**提前（要给人留码字时间），在线只影响排序靠前 + 标签高亮。
+2. **未读**（根本没点进去）→ 满 **1 小时**提醒一次。
+3. **今日待办 + 对方在线** → 立即提醒（`dueAt` 是今天 + 该红人 `isOnline`）。待办关联红人靠 `t.threadId`，会话内"问档期/已约好"建的待办自带 threadId。
+   - 计时锚点 `lastCreatorMessageAt`：红人发新消息就重置（避免"第3分钟又来一条却在第5分钟提醒"）。`replyReminderSent`/`unreadReminderSent` 防重复提醒；回写时有 `_refreshing` 再入守卫，别去掉。
+   - **「已回复"不再提醒"判定**：①整段精读到的最后一条是我发的(`lastIsMine`)、或②我给红人最后一条点了表情(`reacted`)、或③有我在红人最后消息之后的回复(`myReplyAfter`)。**不要再用收件箱列表预览的 `lastFromMe` 去压制精读结果**——列表有延迟，红人刚发新消息时会误把真待回复也压掉（这是踩过的回归，见 §9.14）。列表那条的判断只在第 1 步(`myLastMsg`)里用。
+   - **名字识别**：`pickInboxTitle()` + `isStatusLine()` 跳过"New messages/在线/active now/时间戳/便签"等徽标，取第一条像名字的文本。时间戳/时长正则**必须 `$` 锚定**，否则"5 min crafts""20:00 Club"这类含数字真名字会被当状态行丢掉。记账本 schema 升级（如 v4）做定点清理时只删脏的、别全清正常档案。
+   - **头像**：采集每行头像 img 存进 `thread.avatarUrl`（`undefined` 别冲掉旧值），提醒卡片 + 桌面通知优先用真实头像，取不到才退回 `makeAvatarIconAsync` 首字母彩色圆。
+   - **桌面通知用固定 ID `"kol-reminder"`**（覆盖旧的，别用 `Date.now()` 否则叠弹多条）。
+
+**红人固定档案（`kolProfiles`，前端 `initKolProfile`）：** 按名字存 App User ID（Recco 充积分用）/ 合同信息（法定名称+邮箱+付款）/ 备注。
+- **key 用 `profileKey()` 规范化**（trim+折叠空格+小写），`displayName` 另存展示名；"小美"/"小 美" 映射同一条。读取用 `lookupProfile()` 有兜底兼容旧 key。
+- 打开档案卡自动匹配当前 IG 对话名（content.js 的 `KOL_GET_CONVERSATION_TITLE`）。**没有任何代码删 `kolProfiles`**；schema 清理删的是 `kolThreads`，两者无关。
 
 ---
 
@@ -113,13 +137,13 @@ curl -s localhost:3399/health
 
 ### 插件（前端）
 1. 改了任何 **§1 ① 列出的前端文件** → `manifest.json` 的 `version` **必须 +1**（商店要求新版本号更高）。
-2. **新增了前端文件** → 一定要把它加进 `build-store-zip.sh` 的 `FILES` 白名单，否则打出来的包会缺文件、插件加载报错（`docx-import.js` 就是这么差点漏掉的）。
-3. `bash build-store-zip.sh` → 生成 `kol-assistant-v<版本>.zip`（zip 已 gitignore，不进库）。
-4. Chrome 开发者后台 →「软件包」→ 上传新 zip → 提交审核。审核过后**成员自动更新**（从商店装的话）。
+2. **新增了前端文件** → 一定要把它加进 `build-store-zip.sh` 的 `FILES` 白名单，否则打出来的包会缺文件、插件加载报错（`docx-import.js`、`react-guard.js` 都差点这么漏掉）。当前白名单 17 个文件，含 `react-guard.js`。
+3. `bash build-store-zip.sh` → 生成 `kol-assistant-v<版本>.zip`（zip 已 gitignore，不进库）。打包前确认 `manifest.json` **没有 `key` 字段**（§9.7）。
+4. Chrome 开发者后台 →「软件包」→ 上传新 zip → 提交审核。审核过后**成员自动更新**（从商店装的话）；想快点让成员去 `chrome://extensions` 点「立即更新」或重启 Chrome。
 
 ### 后端（server.js / 数据）
-- 改 `server.js`：VPS 上 `git pull` + 重启 node 服务。成员无感。
-- 改话术/知识库：用插件「📥 团队库」上传 Word，或直接改 VPS `~/kol-data/`。成员无感（实时取）。
+- 改 `server.js`：VPS 上 `git pull origin main` + `sudo systemctl restart kol-assistant`（**不是手动 nohup**，见下方 systemd 说明）。成员无感、实时生效（含日语 prompt 这类纯后端改动）。
+- 改话术/知识库：用插件「📥 上传话术」上传 Word，或直接改 VPS `~/kol-data/`。成员无感（实时取）。
 
 #### VPS 实际目录和操作（2026-06 迁移后）
 - **仓库位置**：`/home/ubuntu/kol-repo/`（注意：`bilingual-extension/` 子目录是旧结构残留，已空，别在那里操作）
@@ -155,11 +179,12 @@ curl -s localhost:3399/health
 manifest.json          插件清单（版本号、权限、入口）
 sidepanel.html/js/css  主界面（翻译/回复/话术库/物料库/团队库导入/提醒）—— sidepanel.js 是最大的文件
 content.js             注入 IG/Gmail/Outlook 页面，取对话上下文
-kol-reminder.js        页面侧"搭便车"采集 + 提醒
-background.js          service worker：判断代理、闹钟、四渠道提醒
-reminders.html/js      独立提醒清单弹窗
+kol-reminder.js        页面侧"搭便车"采集 + 提醒（名字/在线/头像识别、已回复判定）
+react-guard.js         ⭐ 防白屏护栏：world=MAIN 注入，给 removeChild/insertBefore 加防御（§2 红线7）
+background.js          service worker：判断代理、闹钟、提醒计算 computeReminders、通知头像
+reminders.html/js      独立提醒清单弹窗（消息预览 + 合作进展 + 真实头像）
 knowledge.js           内置场景库 + 语言识别 + 关键词匹配（前端兜底）
-docx-import.js         ⭐ 团队库 Word 导入：浏览器端零依赖解析 .docx（解压+XML），拆表格成话术+抽图
+docx-import.js         ⭐ 团队库 Word 导入：浏览器端零依赖解析 .docx（解压+XML），拆表格成话术+抽图；单元格按段落保留换行
 server.js              ⭐ 后端全部逻辑：AI 代理、话术/物料存取、/api/* 路由
 data/*.json            出厂种子（见 §3）
 build-store-zip.sh     打商店 zip（FILES 白名单！）
@@ -191,3 +216,8 @@ build-store-zip.sh     打商店 zip（FILES 白名单！）
 8. **VPS GitHub 认证用 SSH**（`~/.ssh/id_ed25519`），不用 token，`git remote` 地址必须是 `git@github.com:...` 格式，不能是 `https://` 格式。
 9. **提醒「打开对话」要靠 threadId 深链**：IG 收件箱列表行这版**不一定是链接**，从列表扫出的提醒可能拿不到对话数字 ID，`threadId` 为空时「打开对话」只能退回收件箱首页（看着像打不开）。`kol-reminder.js` 的 `scanInbox()` 会尽量从行内 `<a href="/direct/t/xxx/">` 抓 ID；抓不到就退回首页。改提醒相关逻辑时注意保留这个兜底。
 10. **VPS 后端是 systemd 服务 `kol-assistant`，不是手动 nohup！** 部署只用 `git pull origin main && sudo systemctl restart kol-assistant`。手动 `nohup node server.js` 会和 systemd 进程抢 3210 端口（`EADDRINUSE`）、还会用错数据目录。详见 §5。
+11. **白屏（React 卸载）**：IG/Gmail 是 React，往它管理的 DOM 插节点会让 React `removeChild/insertBefore` 抛 `NotFoundError` 整页白屏。靠 `react-guard.js`（world=MAIN，document_start）兜底 + `content.js` 不观察 characterData + 插入前 `isConnected` 检查。**别删 react-guard、别恢复 characterData 观察、别把它从 build 白名单漏掉。** 见 §2 红线7。
+12. **docx 导入换行**：Word 表格单元格里 1/2/3 分点是独立 `<w:p>` 段落。`collectCellText()` 按段落用 `\n` 连接、`cleanMultiline()` 保留换行（只压每行内空格）；表头/场景名才用单行 `clean()`。改导入逻辑别又把换行压扁。修复只对**之后的导入**生效，旧的压扁话术要重新「上传话术」一次（按 stable_id 幂等覆盖）。
+13. **回复风格分层**：日语走礼貌敬语层、其他走极简层，靠 `replyStyleFor()` 二选一注入，别把语气写死进 `REPLY_STYLE_CORE`。见 §2 红线6。
+14. **别用收件箱列表 `lastFromMe` 压精读的待回复判定**：列表预览有延迟，红人刚发新消息时会漏提醒。精读路径只信 `lastIsMine`/`reacted`/`myReplyAfter`。见 §3d。
+15. **分支/发布**：开发在 `claude/sleepy-fermat-eqatjn`，**`main` 是发布 + VPS 部署分支**。合并到 main 走快进（push HEAD:main），VPS `git pull origin main`。前端发版改任何前端文件都要 `manifest.json` version +1。
