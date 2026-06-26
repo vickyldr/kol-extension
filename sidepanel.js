@@ -3871,6 +3871,12 @@ initGuide();
 
   let currentName = "";
 
+  // 规范化 key：去首尾空格、折叠内部空格、转小写。
+  // "小美"/"小美 "/"小 美" 都映射同一个 key；displayName 用输入的原始名。
+  function profileKey(name) {
+    return (name || "").trim().replace(/\s+/g, " ").toLowerCase();
+  }
+
   async function getProfiles() {
     const s = await chrome.storage.local.get(PROFILE_KEY);
     return s[PROFILE_KEY] || {};
@@ -3881,6 +3887,17 @@ initGuide();
     if (typeof triggerCloudBackup === "function") triggerCloudBackup();
   }
 
+  // 按规范化 key 查找（兼容旧数据：若 normalized key 找不到，回退原始 key）
+  function lookupProfile(profiles, name) {
+    const k = profileKey(name);
+    if (profiles[k] !== undefined) return { key: k, data: profiles[k] };
+    // 旧数据兼容：遍历找大小写/空格不同但 normalize 后相同的 key
+    for (const [sk, sv] of Object.entries(profiles)) {
+      if (profileKey(sk) === k) return { key: sk, data: sv };
+    }
+    return { key: k, data: null };
+  }
+
   function showStatus(msg, ok) {
     if (!statusEl) return;
     statusEl.textContent = msg;
@@ -3889,12 +3906,18 @@ initGuide();
     setTimeout(() => statusEl.classList.add("hidden"), 2500);
   }
 
-  // 填充 datalist（浏览器原生下拉提示）
+  // 填充 datalist（浏览器原生下拉提示，展示 displayName 或 key）
   async function refreshDatalist() {
     if (!datalist) return;
     const profiles = await getProfiles();
-    datalist.innerHTML = Object.keys(profiles).sort()
-      .map(n => `<option value="${n.replace(/"/g, "&quot;")}"></option>`).join("");
+    datalist.innerHTML = Object.values(profiles).sort((a, b) => {
+      const na = a?.displayName || "";
+      const nb = b?.displayName || "";
+      return na.localeCompare(nb);
+    }).map(p => {
+      const v = (p?.displayName || "").replace(/"/g, "&quot;");
+      return `<option value="${v}"></option>`;
+    }).join("");
   }
 
   function fillFields(profile) {
@@ -3907,9 +3930,10 @@ initGuide();
 
   async function loadProfile(name) {
     if (!name) { body.classList.add("hidden"); return; }
-    currentName = name;
     const profiles = await getProfiles();
-    fillFields(profiles[name] || {});
+    const { key, data } = lookupProfile(profiles, name);
+    currentName = key;
+    fillFields(data || {});
     body.classList.remove("hidden");
   }
 
@@ -3922,10 +3946,11 @@ initGuide();
       const name = resp?.title?.trim();
       if (!name) return;
       const profiles = await getProfiles();
-      if (profiles[name]) {
-        nameInput.value = name;
+      const { data } = lookupProfile(profiles, name);
+      if (data) {
+        nameInput.value = data.displayName || name;
         loadProfile(name);
-        if (autoHint) { autoHint.textContent = `已自动加载「${name}」的档案`; autoHint.classList.remove("hidden"); }
+        if (autoHint) { autoHint.textContent = `已自动加载「${data.displayName || name}」的档案`; autoHint.classList.remove("hidden"); }
       } else {
         // 填入名字但不自动展开（可能还没建档）
         nameInput.value = name;
@@ -3938,11 +3963,16 @@ initGuide();
   nameInput.addEventListener("keydown", (e) => { if (e.key === "Enter") loadProfile(nameInput.value.trim()); });
 
   saveBtn.addEventListener("click", async () => {
-    const name = nameInput.value.trim();
-    if (!name) { showStatus("请先输入红人名字", false); return; }
-    currentName = name;
+    const rawName = nameInput.value.trim();
+    if (!rawName) { showStatus("请先输入红人名字", false); return; }
+    const k = profileKey(rawName);
+    currentName = k;
     const profiles = await getProfiles();
-    profiles[name] = {
+    // 保留 displayName（第一次存时用输入的，后续更新时保留原名，除非主动改了输入框）
+    const existing = profiles[k] || {};
+    profiles[k] = {
+      ...existing,
+      displayName: rawName, // 输入的最新名字作为展示名
       appid: fields.appid.value.trim(),
       legalname: fields.legalname.value.trim(),
       email: fields.email.value.trim(),
@@ -3956,10 +3986,11 @@ initGuide();
   });
 
   deleteBtn.addEventListener("click", async () => {
-    const name = currentName || nameInput.value.trim();
+    const name = currentName || profileKey(nameInput.value.trim());
     if (!name) return;
-    if (!confirm(`确定删除「${name}」的档案？`)) return;
     const profiles = await getProfiles();
+    const displayName = profiles[name]?.displayName || name;
+    if (!confirm(`确定删除「${displayName}」的档案？`)) return;
     delete profiles[name];
     await saveProfiles(profiles);
     fillFields({});

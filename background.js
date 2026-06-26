@@ -215,16 +215,23 @@ function minutesSince(iso, now) {
 
 // 把记账本 + 自定义待办，算成「当前该提醒的清单」
 // 返回 items，每条附 recKey / markReplyReminderSent / markUnreadReminderSent 供 refreshReminders 回写。
-// 提醒逻辑：
-//   已读不回（打开了对话但没回）→ 5分钟后提醒一次；对方在线时跳过等待立即提醒。
-//   未读（根本没点进去）→ 1小时后提醒一次。
-//   以上都只提醒一次；红人发新消息会重置计时（重新等5分钟）。
+// 三条并列提醒逻辑（互不冲突，按等待时长降序排）：
+//   ① 已读不回（打开了对话但没回）→ 5分钟后提醒一次（在线不提前，给对方留码字时间）
+//   ② 未读（根本没点进去）→ 1小时后提醒一次
+//   ③ 今日待办（dueAt 是今天）+ 对应红人在线 → 立即提醒（"在线可高优先处理！"）
+//   以上都只提醒一次；红人发新消息重置①计时。
 async function computeReminders() {
   const store = await chrome.storage.local.get(["kolThreads", "kolTodos"]);
   const threads = store.kolThreads || {};
   const todos = store.kolTodos || [];
   const now = Date.now();
   const items = [];
+
+  // 建 threadId → rec 的反查表（供待办关联红人在线状态）
+  const threadIdToRec = {};
+  Object.values(threads).forEach((rec) => {
+    if (rec && rec.threadId) threadIdToRec[rec.threadId] = rec;
+  });
 
   Object.entries(threads).forEach(([recKey, rec]) => {
     if (!rec || rec.muted) return;
@@ -297,11 +304,37 @@ async function computeReminders() {
     }
   });
 
-  // 自定义待办：到点才提醒
+  // 自定义待办：到点提醒（普通）；今日待办 + 红人在线 → 立即提醒（第③条）
+  const todayStart = new Date(now);
+  todayStart.setHours(0, 0, 0, 0);
+  const todayEnd = new Date(now);
+  todayEnd.setHours(23, 59, 59, 999);
+
   todos.forEach((t) => {
     if (!t || t.done || t.dismissed) return;
     const dueAt = Date.parse(t.dueAt);
-    if (Number.isFinite(dueAt) && dueAt <= now) {
+    if (!Number.isFinite(dueAt)) return;
+
+    const linkedRec = t.threadId ? threadIdToRec[t.threadId] : null;
+    const dueDate = new Date(dueAt);
+    const dueToday = dueDate >= todayStart && dueDate <= todayEnd;
+
+    // ③ 今日待办 + 红人在线 → 立即弹（用同一个 key，不会重复触发）
+    if (dueToday && linkedRec?.isOnline) {
+      const recTitle = linkedRec.title || linkedRec.creatorName || "";
+      items.push({
+        key: "todo:" + t.id,
+        kind: "todo",
+        threadId: t.threadId || "",
+        title: t.text || "待办",
+        label: `🟢 ${recTitle ? recTitle + " 在线 · " : ""}${t.text || "今日待办"}`,
+        elapsedMs: Math.max(0, now - dueAt)
+      });
+      return; // 已加，跳过下面的普通到期检查
+    }
+
+    // 普通：过了 dueAt 才提醒
+    if (dueAt <= now) {
       items.push({
         key: "todo:" + t.id,
         kind: "todo",

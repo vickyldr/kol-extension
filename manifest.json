@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "KOL 双语沟通助手",
-  "version": "0.25.7",
+  "version": "0.25.8",
   "description": "理解红人消息、匹配内部话术并生成双语回复建议，并提醒待回复 / 待跟进的红人。",
   "permissions": ["activeTab", "contextMenus", "sidePanel", "storage", "alarms", "notifications"],
   "host_permissions": [
