@@ -36,7 +36,7 @@ class TTLCache {
 const translateCache = new TTLCache(5000, 24 * 3600 * 1000);
 const judgeCache = new TTLCache(3000, 3600 * 1000);
 
-const HOST = process.env.KOL_ASSISTANT_HOST || "127.0.0.1";
+const HOST = process.env.KOL_ASSISTANT_HOST || "0.0.0.0";
 const PORT = Number(process.env.KOL_ASSISTANT_PORT || 3210);
 const MODEL = process.env.DASHSCOPE_MODEL || "qwen-flash";
 // 分流原则：你要"等结果"的全用快模型；只有后台默默跑、你不等的，才用慢但聪明的。
