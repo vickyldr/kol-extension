@@ -43,10 +43,9 @@ const HOST = process.env.KOL_ASSISTANT_HOST || "0.0.0.0";
 const PORT = Number(process.env.KOL_ASSISTANT_PORT || 3210);
 const MODEL = process.env.DASHSCOPE_MODEL || "qwen-flash";
 // 分流原则：你要"等结果"的全用快模型；只有后台默默跑、你不等的，才用慢但聪明的。
-// FAST：翻译/分析/润色/问AI 等所有前台交互 → 快的 flash（体验优先）
-// SMART：只有后台提醒判断(judge) → 慢但聪明，顺便吃第二份免费额度，不影响你速度
+// 全部用 flash（最便宜），免费额度用完后省钱。
 const MODEL_FAST = process.env.DASHSCOPE_MODEL_FAST || MODEL;
-const MODEL_SMART = process.env.DASHSCOPE_MODEL_SMART || "qwen-plus";
+const MODEL_SMART = process.env.DASHSCOPE_MODEL_SMART || "qwen-flash";
 // 团队口令：部署到 VPS 给团队用时设置，未设置则为本机单人模式（不校验）。
 const AUTH_TOKEN = process.env.KOL_ASSISTANT_TOKEN || "";
 // 管理员口令：设置后，只有带正确管理员口令的请求才能编辑/删除已有话术。
