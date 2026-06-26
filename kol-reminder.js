@@ -25,12 +25,17 @@
     }
   });
 
-  // 一次性清理：旧版按"数字对话ID"存的记账本，换成按名字存后，把旧数据清掉，
-  // 避免残留那些 @一串数字 的脏提醒。清一次即可。
-  chrome.storage.local.get("kolThreadsSchema").then((s) => {
-    if (s.kolThreadsSchema !== 3) {
-      chrome.storage.local.set({ kolThreads: {}, kolThreadsSchema: 3 });
-    }
+  // 一次性清理：
+  //  v3：旧版按"数字对话ID"存的记账本 → 全清。
+  //  v4：把状态徽标("New messages"/"在线"/时间戳)误当成红人名字的脏记录 → 定点删除（不全清，保留正常档）。
+  chrome.storage.local.get(["kolThreadsSchema", "kolThreads"]).then((s) => {
+    const ver = s.kolThreadsSchema;
+    if (ver === 4) return;
+    let map = ver === 3 ? (s.kolThreads || {}) : {}; // 不到 v3 的全清，v3→v4 只清脏的
+    Object.keys(map).forEach((k) => {
+      if (isStatusLine(k) || isStatusLine(map[k] && map[k].title)) delete map[k];
+    });
+    chrome.storage.local.set({ kolThreads: map, kolThreadsSchema: 4 });
   });
 
   // —— 工具 —————————————————————————————————————————————
@@ -62,6 +67,31 @@
     const h = String(handle || "").toLowerCase().replace(/^@/, "").trim();
     const mine = String(settings.myHandle || "").toLowerCase().replace(/^@/, "").trim();
     return Boolean(mine) && h === mine;
+  }
+
+  // 收件箱行里这些是"状态徽标 / 时间戳 / 系统文案"，不是红人名字——挑名字时要跳过。
+  // 之前直接拿 lines[0] 当名字，结果行首是"New messages"徽标时，整条提醒就叫"New messages"了。
+  function isStatusLine(s) {
+    const t = String(s || "").trim();
+    if (!t) return true;
+    return (
+      /new\s*messages?|新消息|条新消息|未读/i.test(t) ||
+      /^(在线|online|active\s*now|active\s*\d|正在输入|typing\.{0,3})$/i.test(t) ||
+      /active\s*now/i.test(t) ||
+      /^\d+\s*(分钟|小时|天|周|秒|分|min|mins?|hr?|hrs?|d|w)\b/i.test(t) ||
+      /^(昨天|今天|刚刚|just\s*now)/i.test(t) ||
+      /^\d{1,2}[:：]\d{2}/.test(t) ||
+      /便签|分享一件|^note$/i.test(t)
+    );
+  }
+
+  // 从一行对话的多行文本里挑出"红人名字 / 群聊名"：取第一条不是状态徽标的文本。
+  function pickInboxTitle(lines) {
+    for (const l of (lines || [])) {
+      const t = (l || "").trim();
+      if (t.length >= 2 && !isStatusLine(t)) return t.slice(0, 80);
+    }
+    return "";
   }
 
   // 记账本的 key：用名字的"归一化前缀"，让列表里的截断名("Rythmix + yai…")
@@ -312,14 +342,14 @@
       const text = (row.innerText || "").trim();
       if (!text) return;
       const lines = text.split("\n").map((s) => s.trim()).filter(Boolean);
-      const title = (lines[0] || "").slice(0, 80);
+      // 挑名字：跳过"New messages/在线/时间戳"等徽标，取第一条像名字的文本
+      const title = pickInboxTitle(lines);
       if (!title || title.length < 2) return;
-      // 跳过明显不是对话行的（比如"你的便签/分享一件趣事"）
-      if (/便签|分享一件|note$/i.test(title)) return;
       const key = titleKey(title);
       if (!key || seen.has(key)) return;
       seen.add(key);
-      const preview = lines.slice(1).join(" ").slice(0, 120);
+      // 预览：去掉名字行和所有状态徽标，剩下的当最后一条消息预览
+      const preview = lines.filter((l) => l !== title && !isStatusLine(l)).join(" ").slice(0, 120);
       // 未读：只认真正的未读信号（"N new messages" / 蓝色未读圆点）。
       // 不再用字重(isBold)——IG 名字几乎都是粗体，会把所有行误判成未读。
       const unread =
@@ -367,8 +397,9 @@
         row = row.parentElement;
       }
       if (!row) continue;
-      const title = ((row.innerText || "").trim().split("\n")[0] || "").slice(0, 80);
-      if (titleKey(title) === targetKey) return row;
+      const lines = (row.innerText || "").trim().split("\n").map((s) => s.trim()).filter(Boolean);
+      const title = pickInboxTitle(lines);
+      if (title && titleKey(title) === targetKey) return row;
     }
     return null;
   }
