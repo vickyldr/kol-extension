@@ -177,11 +177,33 @@ function ensureAlarm() {
 chrome.runtime.onInstalled.addListener(ensureAlarm);
 chrome.runtime.onStartup.addListener(ensureAlarm);
 
-// 打开 Chrome 时，若有待处理的红人，自动弹出"今日待办"窗口（解决"懒得开提醒面板"）
+// 打开 Chrome 时，若有待处理的红人，自动弹出"今日待办"窗口（解决"懒得开提醒面板"）。
+// 注意：用「窗口同口径」判断（无 5分钟/1小时阈值），别复用带阈值的 computeReminders——
+// 否则刚开机时未读不满1小时/已读不回不满5分钟会被滤掉，出现"窗口本该有内容却不自动弹"。
+// 口径 = reminders.js 的 🔴立即回复 + 🟠今天跟进（含过期待办）：开机就该处理的事。
+async function hasWindowPendingItems() {
+  const store = await chrome.storage.local.get(["kolThreads", "kolTodos"]);
+  const threads = store.kolThreads || {};
+  const todos = store.kolTodos || [];
+  const endOfToday = (() => { const d = new Date(); d.setHours(23, 59, 59, 999); return d.getTime(); })();
+  // 🔴 立即回复：任一待回复且未被「不用提醒」压制的红人
+  const hasReply = Object.values(threads).some((rec) => {
+    if (!rec || rec.muted || !rec.needsReplyRaw) return false;
+    const j = rec.judge || {};
+    if (j.is_pleasantry === true) return false;
+    return rec.replyDismissedSig !== (rec.judgeSignature || "");
+  });
+  if (hasReply) return true;
+  // 🟠 今天跟进：任一今天到点（含过期）的待办
+  return todos.some((t) => {
+    if (!t || t.done || t.dismissed) return false;
+    const due = Date.parse(t.dueAt);
+    return Number.isFinite(due) && due <= endOfToday;
+  });
+}
 async function openTodoWindowIfPending() {
   try {
-    const items = await computeReminders();
-    if (items.length) openTodoWindow();
+    if (await hasWindowPendingItems()) openTodoWindow();
   } catch (e) {
     console.warn("待办窗口检查失败", e);
   }

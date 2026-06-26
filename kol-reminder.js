@@ -483,7 +483,9 @@
     if (!id) return;
     const map = await getThreads();
     const prev = map[id] || {};
-    const rec = { ...prev, ...patch, threadId: id, lastSeenAt: nowIso() };
+    // id 是"归一化名字 key"；threadId 要保留 patch 传来的数字对话 ID（openTid），
+    // 别用名字 key 覆盖它——否则"打开对话"深链失效、按数字 threadId 找真总结也对不上。
+    const rec = { ...prev, ...patch, threadId: patch.threadId || prev.threadId || "", lastSeenAt: nowIso() };
     // 头像没新值时别让 undefined 把旧头像冲掉
     if (rec.avatarUrl === undefined) rec.avatarUrl = prev.avatarUrl || "";
 
@@ -903,7 +905,11 @@
         payload: { messages: buf.messages, previousSummary, creatorName: buf.name }
       });
       if (res && res.summary) {
-        all[sk] = { text: res.summary, name: buf.name, tid: buf.tid || "", key: buf.key || "", updatedAt: new Date().toISOString() };
+        const rec = { text: res.summary, name: buf.name, tid: buf.tid || "", key: buf.key || "", updatedAt: new Date().toISOString() };
+        all[sk] = rec;
+        // 双写一份按"归一化名字 key"——提醒清单(reminders.js)的 thread key 是名字，
+        // 抓不到数字 threadId 时只能按名字找总结；不双写会导致点过的对话清单里仍显示不出真总结。
+        if (buf.key && buf.key !== sk) all[buf.key] = rec;
         await chrome.storage.local.set({ kolSummaries: all });
       }
     } catch (e) {

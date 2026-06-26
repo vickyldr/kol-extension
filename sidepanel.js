@@ -42,7 +42,6 @@ const productSelect = document.getElementById("product");
 const result = document.getElementById("result");
 const emptyState = document.getElementById("empty-state");
 const errorBox = document.getElementById("request-error");
-const analyzeButton = document.getElementById("analyze");
 const statusButton = document.getElementById("service-status");
 const replyTargetInput = document.getElementById("reply-target");
 const replyChineseInput = document.getElementById("reply-zh");
@@ -2136,103 +2135,8 @@ async function askAboutMessage(mode) {
   }
 }
 
-async function analyze() {
-  const message = messageInput.value.trim();
-  const goal = operatorGoalInput.value.trim();
-  if (!message && !goal) {
-    messageInput.focus();
-    return;
-  }
-
-  errorBox.classList.add("hidden");
-  analyzeButton.disabled = true;
-  analyzeButton.textContent = serviceOnline ? "生成回复中…" : "离线匹配中…";
-
-  if (!serviceOnline) {
-    renderAnalysis(localFallback(message));
-    errorBox.textContent =
-      "千问服务未连接，当前显示离线结果。请在「⚙️ 服务器设置」检查地址和团队口令后重试。";
-    errorBox.classList.remove("hidden");
-    analyzeButton.disabled = false;
-    analyzeButton.textContent = "💬 生成双语回复";
-    return;
-  }
-
-  // 回复语言：有原文让服务端识别；没原文（红人只发图片/视频）先扫窗口/读设置，
-  // 都没有就弹窗让运营选，避免 AI 默认编成英文。用户取消则中止本次生成。
-  const replyLang = await resolveReplyLanguage(message);
-  if (replyLang === null) {
-    analyzeButton.disabled = false;
-    analyzeButton.textContent = "💬 生成双语回复";
-    return;
-  }
-
-  // 自动把当前对话当上下文（实习生不用手动粘）
-  const autoCtx = await getConversationContext();
-  const mergedContext = [contextInput.value.trim(), autoCtx].filter(Boolean).join("\n");
-
-  const payload = {
-    message,
-    productId: productSelect.value,
-    context: mergedContext,
-    operatorGoal: goal,
-    replyLanguage: replyLang || (replyLanguageSelect?.value || ""),
-    channel: "Instagram"
-  };
-
-  // 清空旧结果，先把结果区露出来 + 显示"生成中"
-  replyTargetInput.value = "";
-  replyChineseInput.value = "";
-  const biBox = document.getElementById("bi-split");
-  if (biBox) biBox.innerHTML = '<div class="bi-loading">正在生成回复…</div>';
-  const summary = document.getElementById("analysis-summary");
-  if (summary) summary.textContent = "识别 & 内部提醒（分析中…）";
-  emptyState.classList.add("hidden");
-  result.classList.remove("hidden");
-
-  // 阶段 1：快出「外语回复 + 中文」（追求 3-5 秒）
-  const replyP = fetch(`${API_BASE}/api/reply`, {
-    method: "POST",
-    headers: authHeaders({ "Content-Type": "application/json" }),
-    body: JSON.stringify(payload),
-    signal: AbortSignal.timeout(30000)
-  })
-    .then((r) => r.json())
-    .then((b) => {
-      if (b && b.reply_target) {
-        replyTargetInput.value = b.reply_target;
-        replyChineseInput.value = b.reply_chinese || "";
-        renderBilingualSplit(b.reply_target, b.reply_chinese || "");
-      }
-    })
-    .catch(() => {});
-
-  // 阶段 2：完整分析（后台补到下方折叠区，不阻塞回复）
-  fetch(`${API_BASE}/api/analyze`, {
-    method: "POST",
-    headers: authHeaders({ "Content-Type": "application/json" }),
-    body: JSON.stringify(payload),
-    signal: AbortSignal.timeout(65000)
-  })
-    .then((r) => r.json())
-    .then((b) => {
-      if (b && !b.error) renderAnalysis(b);
-      if (summary) summary.textContent = "识别 & 内部提醒";
-    })
-    .catch(() => {
-      if (summary) summary.textContent = "识别 & 内部提醒（分析未完成）";
-    });
-
-  try {
-    await replyP; // 回复一出来就解禁按钮
-    if (!replyTargetInput.value && biBox) {
-      biBox.innerHTML = '<div class="bi-loading">回复生成较慢，分析结果会稍后补上…</div>';
-    }
-  } finally {
-    analyzeButton.disabled = false;
-    analyzeButton.textContent = "💬 生成双语回复";
-  }
-}
+// 注：旧的 analyze()（💬 生成双语回复 按钮）已随改版删除——回复改由 do-faithful/do-polish
+// 走 doReply 生成；AI 理解（/api/analyze）改由「打开对话自动跑」maybeRunUnderstanding 承担。
 
 document.getElementById("do-faithful").addEventListener("click", () => doReply("faithful"));
 document.getElementById("do-polish").addEventListener("click", () => doReply("polish"));

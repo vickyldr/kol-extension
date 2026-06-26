@@ -238,6 +238,8 @@ async function render() {
 
 document.getElementById("todo-window-refresh").addEventListener("click", render);
 chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === "local" && (changes.kolThreads || changes.kolTodos)) render();
+  // kolSummaries 也要听：离开对话生成的「真总结」常单独写入（不动 kolThreads），
+  // 漏听会导致已打开的窗口不刷新、新中文总结迟迟不出现。
+  if (area === "local" && (changes.kolThreads || changes.kolTodos || changes.kolSummaries)) render();
 });
 render();
