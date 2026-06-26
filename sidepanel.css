@@ -487,3 +487,14 @@ dialog::backdrop { background: rgba(20,24,36,.4); }
 
 /* 红人档案自动匹配提示 */
 .kol-profile-auto-hint { margin: 0 0 8px; padding: 6px 10px; border-radius: 8px; background: #f0fdf4; color: #166534; font-size: 12px; }
+
+/* 🧠 AI 理解（打开对话后自动跑 · 给运营看的参考） */
+.ai-understanding { border: 1px solid #cdbff0; border-radius: 13px; background: linear-gradient(180deg,#faf8ff,#f1ebff); padding: 0; }
+.ai-understanding.hidden { display: none; }
+.ai-understanding-summary { display: flex; align-items: center; gap: 8px; padding: 10px 13px; cursor: pointer; list-style: none; font-size: 13px; font-weight: 800; color: #4a2d8a; }
+.ai-understanding-summary::-webkit-details-marker { display: none; }
+.ai-u-spinner { color: #8b70c8; font-size: 11px; font-style: italic; font-weight: 400; margin-left: auto; }
+.ai-u-grid { display: flex; flex-direction: column; gap: 8px; padding: 4px 14px 13px; }
+.ai-u-row { display: flex; flex-direction: column; gap: 2px; }
+.ai-u-label { font-size: 11px; font-weight: 700; color: #8b7fb0; }
+.ai-u-row strong, .ai-u-row p { margin: 0; font-size: 13px; color: #2c2452; line-height: 1.5; }

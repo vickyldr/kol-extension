@@ -51,37 +51,7 @@ const archivePanel = document.getElementById("archive-panel");
 const archiveList = document.getElementById("archive-list");
 const archiveSearch = document.getElementById("archive-search");
 const saveDialog = document.getElementById("save-dialog");
-const templateCategorySelect = document.getElementById(
-  "template-category-select"
-);
-const templateSelect = document.getElementById("template-select");
-const templateDescription = document.getElementById("template-description");
-const templateVariables = document.getElementById("template-variables");
-const targetLanguage = document.getElementById("target-language");
-// 记住「我主动发」上次用的输出语言，下次默认它
-chrome.storage.local.get("kolProactiveLang").then((s) => {
-  if (s.kolProactiveLang) targetLanguage.value = s.kolProactiveLang;
-});
-targetLanguage.addEventListener("change", () => {
-  chrome.storage.local.set({ kolProactiveLang: targetLanguage.value });
-});
-const generateTemplateButton = document.getElementById("generate-template");
-const templateStatus = document.getElementById("template-status");
-
-// 板块切换 + 主动发板块（B）相关元素
-const tabReactive = document.getElementById("tab-reactive");
-const tabProactive = document.getElementById("tab-proactive");
-const tabChat = document.getElementById("tab-chat");
 const panelReactive = document.getElementById("panel-reactive");
-const panelProactive = document.getElementById("panel-proactive");
-const panelChat = document.getElementById("panel-chat");
-const freeIntentInput = document.getElementById("free-intent");
-const generateFreeButton = document.getElementById("generate-free");
-const freeStatus = document.getElementById("free-status");
-const resultPro = document.getElementById("result-pro");
-const replyTargetProInput = document.getElementById("reply-target-pro");
-const replyChineseProInput = document.getElementById("reply-zh-pro");
-const translateProButton = document.getElementById("translate-pro");
 
 // 选话术（多语言话术库）相关元素
 const playbookDialog = document.getElementById("playbook-dialog");
@@ -109,23 +79,9 @@ let serviceOnline = false;
 let waitTimer = null;
 let lastAnalysis = null;
 let archiveSearchTimer = null;
-let quickTemplates = [];
-let selectedTemplate = null;
-let lastProScene = "";
-let lastProCategory = "主动话术";
 let pendingSave = null;
 let playbook = [];
 let playbookTarget = "reactive";
-
-function switchMode(mode) {
-  if (!["reactive", "proactive", "chat"].includes(mode)) mode = "reactive";
-  tabReactive.classList.toggle("active", mode === "reactive");
-  tabProactive.classList.toggle("active", mode === "proactive");
-  tabChat.classList.toggle("active", mode === "chat");
-  panelReactive.classList.toggle("hidden", mode !== "reactive");
-  panelProactive.classList.toggle("hidden", mode !== "proactive");
-  panelChat.classList.toggle("hidden", mode !== "chat");
-}
 
 async function loadPendingMessage() {
   const stored = await chrome.storage.session.get([
@@ -134,7 +90,6 @@ async function loadPendingMessage() {
   ]);
   if (stored.pendingMessage) {
     messageInput.value = stored.pendingMessage;
-    switchMode("reactive");
     await chrome.storage.session.remove("pendingMessage");
   }
   if (stored.selectedProduct) productSelect.value = stored.selectedProduct;
@@ -186,225 +141,6 @@ if (productSelect) {
   });
 }
 
-function renderTemplateCategories() {
-  const categories = [...new Set(quickTemplates.map((item) => item.category))];
-  templateCategorySelect.replaceChildren();
-  for (const category of categories) {
-    const option = document.createElement("option");
-    option.value = category;
-    option.textContent = category;
-    templateCategorySelect.appendChild(option);
-  }
-  if (categories[0]) renderTemplateButtons(categories[0]);
-}
-
-function renderTemplateButtons(category) {
-  templateSelect.replaceChildren();
-  selectedTemplate = null;
-  templateVariables.classList.add("hidden");
-  generateTemplateButton.classList.add("hidden");
-
-  for (const template of quickTemplates.filter(
-    (item) => item.category === category
-  )) {
-    const option = document.createElement("option");
-    option.value = template.id;
-    option.textContent = template.name;
-    templateSelect.appendChild(option);
-  }
-
-  const firstTemplate = quickTemplates.find(
-    (item) => item.category === category
-  );
-  if (firstTemplate) {
-    selectQuickTemplate(firstTemplate);
-  }
-}
-
-function variableLabel(name) {
-  const labels = {
-    product_name: "产品名称",
-    creator_name: "红人名称",
-    missing_details: "需要确认的事项",
-    deadline: "原定截止时间",
-    video_count: "视频数量",
-    collaboration_period: "合作周期",
-    videos_per_month: "每月视频数量",
-    previous_product: "之前合作的产品",
-    brief_link: "Brief / 脚本链接",
-    revision_points: "需要修改的内容",
-    payment_eta: "预计到账时间"
-  };
-  return labels[name] || name;
-}
-
-function selectQuickTemplate(template) {
-  selectedTemplate = template;
-  templateDescription.textContent = template.description || "";
-  templateVariables.replaceChildren();
-
-  for (const variable of template.required_variables) {
-    const label = document.createElement("label");
-    label.textContent = variableLabel(variable);
-    const input = document.createElement("input");
-    input.dataset.variable = variable;
-    input.placeholder = `填写${variableLabel(variable)}`;
-    if (variable === "product_name") {
-      const selectedName =
-        productSelect.options[productSelect.selectedIndex]?.textContent || "";
-      if (!selectedName.includes("通用产品")) {
-        input.value = selectedName.replace("（示例）", "");
-      }
-    }
-    templateVariables.append(label, input);
-  }
-
-  templateVariables.classList.toggle(
-    "hidden",
-    !template.required_variables.length
-  );
-  generateTemplateButton.classList.remove("hidden");
-}
-
-async function loadQuickTemplates() {
-  if (!serviceOnline) return;
-  try {
-    const response = await fetch(`${API_BASE}/api/quick-templates`, {
-      headers: authHeaders()
-    });
-    quickTemplates = await response.json();
-    if (!response.ok) throw new Error("读取快捷话术失败");
-    renderTemplateCategories();
-  } catch (error) {
-    templateStatus.textContent = error.message;
-    templateStatus.classList.remove("hidden");
-  }
-}
-
-// 主动发板块（B）的统一结果渲染：外语 + 中文对照 + 待填变量。
-function renderProactiveReply({ target, chinese, required, sceneName, category }) {
-  replyTargetProInput.value = target || "";
-  replyChineseProInput.value = chinese || "";
-  lastProScene = sceneName || "";
-  lastProCategory = category || "主动话术";
-
-  const missingCard = document.getElementById("missing-card-pro");
-  const missingList = document.getElementById("missing-information-pro");
-  missingList.replaceChildren();
-  for (const item of required || []) {
-    const li = document.createElement("li");
-    li.textContent = item;
-    missingList.appendChild(li);
-  }
-  missingCard.classList.toggle("hidden", !(required || []).length);
-
-  resultPro.classList.remove("hidden");
-  resultPro.scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
-async function generateQuickTemplate() {
-  if (!selectedTemplate || !serviceOnline) return;
-  const variables = {};
-  templateVariables
-    .querySelectorAll("[data-variable]")
-    .forEach((input) => {
-      variables[input.dataset.variable] = input.value.trim();
-    });
-
-  generateTemplateButton.disabled = true;
-  const originalText = generateTemplateButton.textContent;
-  generateTemplateButton.textContent = "正在生成…";
-  templateStatus.textContent = `正在生成「${selectedTemplate.name}」`;
-  templateStatus.classList.remove("hidden");
-
-  try {
-    const response = await fetch(`${API_BASE}/api/generate-template`, {
-      method: "POST",
-      headers: authHeaders({ "Content-Type": "application/json" }),
-      body: JSON.stringify({
-        templateId: selectedTemplate.id,
-        productId: productSelect.value,
-        targetLanguage: targetLanguage.value,
-        channel: selectedTemplate.id.includes("email") ? "Email" : "Instagram",
-        variables
-      }),
-      signal: AbortSignal.timeout(65000)
-    });
-    const body = await response.json();
-    if (!response.ok) throw new Error(body.error || "话术生成失败");
-
-    renderProactiveReply({
-      target: body.reply_target || "",
-      chinese: body.reply_chinese || "",
-      required: body.required_variables || [],
-      sceneName: selectedTemplate.name,
-      category: selectedTemplate.category
-    });
-    templateStatus.textContent = "已生成，可核对、编辑或保存为话术。";
-  } catch (error) {
-    templateStatus.textContent =
-      error.name === "TimeoutError" ? "生成超时，请重试。" : error.message;
-  } finally {
-    generateTemplateButton.disabled = false;
-    generateTemplateButton.textContent = originalText;
-  }
-}
-
-// 入口二：自由输入中文 → 忠实翻译 或 润色生成双语（复用 /api/rewrite）。
-async function generateFree(direction) {
-  const intent = freeIntentInput.value.trim();
-  if (!intent) {
-    freeIntentInput.focus();
-    return;
-  }
-  if (!serviceOnline) {
-    freeStatus.textContent = "千问服务尚未连接。";
-    freeStatus.classList.remove("hidden");
-    return;
-  }
-  const faithful = direction === "faithful";
-  const button = faithful
-    ? document.getElementById("free-faithful")
-    : generateFreeButton;
-  const originalText = button.textContent;
-  button.disabled = true;
-  button.textContent = faithful ? "正在翻译…" : "正在生成…";
-  freeStatus.textContent = faithful ? "正在识别红人语言并翻译……" : "正在识别红人语言并润色……";
-  freeStatus.classList.remove("hidden");
-
-  // 永远优先匹配红人语言：先扫当前对话窗口识别，识别不到才退回「常用语言」设置。
-  let freeLang = await detectConversationLanguage();
-  if (!freeLang) {
-    freeLang = (targetLanguage.value || "").trim();
-  }
-
-  try {
-    const body = await postRewrite({
-      direction,
-      message: "",
-      context: "",
-      productId: productSelect.value,
-      replyLanguage: freeLang,
-      replyTarget: "",
-      replyChinese: intent
-    });
-    renderProactiveReply({
-      target: body.reply_target || "",
-      chinese: body.reply_chinese || "",
-      required: [],
-      sceneName: "自由主动话术",
-      category: "主动话术"
-    });
-    freeStatus.textContent = "已生成，可核对、编辑或保存为话术。";
-  } catch (error) {
-    freeStatus.textContent =
-      error.name === "TimeoutError" ? "生成超时，请重试。" : error.message;
-  } finally {
-    button.disabled = false;
-    button.textContent = originalText;
-  }
-}
-
 async function checkService() {
   statusButton.textContent = "检测中";
   statusButton.className = "status";
@@ -427,7 +163,6 @@ async function checkService() {
     statusButton.className = `status ${health.ai_configured ? "online" : "offline"}`;
     statusButton.title = `${health.provider} · ${health.model}`;
     await loadProducts();
-    await loadQuickTemplates();
     await loadPlaybook();
     await loadAssets();
   } catch {
@@ -439,11 +174,13 @@ async function checkService() {
 }
 
 function setText(id, value) {
-  document.getElementById(id).textContent = value || "—";
+  const el = document.getElementById(id);
+  if (el) el.textContent = value || "—";
 }
 
 function setValue(id, value) {
-  document.getElementById(id).value = value || "";
+  const el = document.getElementById(id);
+  if (el) el.value = value || "";
 }
 
 function renderInternalGuidance(guidance = {}) {
@@ -481,47 +218,128 @@ function renderInternalGuidance(guidance = {}) {
   }
 }
 
+// 把一次分析渲染进顶部「🧠 AI 理解」块（阶段 / 下一步 / 风险），并兜底填双语回复。
 function renderAnalysis(analysis) {
   lastAnalysis = analysis;
-  setText("language", analysis.detected_language);
-  setText("stage", analysis.stage);
-  setText("intent", analysis.intent);
-  setText(
-    "interpretation",
-    `${analysis.match_type === "new_scenario" ? "新场景 · " : ""}${analysis.matched_source || ""}`
-  );
-  setText(
-    "implied-meaning",
-    `可能的言外之意（${analysis.implication_confidence || "low"}）：${analysis.implied_meaning || "无明显言外之意"}`
-  );
+  const guidance = analysis.internal_guidance || {};
+  const nextStep = guidance.explanation || guidance.question_for_tl || "—";
+  setText("ai-u-stage", analysis.stage);
+  setText("ai-u-nextstep", String(nextStep).slice(0, 200));
+  setText("ai-u-risk", analysis.risk_warning);
+  showAiUnderstanding();
   // 回复由快接口(/api/reply)负责并渲染到分屏；这里只在回复还空着时兜底填上。
   if (analysis.reply_target && !replyTargetInput.value) {
     setValue("reply-target", analysis.reply_target);
     setValue("reply-zh", analysis.reply_chinese);
     renderBilingualSplit(analysis.reply_target, analysis.reply_chinese);
+    emptyState.classList.add("hidden");
+    result.classList.remove("hidden");
   }
-  setText("alternative-target", analysis.alternative_target);
-  setText("alternative-zh", analysis.alternative_chinese);
-  setText("risk", analysis.risk_warning);
-  renderInternalGuidance(analysis.internal_guidance);
-  renderMentionedItems(analysis.mentioned_items || []);
-
-  const missingCard = document.getElementById("missing-card");
-  const missingList = document.getElementById("missing-information");
-  missingList.replaceChildren();
-  for (const item of analysis.required_variables || []) {
-    const li = document.createElement("li");
-    li.textContent = item;
-    missingList.appendChild(li);
-  }
-  missingCard.classList.toggle(
-    "hidden",
-    !(analysis.required_variables || []).length
-  );
-
-  emptyState.classList.add("hidden");
-  result.classList.remove("hidden");
 }
+
+// 显示 AI 理解块（展开），并停掉转圈。
+function showAiUnderstanding() {
+  const block = document.getElementById("ai-understanding");
+  if (!block) return;
+  block.classList.remove("hidden");
+  block.open = true;
+  document.getElementById("ai-u-loading")?.classList.add("hidden");
+}
+
+// ===== 🧠 AI 理解：打开对话后自动跑；缓存先显示、内容变了才重算（省 token） =====
+const AI_U_STORE = "kolUnderstanding";
+let aiUnderstandKey = "";
+
+function aiUSig(messages) {
+  return (messages || []).slice(-8).map((m) => `${m.from}:${m.text}`).join("|");
+}
+
+function fillAiU(u) {
+  setText("ai-u-stage", u.stage);
+  setText("ai-u-nextstep", u.nextStep);
+  setText("ai-u-risk", u.risk);
+  showAiUnderstanding();
+}
+
+async function getActiveConversation() {
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab?.id) return null;
+    return await chrome.tabs.sendMessage(tab.id, { type: "KOL_GET_CONVERSATION" });
+  } catch {
+    return null;
+  }
+}
+
+// 打开对话后自动跑：先用缓存秒显示，签名变了（红人发新消息）才重新调 /api/analyze。
+async function maybeRunUnderstanding() {
+  const conv = await getActiveConversation();
+  if (!conv) return;
+  const key = conv.key || conv.tid || "";
+  const msgs = (conv.messages && conv.messages.length) ? conv.messages : (conv.currentMessages || []);
+  if (!key || !msgs.length) return;
+  aiUnderstandKey = key;
+  const sig = aiUSig(msgs);
+  const store = (await chrome.storage.local.get(AI_U_STORE))[AI_U_STORE] || {};
+  const cached = store[key];
+  if (cached) fillAiU(cached); // 缓存先显示，零等待
+  if (!serviceOnline || (cached && cached.sig === sig)) return; // 没变就不重算
+
+  const block = document.getElementById("ai-understanding");
+  if (block) block.classList.remove("hidden");
+  document.getElementById("ai-u-loading")?.classList.remove("hidden");
+  try {
+    const convText = msgs
+      .map((m) => `${m.from === "me" ? "我" : (m.name || "对方")}: ${m.text}`)
+      .join("\n");
+    const lastCreator = [...msgs].reverse().find((m) => m.from !== "me");
+    const resp = await fetch(`${API_BASE}/api/analyze`, {
+      method: "POST",
+      headers: authHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify({
+        message: lastCreator?.text || "",
+        context: convText,
+        productId: productSelect.value,
+        channel: "Instagram"
+      }),
+      signal: AbortSignal.timeout(60000)
+    });
+    if (!resp.ok) return;
+    const a = await resp.json();
+    if (a.error) return;
+    const g = a.internal_guidance || {};
+    const u = {
+      sig,
+      stage: a.stage || "—",
+      nextStep: String(g.explanation || g.question_for_tl || "—").slice(0, 200),
+      risk: a.risk_warning || "—"
+    };
+    if (aiUnderstandKey !== key) return; // 期间又切了对话，丢弃这次结果
+    store[key] = u;
+    await chrome.storage.local.set({ [AI_U_STORE]: store });
+    fillAiU(u);
+  } catch {
+    // 网络失败静默；缓存（若有）已经显示
+  } finally {
+    document.getElementById("ai-u-loading")?.classList.add("hidden");
+  }
+}
+
+// 切换 / 刷新 IG 标签页时自动重判（防抖）。
+let aiUnderstandTimer = null;
+function scheduleUnderstanding(delay = 600) {
+  clearTimeout(aiUnderstandTimer);
+  aiUnderstandTimer = setTimeout(maybeRunUnderstanding, delay);
+}
+if (chrome.tabs?.onActivated) {
+  chrome.tabs.onActivated.addListener(() => scheduleUnderstanding(400));
+}
+if (chrome.tabs?.onUpdated) {
+  chrome.tabs.onUpdated.addListener((_id, info, tab) => {
+    if (tab?.active && (info.url || info.status === "complete")) scheduleUnderstanding(900);
+  });
+}
+window.addEventListener("focus", () => scheduleUnderstanding(300));
 
 // 把一段文字按句切分（中英标点 + 换行），用于左右分屏逐句对齐
 function splitSentences(s) {
@@ -869,20 +687,6 @@ function reactiveSaveCtx() {
   };
 }
 
-// 收集板块 B（我主动发）当前要保存的内容。
-function proactiveSaveCtx() {
-  return {
-    productId: productSelect.value,
-    target: replyTargetProInput.value.trim(),
-    chinese: replyChineseProInput.value.trim(),
-    sceneName: lastProScene || "",
-    stage: lastProCategory || "主动话术",
-    trigger: "",
-    understanding: "",
-    internal_guidance: {},
-    required_variables: []
-  };
-}
 
 function openSaveDialog(ctx) {
   if (!ctx || (!ctx.target && !ctx.chinese)) {
@@ -1173,86 +977,6 @@ async function alignReplyAction() {
   } finally {
     alignBtn.disabled = false;
     alignBtn.textContent = orig;
-  }
-}
-
-// 板块 B 的回译核对：外语→中文。
-// 我主动发：生成后「让 AI 改这条」
-async function rewriteGoPro() {
-  const box = document.getElementById("rewrite-box-pro");
-  const text = box.value.trim();
-  if (!text) { box.focus(); return; }
-  if (!serviceOnline) {
-    errorBox.textContent = "千问服务尚未连接。";
-    errorBox.classList.remove("hidden");
-    return;
-  }
-  const target = replyTargetProInput.value.trim();
-  if (!target) { replyTargetProInput.focus(); return; }
-  const button = document.getElementById("rewrite-go-pro");
-  const status = document.getElementById("rewrite-status-pro");
-  const orig = button.textContent;
-  button.disabled = true;
-  button.textContent = "AI 处理中…";
-  status.classList.add("hidden");
-  status.classList.remove("error");
-  try {
-    const body = await postRewrite({
-      direction: "refine",
-      message: "",
-      productId: productSelect.value,
-      detectedLanguage: "",
-      replyTarget: target,
-      replyChinese: replyChineseProInput.value.trim(),
-      modification: text
-    });
-    replyTargetProInput.value = body.reply_target || replyTargetProInput.value;
-    replyChineseProInput.value = body.reply_chinese || replyChineseProInput.value;
-    box.value = "";
-    status.textContent = "已按你的要求改好 ↑";
-    status.classList.remove("hidden", "error");
-  } catch (error) {
-    status.textContent = error.name === "TimeoutError" ? "超时，请重试。" : error.message;
-    status.classList.remove("hidden");
-    status.classList.add("error");
-  } finally {
-    button.disabled = false;
-    button.textContent = orig;
-  }
-}
-
-async function translateProReply() {
-  if (!serviceOnline) {
-    freeStatus.textContent = "千问服务尚未连接。";
-    freeStatus.classList.remove("hidden");
-    return;
-  }
-  const target = replyTargetProInput.value.trim();
-  if (!target) {
-    replyTargetProInput.focus();
-    return;
-  }
-
-  const originalText = translateProButton.textContent;
-  translateProButton.disabled = true;
-  translateProButton.textContent = "正在回译…";
-
-  try {
-    const body = await postRewrite({
-      direction: "target_to_chinese",
-      message: "",
-      productId: productSelect.value,
-      replyTarget: target
-    });
-    replyChineseProInput.value =
-      body.reply_chinese || replyChineseProInput.value;
-  } catch (error) {
-    freeStatus.textContent =
-      error.name === "TimeoutError" ? "回译超时，请稍后重试。" : error.message;
-    freeStatus.classList.remove("hidden");
-  } finally {
-    translateProButton.disabled = false;
-    translateProButton.textContent = originalText;
   }
 }
 
@@ -1620,22 +1344,11 @@ function substituteVars(text, varInputs) {
 function applyPlaybook(entry, lang, varInputs) {
   const text = substituteVars(entry.texts[lang] || "", varInputs);
   const zh = substituteVars(entry.texts["中文"] || "", varInputs);
-  if (playbookTarget === "proactive") {
-    replyTargetProInput.value = text;
-    replyChineseProInput.value = lang === "中文" ? "" : zh;
-    lastProScene = entry.name;
-    lastProCategory = entry.stage;
-    resultPro.classList.remove("hidden");
-    switchMode("proactive");
-    resultPro.scrollIntoView({ behavior: "smooth", block: "start" });
-  } else {
-    replyTargetInput.value = text;
-    replyChineseInput.value = lang === "中文" ? "" : zh;
-    emptyState.classList.add("hidden");
-    result.classList.remove("hidden");
-    switchMode("reactive");
-    result.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
+  replyTargetInput.value = text;
+  replyChineseInput.value = lang === "中文" ? "" : zh;
+  emptyState.classList.add("hidden");
+  result.classList.remove("hidden");
+  result.scrollIntoView({ behavior: "smooth", block: "start" });
   playbookDialog.close();
 }
 
@@ -2556,89 +2269,6 @@ async function analyze() {
   }
 }
 
-// ===================== 问 AI（通用聊天）=====================
-const chatMessages = document.getElementById("chat-messages");
-const chatInput = document.getElementById("chat-input");
-let chatHistory = [];
-
-function renderChat() {
-  chatMessages.replaceChildren();
-  if (!chatHistory.length) {
-    const hint = document.createElement("p");
-    hint.className = "chat-hint";
-    hint.textContent =
-      "问我任何问题：翻译、砍价思路、合作流程、某句话怎么说、某个红人值不值得合作……像聊天一样问就行。";
-    chatMessages.appendChild(hint);
-    return;
-  }
-  for (const m of chatHistory) {
-    const bubble = document.createElement("div");
-    bubble.className = `chat-bubble ${m.role}`;
-    bubble.textContent = m.content;
-    chatMessages.appendChild(bubble);
-  }
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-}
-
-async function sendChat() {
-  const text = chatInput.value.trim();
-  if (!text) {
-    chatInput.focus();
-    return;
-  }
-  if (!serviceOnline) {
-    chatHistory.push({ role: "assistant", content: "千问服务尚未连接。" });
-    renderChat();
-    return;
-  }
-  chatHistory.push({ role: "user", content: text });
-  chatInput.value = "";
-  renderChat();
-  const sendBtn = document.getElementById("chat-send");
-  sendBtn.disabled = true;
-  sendBtn.textContent = "思考中…";
-  const thinking = document.createElement("div");
-  thinking.className = "chat-bubble assistant";
-  thinking.textContent = "正在思考…";
-  chatMessages.appendChild(thinking);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-  try {
-    const response = await fetch(`${API_BASE}/api/chat`, {
-      method: "POST",
-      headers: authHeaders({ "Content-Type": "application/json" }),
-      body: JSON.stringify({ messages: chatHistory }),
-      signal: AbortSignal.timeout(65000)
-    });
-    const body = await response.json();
-    if (!response.ok) throw new Error(body.error || "回答失败。");
-    chatHistory.push({ role: "assistant", content: body.answer });
-  } catch (error) {
-    chatHistory.push({
-      role: "assistant",
-      content:
-        error.name === "TimeoutError" ? "回答超时，请重试。" : error.message
-    });
-  } finally {
-    sendBtn.disabled = false;
-    sendBtn.textContent = "发送";
-    renderChat();
-  }
-}
-
-tabReactive.addEventListener("click", () => switchMode("reactive"));
-tabProactive.addEventListener("click", () => switchMode("proactive"));
-tabChat.addEventListener("click", () => switchMode("chat"));
-document.getElementById("chat-send").addEventListener("click", sendChat);
-document.getElementById("chat-clear").addEventListener("click", () => {
-  chatHistory = [];
-  renderChat();
-});
-chatInput.addEventListener("keydown", (event) => {
-  if (event.key === "Enter" && !event.shiftKey) {
-    event.preventDefault();
-    sendChat();
-  }
-});
 document.getElementById("do-faithful").addEventListener("click", () => doReply("faithful"));
 document.getElementById("do-polish").addEventListener("click", () => doReply("polish"));
 document.getElementById("ask-meaning").addEventListener("click", explainMeaning);
@@ -2648,47 +2278,20 @@ document.getElementById("ask-copy").addEventListener("click", () => {
   const t = document.getElementById("ask-answer-text").textContent || "";
   if (t) navigator.clipboard.writeText(t).catch(() => {});
 });
-generateTemplateButton.addEventListener("click", generateQuickTemplate);
-generateFreeButton.addEventListener("click", () => generateFree("chinese_to_target"));
-document
-  .getElementById("free-faithful")
-  .addEventListener("click", () => generateFree("faithful"));
-translateProButton.addEventListener("click", translateProReply);
-document.getElementById("rewrite-go-pro").addEventListener("click", rewriteGoPro);
 document
   .getElementById("open-playbook-reactive")
   .addEventListener("click", () => openPlaybookPicker("reactive"));
-document
-  .getElementById("open-playbook-proactive")
-  .addEventListener("click", () => openPlaybookPicker("proactive"));
 document
   .getElementById("playbook-close")
   .addEventListener("click", () => playbookDialog.close());
 playbookProduct.addEventListener("change", renderPlaybookList);
 playbookStage.addEventListener("change", renderPlaybookList);
 playbookSearch.addEventListener("input", renderPlaybookList);
-templateCategorySelect.addEventListener("change", () => {
-  renderTemplateButtons(templateCategorySelect.value);
-});
-templateSelect.addEventListener("change", () => {
-  const template = quickTemplates.find(
-    (item) => item.id === templateSelect.value
-  );
-  if (template) selectQuickTemplate(template);
-});
 document.getElementById("rewrite-go").addEventListener("click", rewriteGo);
-document
-  .getElementById("save-scenario")
-  .addEventListener("click", () => openSaveDialog(reactiveSaveCtx()));
 document
   .querySelectorAll(".save-trigger")
   .forEach((button) =>
     button.addEventListener("click", () => openSaveDialog(reactiveSaveCtx()))
-  );
-document
-  .querySelectorAll(".save-trigger-pro")
-  .forEach((button) =>
-    button.addEventListener("click", () => openSaveDialog(proactiveSaveCtx()))
   );
 document.getElementById("save-form").addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -2750,8 +2353,6 @@ document.getElementById("import-file").addEventListener("change", async (event) 
 });
 productSelect.addEventListener("change", () => {
   chrome.storage.session.set({ selectedProduct: productSelect.value });
-  // 切换产品后刷新当前模板的变量输入框，让 product_name 等自动跟随新产品填充。
-  if (selectedTemplate) selectQuickTemplate(selectedTemplate);
 });
 statusButton.addEventListener("click", checkService);
 
@@ -2768,63 +2369,6 @@ function showBackupStatus(msg, ok) {
   el.classList.remove("hidden");
   setTimeout(() => el.classList.add("hidden"), 4000);
 }
-document.getElementById("backup-export").addEventListener("click", async () => {
-  try {
-    const data = await chrome.storage.local.get(BACKUP_KEYS);
-    const payload = { _type: "kol-backup", _version: 1, exportedAt: new Date().toISOString(), data };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    const stamp = new Date().toISOString().slice(0, 10);
-    a.href = url;
-    a.download = `kol备份-${stamp}.json`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 2000);
-    const n = Object.keys(data.kolSummaries || {}).length;
-    showBackupStatus(`已导出（合作进度 ${n} 条等）。文件存好，换电脑时导入。`, true);
-  } catch (e) {
-    showBackupStatus("导出失败：" + e.message, false);
-  }
-});
-document.getElementById("backup-import").addEventListener("click", () => {
-  document.getElementById("backup-file").click();
-});
-document.getElementById("backup-file").addEventListener("change", async (event) => {
-  const file = event.target.files?.[0];
-  event.target.value = "";
-  if (!file) return;
-  try {
-    const text = await file.text();
-    const parsed = JSON.parse(text);
-    if (!parsed || parsed._type !== "kol-backup" || !parsed.data) {
-      showBackupStatus("这不是 KOL 备份文件。", false);
-      return;
-    }
-    // 合并恢复：合作进度/提醒/待办按 key 合并，已有的不被空备份覆盖
-    const cur = await chrome.storage.local.get(BACKUP_KEYS);
-    const inc = parsed.data;
-    const merged = {};
-    ["kolSummaries", "kolThreads", "kolTodos"].forEach((k) => {
-      merged[k] = { ...(cur[k] || {}), ...(inc[k] || {}) };
-    });
-    // 快捷回复是数组：按 id 合并去重（已有的保留）
-    if (Array.isArray(inc.kolQuickReplies)) {
-      const seen = new Set((cur.kolQuickReplies || []).map((q) => q.id));
-      merged.kolQuickReplies = (cur.kolQuickReplies || []).concat(
-        inc.kolQuickReplies.filter((q) => q && !seen.has(q.id))
-      );
-    }
-    ["kolReminderSettings", "kolProactiveLang", "kolThreadsSchema"].forEach((k) => {
-      if (inc[k] !== undefined) merged[k] = inc[k];
-    });
-    await chrome.storage.local.set(merged);
-    const n = Object.keys(merged.kolSummaries || {}).length;
-    showBackupStatus(`已恢复（合作进度 ${n} 条等）。`, true);
-  } catch (e) {
-    showBackupStatus("导入失败：" + e.message, false);
-  }
-});
-
 document.querySelectorAll("[data-copy]").forEach((button) => {
   button.addEventListener("click", async () => {
     const target = document.getElementById(button.dataset.copy);
@@ -3039,201 +2583,10 @@ loadConfig().then(async () => {
   refreshSetupBanner();
   // 启动时若已填 ins id：静默从云端补回缺失的本地记录（换电脑/清缓存后自动找回）。
   if (API_INSID && serviceOnline) cloudRestore(true);
+  // 打开对话后自动跑 AI 理解（缓存先显示、变化才重算）
+  scheduleUnderstanding(500);
 });
 initGuide();
-
-// ====================== 合作情况总结 ======================
-// 读当前打开对话的消息（搭便车读屏）→ AI 总结进展；可自己改、可粘贴、自动保存。
-(function () {
-  const coopCard = document.getElementById("coop-card");
-  const coopText = document.getElementById("coop-text");
-  const coopImport = document.getElementById("coop-import");
-  const coopMeta = document.getElementById("coop-meta");
-  const refreshBtn = document.getElementById("coop-refresh");
-  const grabBtn = document.getElementById("coop-grab");
-  const doneBtn = document.getElementById("coop-done");
-  const renderedEl = document.getElementById("coop-rendered");
-  const editBtn = document.getElementById("coop-edit");
-  const clearBtn = document.getElementById("coop-clear");
-  if (!coopCard || !coopText) return;
-  let currentTid = "";
-  let currentKey = "";
-  let currentName = "";
-
-  // 把进展文本渲染成一眼能扫的清单（✅绿 / ⬜灰 / ⚠️黄）
-  function renderChecklist() {
-    const text = coopText.value.trim();
-    renderedEl.replaceChildren();
-    if (!text) {
-      const s = document.createElement("span");
-      s.className = "coop-empty";
-      s.textContent = "还没有进展，先抓取对话→总结。";
-      renderedEl.appendChild(s);
-      return;
-    }
-    text.split("\n").forEach((raw) => {
-      const line = raw.trim();
-      if (!line) return;
-      const row = document.createElement("div");
-      if (line.startsWith("✅")) { row.className = "cl-row done"; row.textContent = line; }
-      else if (line.startsWith("⬜") || line.startsWith("□")) { row.className = "cl-row todo"; row.textContent = line; }
-      else if (line.startsWith("➖")) { row.className = "cl-row na"; row.textContent = line; }
-      else if (line.startsWith("⚠")) { row.className = "cl-row warn"; row.textContent = line; }
-      else { row.className = "cl-row plain"; row.textContent = line; }
-      renderedEl.appendChild(row);
-    });
-  }
-
-  function setEditing(on) {
-    coopText.classList.toggle("hidden", !on);
-    renderedEl.classList.toggle("hidden", on);
-    editBtn.textContent = on ? "✅ 改好了" : "✏️ 改";
-    if (!on) renderChecklist();
-  }
-
-  async function getOpenConversation() {
-    try {
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (!tab) return null;
-      return await chrome.tabs.sendMessage(tab.id, { type: "KOL_GET_CONVERSATION" });
-    } catch (e) {
-      return null;
-    }
-  }
-
-  // 把消息数组转成"谁: 内容"的文本，给人看也给 AI 总结
-  function messagesToText(conv) {
-    if (!conv || !conv.messages) return "";
-    return conv.messages
-      .map((m) => {
-        const who = m.from === "me" ? "我" : m.from === "colleague" ? (m.name || "同事") : (m.name || "对方");
-        return `${who}: ${m.text}`;
-      })
-      .join("\n");
-  }
-
-  async function loadForOpen() {
-    const conv = await getOpenConversation();
-    currentTid = (conv && conv.tid) || "";
-    currentKey = (conv && conv.key) || "";
-    currentName = (conv && conv.name) || "";
-    const all = (await chrome.storage.local.get("kolSummaries")).kolSummaries || {};
-    // 优先用对话固定 ID 取；取不到再退回按名字（兼容旧数据）
-    const rec = (currentTid && all[currentTid]) || (currentKey && all[currentKey]) || null;
-    coopText.value = rec ? rec.text : "";
-    renderChecklist();
-    coopMeta.textContent = rec
-      ? `更新于 ${new Date(rec.updatedAt).toLocaleString()}`
-      : (currentName ? currentName : "（先在 IG 打开一个对话）");
-  }
-
-  async function save() {
-    const sk = currentTid || currentKey;
-    if (!sk) return;
-    const store = await chrome.storage.local.get("kolSummaries");
-    const all = store.kolSummaries || {};
-    all[sk] = { text: coopText.value, name: currentName, tid: currentTid, key: currentKey, updatedAt: Date.now() };
-    await chrome.storage.local.set({ kolSummaries: all });
-  }
-
-  // ① 抓取"这一屏"：只取当前屏幕可见的消息，逐次追加（重复的自动去掉）
-  // 用法：滚到最上面点一次→往下滚一点再点→一直到底，像截图一样一段段拼起来。
-  async function grab() {
-    const orig = grabBtn.textContent;
-    grabBtn.disabled = true;
-    grabBtn.textContent = "抓取中…";
-    try {
-      const conv = await getOpenConversation();
-      if (conv && (conv.tid || conv.key)) { currentTid = conv.tid || ""; currentKey = conv.key || ""; currentName = conv.name || ""; }
-      const view = (conv && conv.currentMessages) || [];
-      if (!view.length) {
-        errorBox.textContent = "这一屏没读到消息——确认在 IG 打开了对话，或直接把对话粘贴进框里。";
-        errorBox.classList.remove("hidden");
-        return;
-      }
-      const newLines = view.map((m) => {
-        const who = m.from === "me" ? "我" : m.from === "colleague" ? (m.name || "同事") : (m.name || "对方");
-        return `${who}: ${m.text}`;
-      });
-      // 去重追加：已在框里的行不再加
-      const existing = new Set(coopImport.value.split("\n").map((s) => s.trim()).filter(Boolean));
-      let added = 0;
-      newLines.forEach((l) => {
-        if (!existing.has(l.trim())) { existing.add(l.trim()); added += 1; }
-      });
-      coopImport.value = Array.from(existing).join("\n");
-      const total = existing.size;
-      coopMeta.textContent = `这屏新增 ${added} 条 · 共 ${total} 条（继续往下滚再点）`;
-    } finally {
-      grabBtn.disabled = false;
-      grabBtn.textContent = orig;
-    }
-  }
-
-  // ② 总结：用导入框里的对话文本
-  async function summarize() {
-    if (!serviceOnline) {
-      errorBox.textContent = "千问服务尚未连接。";
-      errorBox.classList.remove("hidden");
-      return;
-    }
-    const text = coopImport.value.trim();
-    if (!text) {
-      errorBox.textContent = "请先「📥 抓取当前可见消息」或把对话粘贴进①，再总结。";
-      errorBox.classList.remove("hidden");
-      return;
-    }
-    const orig = refreshBtn.textContent;
-    refreshBtn.disabled = true;
-    refreshBtn.textContent = "AI 总结中…";
-    try {
-      const res = await fetch(`${API_BASE}/api/summary`, {
-        method: "POST",
-        headers: authHeaders({ "Content-Type": "application/json" }),
-        // 带上已有进展 → 增量更新，不丢之前确认的
-        body: JSON.stringify({ text, creatorName: currentName, previousSummary: coopText.value.trim() }),
-        signal: AbortSignal.timeout(40000)
-      });
-      const body = await res.json();
-      if (!res.ok) throw new Error(body.error || "总结失败");
-      coopText.value = body.summary || coopText.value;
-      renderChecklist();
-      await save();
-      coopMeta.textContent = "刚刚更新";
-    } catch (e) {
-      errorBox.textContent = e.name === "TimeoutError" ? "总结超时，请重试。" : e.message;
-      errorBox.classList.remove("hidden");
-    } finally {
-      refreshBtn.disabled = false;
-      refreshBtn.textContent = orig;
-    }
-  }
-
-  // 与提醒联动：合作完结 → 把这个对话静音，不再提醒
-  async function markDone() {
-    if (!currentKey) { await loadForOpen(); }
-    if (!currentKey) {
-      errorBox.textContent = "先在 IG 打开这个对话再标记。";
-      errorBox.classList.remove("hidden");
-      return;
-    }
-    const store = await chrome.storage.local.get("kolThreads");
-    const map = store.kolThreads || {};
-    map[currentKey] = { ...(map[currentKey] || {}), title: currentName || (map[currentKey] && map[currentKey].title), muted: true, needsReplyRaw: false };
-    await chrome.storage.local.set({ kolThreads: map });
-    doneBtn.textContent = "✅ 已标记完结";
-    setTimeout(() => { doneBtn.textContent = "✅ 此合作已完结·不再提醒"; }, 1600);
-  }
-
-  coopCard.addEventListener("toggle", () => { if (coopCard.open) loadForOpen(); });
-  grabBtn.addEventListener("click", grab);
-  clearBtn.addEventListener("click", () => { coopImport.value = ""; coopMeta.textContent = "已清空"; });
-  refreshBtn.addEventListener("click", summarize);
-  doneBtn.addEventListener("click", markDone);
-  editBtn.addEventListener("click", () => setEditing(coopText.classList.contains("hidden")));
-  let saveTimer;
-  coopText.addEventListener("input", () => { clearTimeout(saveTimer); saveTimer = setTimeout(save, 600); });
-})();
 
 // ====================== KOL 提醒面板 ======================
 (function () {

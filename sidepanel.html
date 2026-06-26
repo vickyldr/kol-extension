@@ -16,9 +16,8 @@
         <div class="header-actions">
           <button id="open-guide" class="status archive-entry" title="新手怎么用">❓</button>
           <button id="open-reminders" class="status archive-entry" title="待回复 / 待跟进 / 待办提醒">🔔 提醒</button>
-          <button id="open-archive" class="status archive-entry" title="团队话术库（会喂给 AI 帮你生成回复）">📚 话术库</button>
-          <button id="open-assets" class="status archive-entry" title="logo / 教程图 / 链接等物料">📎 物料库</button>
-          <button id="open-kb-import" class="status archive-entry" title="管理员：上传 Word 批量增补话术库">📥 上传话术</button>
+          <button id="open-archive" class="status archive-entry" title="团队话术库（含上传，会喂给 AI 帮你生成回复）">📚 话术库</button>
+          <button id="open-assets" class="status archive-entry" title="logo / 教程图 / 链接等物料（含上传）">📎 物料库</button>
           <button id="service-status" class="status" title="点击重新检测">检测中</button>
         </div>
       </header>
@@ -44,12 +43,9 @@
         <p id="cloud-sync-status" class="template-status" style="color:#2e7d32"></p>
         <div class="button-row">
           <button id="cloud-restore" type="button" class="secondary">☁️ 从云端恢复</button>
-          <button id="backup-export" type="button" class="secondary">💾 导出文件</button>
-          <button id="backup-import" type="button" class="secondary">📂 导入文件</button>
-          <input id="backup-file" type="file" accept="application/json,.json" class="hidden" />
         </div>
         <p id="backup-status" class="template-status hidden"></p>
-        <small style="color:#888;display:block;margin-top:4px">填了 ins id 后，记录会在改动时自动存到云端；换电脑填同样的 ins id 点「☁️ 从云端恢复」即可。导出/导入是离线文件备份，二选一都行。</small>
+        <small style="color:#888;display:block;margin-top:4px">填了 ins id 后，记录会在改动时自动存到云端；换电脑填同样的 ins id 点「☁️ 从云端恢复」即可。</small>
       </details>
 
       <div id="setup-banner" class="setup-banner hidden">
@@ -62,13 +58,12 @@
           <strong>👋 新手指引 · 这工具怎么用</strong>
           <button id="guide-dismiss" type="button">知道了</button>
         </div>
-        <p class="guide-intro">顶部三个板块，按场景选：</p>
+        <p class="guide-intro">每天怎么用，两步走：</p>
         <ul class="guide-tabs">
-          <li><b>📥 红人来消息</b>：对方发消息来、你要回复时用。<br />粘贴红人消息 →（可选写一句「你想怎么回复」）→ 点「分析并建议回复」→ 复制外语回复发出。不满意用「让 AI 改这条」继续调。</li>
-          <li><b>📤 我主动发</b>：你主动去联系红人时用。<br />从话术库选现成话术、或在「我想说…」写一句中文，让 AI 润色成双语。</li>
-          <li><b>💬 问 AI</b>：像 ChatGPT 一样随便问。<br />翻译、砍价思路、合作流程、这句啥意思、这个红人值不值得合作……</li>
+          <li><b>① 看「🔔 提醒」</b>：开工先看待办清单（自动弹出），按优先级排好——🔴 立即回复 / 🟠 今天跟进 / 📅 以后。每条都有一句「红人说到哪了 + 该干嘛」。点「打开对话」直接跳到那个红人。</li>
+          <li><b>② 在右边回复</b>：跳进对话后，这里自动认出红人 → 上面是 🧠 AI 理解（阶段 / 下一步 / 风险，给你参考）→ 选 ⚡ 快捷回复，或写中文让 AI「润色生成」双语 → 复制发出。</li>
         </ul>
-        <p class="guide-tip">顶部还有：<b>📚 话术库</b>（已存好的话术）、<b>📎 物料库</b>（logo / 教程图 / 链接）、<b>❓</b>（再看本指引）。<br />⚠️ 紫色「内部处理建议」是给你自己看的，<b>别发给红人</b>。</p>
+        <p class="guide-tip">顶部还有：<b>📚 话术库</b>（已存好的话术 + 上传 Word）、<b>📎 物料库</b>（logo / 教程图 / 链接）、<b>❓</b>（再看本指引）。<br />⚠️ 🧠 AI 理解是给你自己看的参考，<b>别整段发给红人</b>。</p>
       </section>
 
       <section id="reminder-panel" class="reminder-panel hidden">
@@ -103,13 +98,7 @@
         </details>
       </section>
 
-      <nav class="mode-tabs">
-        <button id="tab-reactive" class="mode-tab active" type="button" data-mode="reactive">📥 红人来消息</button>
-        <button id="tab-proactive" class="mode-tab" type="button" data-mode="proactive">📤 我主动发</button>
-        <button id="tab-chat" class="mode-tab" type="button" data-mode="chat">💬 问 AI</button>
-      </nav>
-
-      <!-- ===================== 板块 A：红人来消息 ===================== -->
+      <!-- ===================== 回复页（唯一主区） ===================== -->
       <section id="panel-reactive" class="mode-panel">
         <!-- 红人固定档案：付款/合同/app ID/备注，按红人名字存档 -->
         <details class="kol-profile-card" id="kol-profile-card">
@@ -144,6 +133,28 @@
               <button id="kol-profile-delete" class="secondary danger-btn" type="button">🗑️ 删除档案</button>
             </div>
             <p id="kol-profile-status" class="template-status hidden"></p>
+          </div>
+        </details>
+
+        <!-- 🧠 AI 理解：打开对话后自动跑，给运营看的参考（阶段/下一步/风险）。默认展开、可折叠。 -->
+        <details id="ai-understanding" class="ai-understanding hidden" open>
+          <summary class="ai-understanding-summary">
+            <span>🧠 AI 理解</span>
+            <span id="ai-u-loading" class="ai-u-spinner hidden">分析中…</span>
+          </summary>
+          <div class="ai-u-grid">
+            <div class="ai-u-row">
+              <span class="ai-u-label">当前阶段</span>
+              <strong id="ai-u-stage">—</strong>
+            </div>
+            <div class="ai-u-row">
+              <span class="ai-u-label">建议下一步</span>
+              <p id="ai-u-nextstep">—</p>
+            </div>
+            <div class="ai-u-row">
+              <span class="ai-u-label">发送前风险</span>
+              <p id="ai-u-risk">—</p>
+            </div>
           </div>
         </details>
 
@@ -249,205 +260,9 @@
             <p id="rewrite-status" class="refine-status hidden"></p>
           </article>
 
-          <!-- 3. 分析 & 内部提醒（后台加载 · 默认折叠在下） -->
-          <details id="analysis-block" class="analysis-block hidden">
-            <summary id="analysis-summary">识别 & 内部提醒</summary>
-
-            <div class="summary-grid">
-              <article><span>识别语言</span><strong id="language"></strong></article>
-              <article><span>合作阶段</span><strong id="stage"></strong></article>
-            </div>
-
-            <article class="card">
-              <span class="card-label">对方意图</span>
-              <h2 id="intent"></h2>
-              <p id="interpretation"></p>
-              <p id="implied-meaning" class="implied-meaning"></p>
-            </article>
-
-            <article id="mentioned-items-card" class="mentioned-card hidden">
-              <span class="card-label">对方新提到的事项</span>
-              <div id="mentioned-items"></div>
-            </article>
-
-            <article id="internal-guidance" class="internal-card">
-              <div class="internal-heading">
-                <span id="internal-level">内部处理建议</span>
-                <strong>禁止外发</strong>
-              </div>
-              <p id="internal-explanation"></p>
-              <div id="tl-question-box" class="internal-section hidden">
-                <span>建议询问 TL</span>
-                <p id="tl-question"></p>
-                <button data-copy="tl-question">复制给 TL</button>
-              </div>
-              <div id="temporary-reply-box" class="internal-section hidden">
-                <span>等待确认期间，可先回复红人</span>
-                <p id="temporary-reply-target"></p>
-                <small id="temporary-reply-chinese"></small>
-                <button data-copy="temporary-reply-target">复制临时回复</button>
-              </div>
-              <ul id="operator-reminders"></ul>
-            </article>
-
-            <article class="risk-card">
-              <span>发送前风险</span>
-              <p id="risk"></p>
-            </article>
-
-            <details class="card alternatives">
-              <summary>查看备选回复</summary>
-              <p id="alternative-target"></p>
-              <div class="divider"></div>
-              <p id="alternative-zh"></p>
-            </details>
-
-            <article id="missing-card" class="card hidden">
-              <span class="card-label">需要填写的变量</span>
-              <ul id="missing-information"></ul>
-            </article>
-          </details>
-
-          <section class="archive-actions">
-            <button id="save-scenario" class="primary">保存为确认话术</button>
-          </section>
-        </section>
-
-        <!-- 合作进展存档：日常用不到，折叠到底部，需要时再展开 -->
-        <details id="coop-card" class="coop-card coop-card-hidden">
-          <summary>📋 合作进展存档（很少用）</summary>
-
-          <div class="coop-step">① 导入对话（像截图一样，一段段抓）</div>
-          <p class="coop-tip">在 IG 里滚到对话最上面 → 点「抓取这屏」→ 往下滚一点 → 再点 → 一直到底。每点一次把这一屏加进来（重复的会自动去掉）。</p>
-          <div class="coop-actions">
-            <button id="coop-grab" type="button" class="primary">📸 抓取这屏</button>
-            <button id="coop-clear" type="button" class="secondary">清空</button>
-            <button id="coop-done" type="button" class="coop-done-btn">✅ 已完结·不再提醒</button>
-          </div>
-          <textarea id="coop-import" rows="4" placeholder="一段段抓进来的对话会显示在这（也可以自己复制粘贴）。"></textarea>
-
-          <div class="coop-step">② 生成 / 更新进展</div>
-          <div class="coop-actions">
-            <button id="coop-refresh" type="button" class="primary">🔄 总结成进展清单</button>
-            <span id="coop-meta" class="coop-meta"></span>
-          </div>
-
-          <div class="coop-step">
-            ③ 合作进展
-            <button id="coop-edit" type="button" class="coop-edit-btn">✏️ 改</button>
-          </div>
-          <div id="coop-rendered" class="coop-rendered"><span class="coop-empty">还没有进展，先抓取对话→总结。</span></div>
-          <textarea id="coop-text" class="hidden" rows="9" placeholder="一行一条，开头用 ✅ 或 ⬜；改完点上面「✏️ 改」收起。"></textarea>
-        </details>
-      </section>
-
-      <!-- ===================== 板块 B：我主动发 ===================== -->
-      <section id="panel-proactive" class="mode-panel hidden">
-        <div class="proactive-language-bar">
-          <label for="target-language">输出语言</label>
-          <select id="target-language" class="language-select">
-            <option value="英语">英语</option>
-            <option value="日语">日语</option>
-            <option value="韩语">韩语</option>
-            <option value="繁体中文">繁中（台湾）</option>
-            <option value="土耳其语">土耳其语</option>
-            <option value="西班牙语">西班牙语</option>
-            <option value="葡萄牙语">葡萄牙语</option>
-            <option value="意大利语">意大利语</option>
-            <option value="德语">德语</option>
-            <option value="法语">法语</option>
-            <option value="俄语">俄语</option>
-            <option value="阿拉伯语">阿拉伯语</option>
-            <option value="泰语">泰语</option>
-          </select>
-        </div>
-
-        <section class="free-intent-card">
-          <span class="card-label">我想说……</span>
-          <textarea id="free-intent" rows="4" placeholder="写你想说的话。已经是成稿就用「忠实翻译」；只是大概意思就用「润色生成」让 AI 加工"></textarea>
-          <div class="button-row">
-            <button id="free-faithful" class="secondary">忠实翻译</button>
-            <button id="generate-free" class="primary">润色生成</button>
-          </div>
-          <small class="editor-tip">忠实翻译＝一字不改照翻（不加问候/收尾）；润色生成＝AI 加工成自然口语回复。</small>
-          <p id="free-status" class="template-status hidden"></p>
-        </section>
-
-        <details class="template-fold">
-          <summary>📖 从话术库选话术（点开）</summary>
-
-          <section class="quick-template-card">
-            <span class="card-label">按场景生成</span>
-            <div class="template-select-grid">
-              <div>
-                <label for="template-category-select">场景分类</label>
-                <select id="template-category-select"></select>
-              </div>
-              <div>
-                <label for="template-select">具体话术</label>
-                <select id="template-select"></select>
-              </div>
-            </div>
-            <p id="template-description" class="template-description"></p>
-            <div id="template-variables" class="template-variables hidden"></div>
-            <button id="generate-template" class="primary generate-template hidden">生成这条话术</button>
-            <p id="template-status" class="template-status hidden"></p>
-          </section>
-
-          <section class="free-intent-card">
-            <span class="card-label">从已存话术原文里挑</span>
-            <button id="open-playbook-proactive" class="primary" type="button">📖 打开话术库选话术</button>
-          </section>
-        </details>
-
-        <section id="result-pro" class="result hidden">
-          <article class="card reply-card">
-            <div class="card-heading">
-              <span class="card-label">外语回复</span>
-              <div class="heading-buttons">
-                <button class="save-trigger-pro secondary" type="button">保存为话术</button>
-                <button data-copy-value="reply-target-pro">复制</button>
-              </div>
-            </div>
-            <textarea id="reply-target-pro" class="reply-editor" rows="6" placeholder="外语回复"></textarea>
-            <button id="translate-pro" class="editor-tool">外语 → 中文回译核对</button>
-          </article>
-
-          <article class="card">
-            <div class="card-heading">
-              <span class="card-label">中文对照（核对用）</span>
-              <button data-copy-value="reply-zh-pro">复制</button>
-            </div>
-            <textarea id="reply-zh-pro" class="reply-editor" rows="6" placeholder="中文对照"></textarea>
-          </article>
-
-          <article class="card rewrite-card">
-            <span class="card-label">想改？告诉 AI 怎么改</span>
-            <textarea id="rewrite-box-pro" rows="2" placeholder="例如：太长了精简一点 / 语气更热情 / 换个说法 / 别提价格"></textarea>
-            <button id="rewrite-go-pro" class="editor-tool primary">让 AI 改这条</button>
-            <p id="rewrite-status-pro" class="refine-status hidden"></p>
-          </article>
-
-          <article id="missing-card-pro" class="card hidden">
-            <span class="card-label">需要填写的变量</span>
-            <ul id="missing-information-pro"></ul>
-          </article>
-
-          <p class="reply-hint">发送前请点「外语 → 中文回译核对」，确认外语意思没有出错。</p>
         </section>
       </section>
 
-      <!-- ===================== 板块 C：问 AI ===================== -->
-      <section id="panel-chat" class="mode-panel hidden">
-        <div id="chat-messages" class="chat-messages">
-          <p class="chat-hint">问我任何问题：翻译、砍价思路、合作流程、某句话怎么说、某个红人值不值得合作……像聊天一样问就行。</p>
-        </div>
-        <textarea id="chat-input" rows="3" placeholder="例如：泰语里委婉拒绝涨价怎么说？这条红人消息是什么意思？"></textarea>
-        <div class="button-row">
-          <button id="chat-clear" class="secondary" type="button">清空</button>
-          <button id="chat-send" class="primary" type="button">发送</button>
-        </div>
-      </section>
 
       <section id="assets-panel" class="archive-panel hidden">
         <div class="card-heading">
@@ -491,6 +306,7 @@
             <h2>已确认场景</h2>
           </div>
           <div class="heading-buttons">
+            <button id="open-kb-import" class="primary" type="button" title="管理员：上传 Word 批量增补话术库">📥 上传 Word</button>
             <button id="new-archive" class="secondary" type="button">+ 新增</button>
             <button id="import-archive" class="secondary" type="button">导入</button>
             <button id="export-archive" class="secondary" type="button">导出备份</button>
