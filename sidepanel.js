@@ -3787,10 +3787,14 @@ initGuide();
       `<span class="kb-stat">保留旧版 <b>${d.kept_old || 0}</b></span>` +
       `<span class="kb-stat">重复跳过 <b>${d.duplicates}</b></span>` +
       `<span class="kb-stat">图片 <b>${d.images_saved}</b></span>` +
+      (d.products_added ? `<span class="kb-stat">新产品 <b>${d.products_added}</b></span>` : "") +
       "</div>" +
       `<p class="kb-mini">团队库：${d.before} → <b>${d.after}</b> 条${
         d.backup ? `　·　已备份旧库 <code>${esc(d.backup)}</code>` : ""
       }</p>` +
+      (d.products_added
+        ? `<p class="kb-mini">🆕 自动加入产品库：<b>${esc((d.products_added_detail || []).map((p) => p.name).join("、"))}</b>（卖点/账号待你在 products.json 补全）</p>`
+        : "") +
       (conf
         ? `<p class="kb-mini"><b>AI 对冲突的处理（前 12 条）：</b></p><ul class="kb-conflicts">${conf}</ul>`
         : "") +

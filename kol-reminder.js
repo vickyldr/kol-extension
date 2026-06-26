@@ -164,7 +164,10 @@
         else if (isColleagueHandle(name)) from = "colleague";
         else from = "creator";
       }
-      messages.push({ from, name, text });
+      // 我给对方这条消息点了表情（reaction）→ 视作已回应，后面判待回复时不再提醒。
+      // 1:1 私信里，挂在「对方气泡」上的表情就是我点的；只对 creator 消息检测。
+      const reacted = from === "creator" ? bubbleHasMyReaction(el) : false;
+      messages.push({ from, name, text, reacted });
     });
 
     if (!messages.length) return null;
@@ -213,6 +216,31 @@
     }
     // 安全上限，防止极长对话占内存
     if (convBuffer.messages.length > 600) convBuffer.messages = convBuffer.messages.slice(-600);
+  }
+
+  // 判断「对方这条消息上是否挂着我点的表情(reaction)」。
+  // IG 1:1 私信里，对方气泡上出现的表情徽标就是我点的；据此把「点表情」当成已回应。
+  // 依赖 IG 页面结构，故用两路兜底：① 无障碍标签含「回应/react」；② 气泡上挂着的纯表情小徽标。
+  const REACTION_EMOJI_RE = /[❤\u{1F300}-\u{1FAFF}\u{1F900}-\u{1F9FF}\u{2600}-\u{27BF}\u{1F004}\u{1F0CF}]/u;
+  function bubbleHasMyReaction(el) {
+    // 往上找到这条消息的「行/气泡容器」
+    let row = el;
+    for (let i = 0; i < 6 && row && row.parentElement; i += 1) row = row.parentElement;
+    if (!row || !row.querySelectorAll) return false;
+    // ① 无障碍标签：很多版本 reaction 带 aria-label，如「你回应了 ❤️」/「reacted」
+    for (const n of row.querySelectorAll("[aria-label]")) {
+      const lab = n.getAttribute("aria-label") || "";
+      if (/回应|reacted|reaction|你用.*回应/i.test(lab)) return true;
+    }
+    // ② 挂在气泡上的表情小徽标：短文本/alt 只含 1~2 个 emoji，且不是消息正文本身
+    for (const n of row.querySelectorAll("img[alt], span, div")) {
+      if (n === el || n.contains(el) || el.contains(n)) continue;
+      const alt = n.getAttribute && n.getAttribute("alt");
+      if (alt && alt.length <= 4 && REACTION_EMOJI_RE.test(alt)) return true;
+      const t = (n.innerText || "").trim();
+      if (t && t.length <= 3 && REACTION_EMOJI_RE.test(t)) return true;
+    }
+    return false;
   }
 
   // 群聊里每条消息上方通常有发送者名字；尽量往上找一个短文本当名字
@@ -683,7 +711,9 @@
           const myReplyAfter =
             lastCreatorIdx >= 0 &&
             msgs.slice(lastCreatorIdx + 1).some((m) => m.from === "me");
-          const needsReplyRaw = lastCreatorIdx >= 0 && !myReplyAfter;
+          // 我给对方最后一条消息点了表情，也算已回应（不再当待回复提醒）
+          const reactedLast = lastCreatorIdx >= 0 && msgs[lastCreatorIdx].reacted === true;
+          const needsReplyRaw = lastCreatorIdx >= 0 && !myReplyAfter && !reactedLast;
           const last = msgs[msgs.length - 1];
           // 用列表里那条更完整的名字来显示
           const inboxRow = inbox.find((r) => r.id === key);

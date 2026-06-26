@@ -1278,6 +1278,67 @@ function importKnowledgeImages(images) {
   return { saved: savedIds.size, skipped };
 }
 
+// 产品 id：英文名去空格小写当 id；纯中文等无法 slug 的用内容哈希兜底（保证稳定唯一）。
+function slugifyProduct(name) {
+  const base = String(name || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+  if (base) return base.slice(0, 40);
+  return "prod_" + crypto.createHash("sha1").update(String(name || "")).digest("hex").slice(0, 8);
+}
+
+// 团队库上传时，自动把 Word 里出现的产品名补进产品库：库里没有的，加一条占位产品
+// （卖点/账号留空，运营再补；带上 forbidden_claims 防 AI 编造）。已存在的跳过。
+function ensureProductsFromImport(records, images) {
+  const names = new Set();
+  for (const r of records || []) {
+    const p = String((r && r.product) || "").trim();
+    if (p) names.add(p);
+  }
+  for (const im of images || []) {
+    const p = String((im && im.product) || "").trim();
+    if (p) names.add(p);
+  }
+  if (!names.size) return [];
+  // 以线上产品为准；线上还没产品文件时从种子起步，避免把出厂产品冲掉。
+  let products = loadJson(PRODUCTS_PATH, null);
+  if (!Array.isArray(products)) products = loadJson(path.join(SEED_DIR, "products.json"), []);
+  const norm = (x) => String(x || "").toLowerCase().replace(/[^a-z0-9㐀-鿿]+/g, "");
+  const have = new Set();
+  products.forEach((p) => { have.add(norm(p.id)); have.add(norm(p.name)); });
+  const added = [];
+  for (const name of names) {
+    if (/^(通用|generic)$/i.test(name)) continue; // 「通用」不是产品
+    const key = norm(name);
+    if (!key || have.has(key)) continue;
+    let id = slugifyProduct(name);
+    if (products.some((p) => p.id === id)) { have.add(key); continue; }
+    products.push({
+      id,
+      name,
+      status: "active",
+      description: "由团队库上传自动添加，详细卖点和账号待运营补充。",
+      social_accounts: {},
+      download_links: {},
+      audience: "",
+      selling_points: [],
+      subscription_rule: "",
+      default_platforms: [],
+      usage_policy: "广告授权期限、二次使用平台和剪辑权限必须逐次确认，不得默认永久授权。",
+      payment_policy: "完成约定交付后提交付款申请，具体到账日期由运营确认。",
+      brief_links: [],
+      forbidden_claims: [
+        "不得自行编造产品卖点、账号或链接",
+        "不得承诺未确认的广告授权期限",
+        "不得承诺未确认的付款日期",
+        "不得把内部预算上限发给红人"
+      ]
+    });
+    have.add(key);
+    added.push({ id, name });
+  }
+  if (added.length) saveJson(PRODUCTS_PATH, products);
+  return added;
+}
+
 async function importKnowledge(payload) {
   const incoming = Array.isArray(payload.records) ? payload.records : [];
   const images = Array.isArray(payload.images) ? payload.images : [];
@@ -1336,6 +1397,9 @@ async function importKnowledge(payload) {
   // 4) 图片进物料库。
   const imageResult = importKnowledgeImages(images);
 
+  // 5) 自动补产品库：Word 里出现、产品库还没有的产品名，加一条占位产品。
+  const productsAdded = ensureProductsFromImport(incoming, images);
+
   return {
     ok: true,
     before: Array.isArray(existing) ? existing.length : 0,
@@ -1348,6 +1412,8 @@ async function importKnowledge(payload) {
     conflict_detail: conflictReport.slice(0, 50),
     images_saved: imageResult.saved,
     images_skipped: imageResult.skipped,
+    products_added: productsAdded.length,
+    products_added_detail: productsAdded,
     backup
   };
 }
