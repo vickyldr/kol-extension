@@ -389,3 +389,60 @@ dialog::backdrop { background: rgba(20,24,36,.4); }
   color: #5b21b6;
   line-height: 1.6;
 }
+
+/* 无语言线索时弹出的「选回复语言」浮层 */
+.kol-lang-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(17, 16, 40, 0.45);
+}
+.kol-lang-box {
+  width: min(320px, 86vw);
+  padding: 16px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 18px 50px rgba(30, 27, 75, 0.35);
+}
+.kol-lang-title {
+  margin-bottom: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: #312e81;
+}
+.kol-lang-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.kol-lang-opt {
+  padding: 8px 4px;
+  border: 1px solid #ddd6fe;
+  border-radius: 9px;
+  background: #f5f3ff;
+  font-size: 13px;
+  color: #4338ca;
+  cursor: pointer;
+}
+.kol-lang-opt:hover {
+  background: #ede9fe;
+  border-color: #a78bfa;
+}
+.kol-lang-cancel {
+  width: 100%;
+  margin-top: 12px;
+  padding: 8px;
+  border: 0;
+  border-radius: 9px;
+  background: #f1f5f9;
+  font-size: 13px;
+  color: #64748b;
+  cursor: pointer;
+}
+.kol-lang-cancel:hover {
+  background: #e2e8f0;
+}

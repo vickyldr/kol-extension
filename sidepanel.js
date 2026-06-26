@@ -600,15 +600,9 @@ async function rewriteFromChinese() {
   btn.textContent = "改写中…";
   errorBox.classList.add("hidden");
   const redText = messageInput.value.trim();
-  // 永远优先匹配红人语言：有原文让服务端识别；没原文先扫对话窗口，最后才退回设置。
-  let lang = "";
-  if (!redText) {
-    lang = await detectConversationLanguage();
-    if (!lang) {
-      lang = (replyLanguageSelect?.value || "").trim()
-        || (targetLanguage?.value || "").trim();
-    }
-  }
+  // 回复语言：有原文让服务端识别；没原文先扫对话窗口/读设置，都没有就弹窗让运营选。
+  const lang = await resolveReplyLanguage(redText);
+  if (lang === null) { btn.disabled = false; btn.textContent = orig; return; }
   try {
     const body = await postRewrite({
       direction: "chinese_to_target",
@@ -2156,6 +2150,59 @@ async function detectConversationLanguage() {
   }
 }
 
+// 没有任何语言线索（红人只发了图片/视频、屏幕上没文字）时，弹窗让运营选回复语言，
+// 避免 AI 默认编成英文。返回选中的语言名，或 null（用户取消）。
+function pickReplyLanguage() {
+  return new Promise((resolve) => {
+    const langs = ["英语", "日语", "韩语", "繁体中文", "土耳其语", "西班牙语", "葡萄牙语", "意大利语", "德语", "法语", "俄语", "阿拉伯语", "泰语"];
+    const overlay = document.createElement("div");
+    overlay.className = "kol-lang-overlay";
+    const box = document.createElement("div");
+    box.className = "kol-lang-box";
+    const title = document.createElement("div");
+    title.className = "kol-lang-title";
+    title.textContent = "这条没有红人文字（只有图片/视频），用哪种语言回复？";
+    box.appendChild(title);
+    const grid = document.createElement("div");
+    grid.className = "kol-lang-grid";
+    let done = false;
+    const finish = (val) => { if (done) return; done = true; overlay.remove(); resolve(val); };
+    langs.forEach((l) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "kol-lang-opt";
+      b.textContent = l;
+      b.addEventListener("click", () => finish(l));
+      grid.appendChild(b);
+    });
+    box.appendChild(grid);
+    const cancel = document.createElement("button");
+    cancel.type = "button";
+    cancel.className = "kol-lang-cancel";
+    cancel.textContent = "取消";
+    cancel.addEventListener("click", () => finish(null));
+    box.appendChild(cancel);
+    overlay.appendChild(box);
+    overlay.addEventListener("click", (e) => { if (e.target === overlay) finish(null); });
+    document.body.appendChild(overlay);
+  });
+}
+
+// 决定这次回复用什么语言（统一各处生成入口的兜底顺序）：
+//   1) 有红人原文 → 返回 ""（让服务端从原文识别，最准）
+//   2) 没原文 → 扫当前对话窗口识别红人语言
+//   3) 还没有 → 手动「回复语言」/「常用语言」设置
+//   4) 都没有（只有图片/视频，毫无文字线索）→ 弹窗让运营选
+// 返回语言名字符串；返回 null 表示弹窗里用户取消了，调用方应中止生成。
+async function resolveReplyLanguage(redText) {
+  if (redText) return "";
+  const detected = await detectConversationLanguage();
+  if (detected) return detected;
+  const manual = (replyLanguageSelect?.value || "").trim() || (targetLanguage?.value || "").trim();
+  if (manual) return manual;
+  return await pickReplyLanguage(); // 语言名 或 null（取消）
+}
+
 // 背后悄悄抓当前打开对话，当上下文（读屏；抓不到就返回空）
 async function getConversationContext() {
   try {
@@ -2195,18 +2242,10 @@ async function doReply(mode) {
     return;
   }
   const redText = messageInput.value.trim(); // 红人原文
-  // 回复语言：永远优先匹配红人语言，不靠手动选择（90% 的同事不会去选）。
-  //   1) 有红人原文 → 留空，让服务端从原文识别语言；
-  //   2) 没有红人原文 → 先扫当前对话窗口自动识别红人语言；
-  //   3) 都识别不到 → 才退回手动选择 / 「常用语言」设置兜底。
-  let fallbackLang = "";
-  if (!redText) {
-    fallbackLang = await detectConversationLanguage();
-    if (!fallbackLang) {
-      fallbackLang = (replyLanguageSelect?.value || "").trim()
-        || (targetLanguage?.value || "").trim();
-    }
-  }
+  // 回复语言：有原文让服务端从原文识别；没原文先扫对话窗口/读设置，
+  // 都没有（红人只发图片/视频）就弹窗让运营选，避免 AI 默认编成英文。
+  const fallbackLang = await resolveReplyLanguage(redText);
+  if (fallbackLang === null) return; // 用户取消（此处尚未禁用按钮）
   const btn = document.getElementById(mode === "faithful" ? "do-faithful" : "do-polish");
   const orig = btn.textContent;
   btn.disabled = true;
@@ -2443,6 +2482,15 @@ async function analyze() {
     return;
   }
 
+  // 回复语言：有原文让服务端识别；没原文（红人只发图片/视频）先扫窗口/读设置，
+  // 都没有就弹窗让运营选，避免 AI 默认编成英文。用户取消则中止本次生成。
+  const replyLang = await resolveReplyLanguage(message);
+  if (replyLang === null) {
+    analyzeButton.disabled = false;
+    analyzeButton.textContent = "💬 生成双语回复";
+    return;
+  }
+
   // 自动把当前对话当上下文（实习生不用手动粘）
   const autoCtx = await getConversationContext();
   const mergedContext = [contextInput.value.trim(), autoCtx].filter(Boolean).join("\n");
@@ -2452,7 +2500,7 @@ async function analyze() {
     productId: productSelect.value,
     context: mergedContext,
     operatorGoal: goal,
-    replyLanguage: replyLanguageSelect?.value || "",
+    replyLanguage: replyLang || (replyLanguageSelect?.value || ""),
     channel: "Instagram"
   };
 
