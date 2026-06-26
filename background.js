@@ -420,10 +420,8 @@ async function refreshReminders() {
       // 通知正文：主标签 + 红人最新消息原文 + 合作进展摘要（都是真实内容，不让 AI 编）
       const summaries = allSummaries || {};
       const sumRec = summaries[head.recKey] || (headRec?.threadId ? summaries[headRec.threadId] : null);
-      const preview = ((headRec?.lastMsgPreview || headRec?.inboxPreview) || "").trim().slice(0, 60);
-      const sumText = (sumRec?.text || "").trim().slice(0, 60);
+      const sumText = (sumRec?.text || "").trim().slice(0, 80);
       const msgParts = [head.label || head.title];
-      if (preview) msgParts.push(`💬 ${preview}`);
       if (sumText) msgParts.push(`📋 ${sumText}`);
       if (fresh.length > 1) msgParts.push(`…等共 ${fresh.length} 条待处理`);
       chrome.notifications.create(
