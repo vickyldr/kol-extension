@@ -155,15 +155,19 @@ async function addTranslation(element) {
   translation.textContent = "正在翻译…";
   const wrapper = document.createElement("div");
   wrapper.className = "kol-translation-row";
-  const anchorRect = anchor.getBoundingClientRect();
+  // 用「真正的文字气泡」自身的位置来缩进译文，把译文钉在原文气泡的正下方：
+  // 对方消息靠左 → 译文靠左；我方消息靠右 → 译文也靠右。
+  // （之前用外层容器算，我方那行容器是满宽、左边在最左，算出缩进≈0，译文就跑到左边去了。）
+  const bubbleRect = element.getBoundingClientRect();
   const rowRect = row.getBoundingClientRect();
-  wrapper.style.setProperty(
-    "--kol-translation-indent",
-    `${Math.max(0, anchorRect.left - rowRect.left)}px`
+  const indent = Math.max(
+    0,
+    Math.min(bubbleRect.left - rowRect.left, Math.max(0, rowRect.width - 80))
   );
+  wrapper.style.setProperty("--kol-translation-indent", `${Math.round(indent)}px`);
   wrapper.style.setProperty(
     "--kol-translation-width",
-    `${Math.min(Math.max(anchorRect.width, 180), 520)}px`
+    `${Math.min(Math.max(bubbleRect.width, 180), 520)}px`
   );
   wrapper.appendChild(translation);
   anchor.insertAdjacentElement("afterend", wrapper);
@@ -229,9 +233,19 @@ function scanMessages(root = document) {
 }
 
 let scanTimer;
+let firstDirtyAt = 0;
 function scheduleScan() {
+  const now = Date.now();
+  if (!firstDirtyAt) firstDirtyAt = now;
   clearTimeout(scanTimer);
-  scanTimer = setTimeout(() => scanMessages(), 450);
+  // 普通防抖 300ms；但若 DOM 已经连续抖动超过 900ms，就强制立刻扫一次。
+  // IG 频繁重渲染（在线人数/时间戳/发送状态）会不停重置防抖、把扫描一直往后推，
+  // 导致译文迟迟不出——你方刚发的消息尤其明显。封顶后最多等 900ms 必出。
+  const wait = now - firstDirtyAt > 900 ? 0 : 300;
+  scanTimer = setTimeout(() => {
+    firstDirtyAt = 0;
+    scanMessages();
+  }, wait);
 }
 
 createButton();
