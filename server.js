@@ -704,10 +704,13 @@ async function rewriteReply(payload) {
       String(payload.detectedLanguage || "").trim();
     const result = await callQwen({
       model: MODEL_FAST,
-      system: `你是翻译器。把运营给的中文准确翻译成目标语言。
+      system: `你是翻译器。把运营给的中文（chinese_text）准确翻译成目标外语。
 忠实原意、一字不改地传达：不增不减、不加问候语、不加结尾客套、不润色、不扩写、不改语气。
 准确保留主语、宾语、动作方向、时态、否定、数字和语气。
-目标语言用 reply_language；若为空则使用 creator_message 的语言，绝不无故改成英语。
+【目标语言规则，最重要】
+- 如果提供了 reply_language，就翻成 reply_language。
+- 如果 reply_language 为空，先判断 creator_message（红人原消息）是什么语言，再把 chinese_text 翻成那个语言；红人说泰语就用泰语、说日语就用日语，绝不无故改成英语。
+- reply_target 必须是翻译后的外语，绝对不能为空，绝对不能原样照抄 chinese_text 的中文。
 只返回 JSON：{"reply_target":"目标语言译文","reply_chinese":"原中文照抄"}。`,
       user: JSON.stringify({
         reply_language: replyLanguage,
