@@ -11,42 +11,59 @@
   .nav { display: flex; gap: 4px; margin-left: 6px; }
   .nav .t { padding: 5px 12px; border-radius: 7px; color: #5e6470; cursor: pointer; }
   .nav .t.active { background: #eaf2ff; color: #1456f0; font-weight: 600; }
-  .who { margin-left: auto; color: #8f959e; font-size: 12px; }
-  .views { margin-left: 6px; display: flex; gap: 4px; }
+  .views { margin-left: auto; display: flex; gap: 4px; }
   .vb { padding: 5px 11px; border: 1px solid #d9dce1; border-radius: 7px; color: #5e6470; cursor: pointer; font-size: 12px; background: #fff; }
   .vb.on { background: #1f2329; color: #fff; border-color: #1f2329; }
 
-  /* 漏斗：一眼看懂整体进度 */
-  .funnel { display: flex; gap: 8px; padding: 16px 22px; background: #fff; border-bottom: 1px solid #e7e9ed; }
-  .fstep { flex: 1; border-radius: 10px; padding: 12px 14px; color: #fff; position: relative; }
-  .fstep .n { font-size: 22px; font-weight: 700; }
-  .fstep .l { font-size: 12px; opacity: .92; margin-top: 2px; }
-  .fstep .arrow { position: absolute; right: -8px; top: 50%; transform: translateY(-50%); z-index: 2; color: #f4f5f7; font-size: 16px; }
+  .strip { display: flex; gap: 12px; padding: 14px 22px; background: #fff; border-bottom: 1px solid #e7e9ed; align-items: stretch; }
+  .funnel { display: flex; gap: 6px; flex: 1.4; }
+  .fstep { flex: 1; border-radius: 9px; padding: 9px 12px; color: #fff; }
+  .fstep .n { font-size: 19px; font-weight: 700; }
+  .fstep .l { font-size: 11px; opacity: .92; }
+  .alert { flex: 1; background: #fff6f5; border: 1px solid #f7d4cf; border-radius: 10px; padding: 10px 14px; }
+  .alert .h { color: #d23; font-weight: 700; font-size: 13px; }
+  .alert .sub { color: #8f5b56; font-size: 11px; margin-top: 3px; line-height: 1.6; }
+  .followup { flex: 1; background: #f7f8fa; border: 1px solid #e7e9ed; border-radius: 10px; padding: 10px 14px; }
+  .followup .h { font-weight: 700; font-size: 12px; color: #5e6470; margin-bottom: 5px; }
+  .frow { display: flex; align-items: center; gap: 6px; font-size: 12px; margin: 2px 0; }
+  .frow .who { width: 36px; }
+  .frow .badge { font-size: 11px; border-radius: 4px; padding: 1px 6px; }
+  .ok { background: #eafbf0; color: #0a7d33; }
+  .warn { background: #fff3e0; color: #b46a00; }
+  .bad { background: #fdecec; color: #d23; }
 
-  .wrap { padding: 18px 22px; }
-  .stage { margin-bottom: 22px; }
-  .shead { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-  .sdot { width: 10px; height: 10px; border-radius: 3px; }
-  .stitle { font-weight: 700; font-size: 14px; }
-  .scount { color: #8f959e; font-size: 12px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); gap: 10px; }
-  .card { background: #fff; border: 1px solid #e7e9ed; border-radius: 12px; padding: 12px; border-left: 3px solid #ccc; }
-  .chead { display: flex; align-items: center; gap: 9px; }
-  .av { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 14px; flex: none; }
+  .toolbar { display: flex; align-items: center; gap: 14px; padding: 9px 22px; color: #5e6470; font-size: 12px; background: #fff; border-bottom: 1px solid #f0f1f3; }
+  .toolbar b { color: #1f2329; }
+  .toolbar .sortcol { color: #1456f0; }
+
+  table { width: 100%; border-collapse: collapse; background: #fff; }
+  th { text-align: left; padding: 9px 12px; background: #fafbfc; color: #8f959e; font-weight: 600; font-size: 12px; border-bottom: 1px solid #e7e9ed; white-space: nowrap; }
+  th.sorted { color: #1456f0; }
+  td { padding: 9px 12px; border-bottom: 1px solid #f0f1f3; vertical-align: middle; }
+  .grp td { background: #f2f6ff; font-weight: 700; padding: 7px 12px; }
+  .grp .cnt { color: #8f959e; font-weight: 500; margin-left: 6px; }
   .nm { font-weight: 600; }
-  .hd { color: #8f959e; font-size: 11px; }
-  .reply { margin-left: auto; background: #fdecec; color: #d23; font-size: 11px; border-radius: 5px; padding: 2px 7px; }
-  .online { margin-left: auto; background: #e6f8ec; color: #0a7d33; font-size: 11px; border-radius: 5px; padding: 2px 7px; }
-  .meta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 9px; }
-  .pill { font-size: 11px; border-radius: 5px; padding: 2px 7px; background: #eef1f4; color: #5e6470; }
-  .pill.kr { background: #fbeaef; color: #c0397b; }
-  .pill.type { background: #fff3e0; color: #b46a00; }
-  .pill.price { background: #eafbf0; color: #0a7d33; font-weight: 700; }
-  .theme { margin-top: 8px; }
-  .tag { display: inline-block; background: #f0e9ff; color: #6b3fd1; border-radius: 5px; padding: 2px 7px; font-size: 11px; margin: 1px 2px 1px 0; }
-  .note { margin-top: 8px; color: #5e6470; font-size: 12px; border-top: 1px dashed #eceef1; padding-top: 7px; }
-  .note.warn { color: #d23; }
-  .owner { color: #8f959e; font-size: 11px; margin-top: 6px; }
+  .hd { color: #a6abb3; font-size: 11px; margin-left: 5px; }
+  .reg { background: #eef1f4; border-radius: 4px; padding: 2px 7px; font-size: 11px; color: #5e6470; }
+  .reg.kr { background: #fbeaef; color: #c0397b; }
+  .type { background: #fff3e0; color: #b46a00; border-radius: 4px; padding: 2px 8px; font-size: 11px; }
+  .type.bm { background: #eafbf0; color: #0a7d33; }
+  .type.jc { background: #e8f0ff; color: #1456f0; }
+  .price { font-weight: 600; white-space: nowrap; }
+  .tag { display: inline-block; background: #f0e9ff; color: #6b3fd1; border-radius: 4px; padding: 2px 7px; font-size: 11px; margin: 1px 1px; }
+  .tag.b { background: #e6f7ff; color: #0a72b5; }
+  .stage { font-size: 11px; border-radius: 5px; padding: 2px 8px; font-weight: 600; }
+  .s-make { background: #efeaff; color: #6b3fd1; }
+  .s-done { background: #eafbf0; color: #0a7d33; }
+  .s-stop { background: #fdecec; color: #d23; }
+  .upd { white-space: nowrap; font-weight: 600; }
+  .udot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
+  .u-fresh { color: #0a7d33; } .u-fresh .udot { background: #0a7d33; }
+  .u-mid { color: #b46a00; } .u-mid .udot { background: #f5a623; }
+  .u-stale { color: #d23; } .u-stale .udot { background: #d23; }
+  .note { color: #5e6470; font-size: 12px; }
+  .note.w { color: #d23; }
+  .owner { font-size: 12px; }
 </style>
 </head>
 <body>
@@ -57,102 +74,59 @@
       <div class="t active">进度看板</div>
     </div>
     <div class="views">
-      <div class="vb on">卡片</div>
-      <div class="vb">表格</div>
+      <div class="vb on">列表</div>
+      <div class="vb">卡片</div>
       <div class="vb">按负责人</div>
     </div>
-    <div class="who">数据来自插件 · 实习生录入</div>
   </div>
 
-  <!-- 漏斗：整体进度一眼懂 -->
-  <div class="funnel">
-    <div class="fstep" style="background:#1456f0"><div class="n">12</div><div class="l">洽谈中</div><span class="arrow">▶</span></div>
-    <div class="fstep" style="background:#f5a623"><div class="n">5</div><div class="l">已报价</div><span class="arrow">▶</span></div>
-    <div class="fstep" style="background:#8b7cf6"><div class="n">7</div><div class="l">制作中</div><span class="arrow">▶</span></div>
-    <div class="fstep" style="background:#0a7d33"><div class="n">42</div><div class="l">已完成</div><span class="arrow">▶</span></div>
-    <div class="fstep" style="background:#d23"><div class="n">2</div><div class="l">终止/鸽</div></div>
-  </div>
-
-  <div class="wrap">
-    <!-- 制作中 -->
-    <div class="stage">
-      <div class="shead"><span class="sdot" style="background:#8b7cf6"></span><span class="stitle">制作中</span><span class="scount">7 个红人</span></div>
-      <div class="grid">
-        <div class="card" style="border-left-color:#8b7cf6">
-          <div class="chead"><div class="av" style="background:#6c5ce7">达</div><div><div class="nm">达薪</div><div class="hd">@dashempower</div></div><span class="reply">待回复</span></div>
-          <div class="meta"><span class="pill">TW</span><span class="pill type">口播</span><span class="pill price">900刀 / 2视频</span></div>
-          <div class="theme"><span class="tag">拉踩录音上传ai</span></div>
-          <div class="note">六月初开始第二支视频</div>
-          <div class="owner">对接：小王</div>
-        </div>
-        <div class="card" style="border-left-color:#8b7cf6">
-          <div class="chead"><div class="av" style="background:#00b894">实</div><div><div class="nm">实验室</div><div class="hd">@pb_design_lab</div></div></div>
-          <div class="meta"><span class="pill">TW</span><span class="pill type">口播</span><span class="pill price">1200USD / 2ig</span></div>
-          <div class="theme"><span class="tag">拉踩付费AI</span></div>
-          <div class="note">2个月使用权，先做第一支</div>
-          <div class="owner">对接：小王</div>
-        </div>
-        <div class="card" style="border-left-color:#8b7cf6">
-          <div class="chead"><div class="av" style="background:#0984e3">ho</div><div><div class="nm">hogan</div><div class="hd">@hogan.tech</div></div><span class="online">在线</span></div>
-          <div class="meta"><span class="pill">TW</span><span class="pill type">口播</span><span class="pill price">2.5w台币 / 2条ig</span></div>
-          <div class="theme"><span class="tag">拉踩GPT</span><span class="tag">拉踩付费AI</span></div>
-          <div class="note">3个月使用权</div>
-          <div class="owner">对接：小敏</div>
-        </div>
-        <div class="card" style="border-left-color:#8b7cf6">
-          <div class="chead"><div class="av" style="background:#e17055">猪</div><div><div class="nm">小猪马</div><div class="hd">@nini90229</div></div></div>
-          <div class="meta"><span class="pill">TW</span><span class="pill type">口播</span><span class="pill price">160USD / 2条igtt</span></div>
-          <div class="theme"><span class="tag">教育/育儿场景</span></div>
-          <div class="note">准备第二支视频</div>
-          <div class="owner">对接：小敏</div>
-        </div>
-        <div class="card" style="border-left-color:#8b7cf6">
-          <div class="chead"><div class="av" style="background:#fdcb6e">阳</div><div><div class="nm">阳光哥</div><div class="hd">@sunysha</div></div><span class="reply">待回复</span></div>
-          <div class="meta"><span class="pill kr">KR</span><span class="pill type">口播</span><span class="pill price">1000USD / 2条</span></div>
-          <div class="theme"><span class="tag">拉踩GPT</span></div>
-          <div class="owner">对接：小李</div>
-        </div>
-      </div>
+  <!-- 顶部：整体进度 + 跟进预警 + 实习生跟进情况 -->
+  <div class="strip">
+    <div class="funnel">
+      <div class="fstep" style="background:#1456f0"><div class="n">12</div><div class="l">洽谈中</div></div>
+      <div class="fstep" style="background:#f5a623"><div class="n">5</div><div class="l">已报价</div></div>
+      <div class="fstep" style="background:#8b7cf6"><div class="n">7</div><div class="l">制作中</div></div>
+      <div class="fstep" style="background:#0a7d33"><div class="n">42</div><div class="l">已完成</div></div>
+      <div class="fstep" style="background:#d23"><div class="n">2</div><div class="l">终止/鸽</div></div>
     </div>
-
-    <!-- 已完成 -->
-    <div class="stage">
-      <div class="shead"><span class="sdot" style="background:#0a7d33"></span><span class="stitle">已完成</span><span class="scount">42 个（部分）</span></div>
-      <div class="grid">
-        <div class="card" style="border-left-color:#0a7d33">
-          <div class="chead"><div class="av" style="background:#00b894">尤</div><div><div class="nm">尤栗妈</div><div class="hd">@joyce_yiling</div></div></div>
-          <div class="meta"><span class="pill">TW</span><span class="pill type">宝妈</span><span class="pill price">3k / reel·tt</span></div>
-          <div class="theme"><span class="tag">宝妈带娃</span></div>
-          <div class="note">效果好，问能不能续约</div>
-          <div class="owner">对接：小美 (2号)</div>
-        </div>
-        <div class="card" style="border-left-color:#0a7d33">
-          <div class="chead"><div class="av" style="background:#0984e3">卷</div><div><div class="nm">卷龙</div><div class="hd">@reels_drgn</div></div></div>
-          <div class="meta"><span class="pill kr">KR</span><span class="pill type">口播</span><span class="pill price">30w / ig+tt+yt</span></div>
-          <div class="theme"><span class="tag">拉踩录音上传ai</span></div>
-          <div class="owner">对接：小美</div>
-        </div>
-      </div>
+    <div class="alert">
+      <div class="h">🔴 3 个红人 &gt;7天没更新</div>
+      <div class="sub">阳光哥(9天) · 菌子(14天) · 格瑞斯(21天)<br>需提醒对接人跟进</div>
     </div>
-
-    <!-- 终止 -->
-    <div class="stage">
-      <div class="shead"><span class="sdot" style="background:#d23"></span><span class="stitle">终止 / 鸽</span><span class="scount">2 个</span></div>
-      <div class="grid">
-        <div class="card" style="border-left-color:#d23">
-          <div class="chead"><div class="av" style="background:#b2bec3">格</div><div><div class="nm">格瑞斯</div><div class="hd">@zerotoscale_gr</div></div></div>
-          <div class="meta"><span class="pill">TW</span><span class="pill type">口播</span><span class="pill price">5k一年 / igttytb</span></div>
-          <div class="note warn">⚠ 鸽子姐</div>
-          <div class="owner">对接：小敏</div>
-        </div>
-        <div class="card" style="border-left-color:#d23">
-          <div class="chead"><div class="av" style="background:#b2bec3">菌</div><div><div class="nm">菌子</div><div class="hd">@papa.juns_</div></div></div>
-          <div class="meta"><span class="pill kr">KR</span><span class="pill type">口播</span></div>
-          <div class="note warn">⚠ 催了好几次都不回</div>
-          <div class="owner">对接：小李</div>
-        </div>
-      </div>
+    <div class="followup">
+      <div class="h">实习生跟进情况（按更新频率）</div>
+      <div class="frow"><span class="who">小王</span><span class="badge ok">勤 · 平均1天</span></div>
+      <div class="frow"><span class="who">小敏</span><span class="badge warn">一般 · 平均4天</span></div>
+      <div class="frow"><span class="who">小李</span><span class="badge bad">滞后 · 2个超7天没动</span></div>
     </div>
   </div>
+
+  <div class="toolbar">⚙️ 字段 &nbsp; 🔽 筛选 &nbsp; 🗂️ 按<b>进度</b>分组 &nbsp; ↕ 排序：<span class="sortcol">最近更新 ↓（越久没动越靠上）</span></div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>外号 / 红人</th><th>地区</th><th>类型</th><th>价格 / 平台</th><th>主题</th>
+        <th>阶段</th><th class="sorted">最近更新 ↓</th><th>对接人</th><th>备注</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="grp"><td colspan="9">▼ 制作中 <span class="cnt">7 条</span></td></tr>
+      <tr><td><span class="nm">阳光哥</span><span class="hd">@sunysha</span></td><td><span class="reg kr">KR</span></td><td><span class="type">口播</span></td><td class="price">1000USD / 2条</td><td><span class="tag">拉踩GPT</span></td><td><span class="stage s-make">制作中</span></td><td class="upd u-stale"><span class="udot"></span>9天前</td><td class="owner">小李</td><td class="note">—</td></tr>
+      <tr><td><span class="nm">小猪马</span><span class="hd">@nini90229</span></td><td><span class="reg">TW</span></td><td><span class="type jc">口播</span></td><td class="price">160USD / 2条igtt</td><td><span class="tag b">教育/育儿</span></td><td><span class="stage s-make">制作中</span></td><td class="upd u-mid"><span class="udot"></span>6天前</td><td class="owner">小敏</td><td class="note">准备第二支视频</td></tr>
+      <tr><td><span class="nm">hogan</span><span class="hd">@hogan.tech</span></td><td><span class="reg">TW</span></td><td><span class="type">口播</span></td><td class="price">2.5w台币 / 2条ig</td><td><span class="tag">拉踩GPT</span><span class="tag">付费AI</span></td><td><span class="stage s-make">制作中</span></td><td class="upd u-mid"><span class="udot"></span>4天前</td><td class="owner">小敏</td><td class="note">3个月使用权</td></tr>
+      <tr><td><span class="nm">实验室</span><span class="hd">@pb_design_lab</span></td><td><span class="reg">TW</span></td><td><span class="type">口播</span></td><td class="price">1200USD / 2ig</td><td><span class="tag">拉踩付费AI</span></td><td><span class="stage s-make">制作中</span></td><td class="upd u-fresh"><span class="udot"></span>1天前</td><td class="owner">小王</td><td class="note">2个月使用权</td></tr>
+      <tr><td><span class="nm">达薪</span><span class="hd">@dashempower</span></td><td><span class="reg">TW</span></td><td><span class="type">口播</span></td><td class="price">900刀 / 2视频</td><td><span class="tag">拉踩录音上传ai</span></td><td><span class="stage s-make">制作中</span></td><td class="upd u-fresh"><span class="udot"></span>2小时前</td><td class="owner">小王</td><td class="note">六月初开始第二支</td></tr>
+
+      <tr class="grp"><td colspan="9">▼ 终止 / 鸽 <span class="cnt">2 条</span></td></tr>
+      <tr><td><span class="nm">格瑞斯</span><span class="hd">@zerotoscale_gr</span></td><td><span class="reg">TW</span></td><td><span class="type">口播</span></td><td class="price">5k一年 / igttytb</td><td><span class="tag b">小组件</span></td><td><span class="stage s-stop">终止</span></td><td class="upd u-stale"><span class="udot"></span>21天前</td><td class="owner">小敏</td><td class="note w">鸽子姐</td></tr>
+      <tr><td><span class="nm">菌子</span><span class="hd">@papa.juns_</span></td><td><span class="reg kr">KR</span></td><td><span class="type">口播</span></td><td class="price">—</td><td><span class="tag">拉踩录音上传ai</span></td><td><span class="stage s-stop">终止</span></td><td class="upd u-stale"><span class="udot"></span>14天前</td><td class="owner">小李</td><td class="note w">催了好几次都不回</td></tr>
+
+      <tr class="grp"><td colspan="9">▼ 已完成 <span class="cnt">42 条（部分）</span></td></tr>
+      <tr><td><span class="nm">卷龙</span><span class="hd">@reels_drgn</span></td><td><span class="reg kr">KR</span></td><td><span class="type">口播</span></td><td class="price">30w / ig+tt+yt</td><td><span class="tag">拉踩录音上传ai</span></td><td><span class="stage s-done">已完成</span></td><td class="upd u-mid"><span class="udot"></span>5天前</td><td class="owner">小美</td><td class="note">—</td></tr>
+      <tr><td><span class="nm">尤栗妈</span><span class="hd">@joyce_yiling</span></td><td><span class="reg">TW</span></td><td><span class="type bm">宝妈</span></td><td class="price">3k / reel·tt</td><td><span class="tag b">宝妈带娃</span></td><td><span class="stage s-done">已完成</span></td><td class="upd u-fresh"><span class="udot"></span>3天前</td><td class="owner">小美 (2号)</td><td class="note">效果好，问续约</td></tr>
+    </tbody>
+  </table>
+  <p style="color:#8f959e;font-size:12px;padding:12px 22px">「最近更新」= 实习生上次动这条记录 / 该红人上次有新消息的时间（插件提醒系统已在算）。越久没动越红、越靠上，一眼抓出没人跟进的红人和滞后的实习生。</p>
 </body>
 </html>
