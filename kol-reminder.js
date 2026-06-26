@@ -749,7 +749,9 @@
             avatarUrl: row.avatarUrl || prev.avatarUrl || "",
             needsReplyRaw: inboxNeedsReply,
             needsReplyReason: inboxNeedsReply ? "未读 · 对方发了新消息" : "",
-            lastSeenAt: nowIso()
+            lastSeenAt: nowIso(),
+            // 未读时用收件箱预览做兜底总结，供提醒卡片显示；有 kolSummaries 时会被覆盖
+            autoSummary: row.preview ? (row.preview.slice(0, 100) + (row.preview.length > 100 ? "…" : "")) : (prev.autoSummary || "")
           };
           // 「第一次发现没回」锚点：从"不是待回复"变成"待回复"时盖戳
           if (inboxNeedsReply && !prev.needsReplyRaw) next.firstUnrepliedAt = nowIso();

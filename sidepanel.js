@@ -2589,234 +2589,20 @@ loadConfig().then(async () => {
 initGuide();
 
 // ====================== KOL 提醒面板 ======================
+// 面板仅保留「加待办」入口，完整清单在独立弹窗（reminders.html）里展示。
 (function () {
-  const DEFAULT_PREFIXES = ["recco", "rythmix", "aicatch", "vivavideo"];
   const SETTINGS_KEY = "kolReminderSettings";
   const panel = document.getElementById("reminder-panel");
   if (!panel) return;
 
   const openBtn = document.getElementById("open-reminders");
   const closeBtn = document.getElementById("reminder-close");
-  const listEl = document.getElementById("reminder-list");
-  const mutedEl = document.getElementById("muted-list");
-  // 身份设置已并入「⚙️ 服务器设置」：myHandle=你的 ins id、myProduct=你负责的产品。
-  // 这里不再有独立的身份表单。
 
   function nowIso() { return new Date().toISOString(); }
-  function daysSince(iso) {
-    const t = Date.parse(iso);
-    if (!Number.isFinite(t)) return 0;
-    return Math.max(0, Math.floor((Date.now() - t) / 86400000));
-  }
-  function threadUrl(id) { return `https://www.instagram.com/direct/t/${id}/`; }
-  // 打开提醒对应对话：有数字ID(threadId)→深链直达；没有→让IG页面脚本按名字在左边列表找到那行点开。
-  function openConversation(it) {
-    const deepUrl = it.threadId ? threadUrl(it.threadId) : "";
-    try {
-      chrome.tabs.query({ url: "*://*.instagram.com/*" }, (tabs) => {
-        const tab = tabs && tabs.length ? tabs[0] : null;
-        if (!tab) {
-          chrome.tabs.create({ url: deepUrl || "https://www.instagram.com/direct/inbox/" });
-          return;
-        }
-        if (deepUrl) {
-          chrome.tabs.update(tab.id, { url: deepUrl, active: true });
-          if (tab.windowId != null) chrome.windows.update(tab.windowId, { focused: true });
-          return;
-        }
-        chrome.tabs.update(tab.id, { active: true });
-        if (tab.windowId != null) chrome.windows.update(tab.windowId, { focused: true });
-        const tryClick = () => {
-          chrome.tabs.sendMessage(tab.id, { type: "KOL_OPEN_THREAD_BY_NAME", key: it.key }, (resp) => {
-            if (chrome.runtime.lastError || !resp || !resp.ok) {
-              chrome.tabs.update(tab.id, { url: "https://www.instagram.com/direct/inbox/", active: true });
-            }
-          });
-        };
-        if (/\/direct\//.test(tab.url || "")) {
-          tryClick();
-        } else {
-          chrome.tabs.update(tab.id, { url: "https://www.instagram.com/direct/inbox/", active: true }, () => {
-            setTimeout(tryClick, 1800);
-          });
-        }
-      });
-    } catch (e) {
-      chrome.tabs.create({ url: deepUrl || "https://www.instagram.com/direct/inbox/" });
-    }
-  }
 
   async function getLocal(keys) { return chrome.storage.local.get(keys); }
   async function setLocal(obj) { return chrome.storage.local.set(obj); }
 
-  // —— 计算提醒清单（与后台一致） ——
-  function computeItems(threads, todos) {
-    const items = [];
-    Object.entries(threads || {}).forEach(([recKey, rec]) => {
-      if (!rec || rec.muted) return;
-      const j = rec.judge || {};
-      // 名字优先；抓不到名字时用消息预览，绝不甩一串对话 ID 给用户
-      const looksLikeId = (x) => /^\d{6,}$/.test(String(x || ""));
-      let title = rec.title || rec.creatorName || recKey || "";
-      if (looksLikeId(title)) title = "";
-      if (!title) title = (rec.inboxPreview || rec.lastMsgPreview || "").slice(0, 24);
-      if (!title) title = "未命名对话";
-      const sig = rec.judgeSignature || "";
-      if (rec.needsReplyRaw && j.is_pleasantry !== true && rec.replyDismissedSig !== sig) {
-        items.push({
-          kind: "reply", key: recKey, threadId: rec.threadId, isGroup: rec.isGroup, title,
-          label: rec.needsReplyReason || j.reminder_label || `等你回复`,
-          ai: j.ai_note || "",
-          meta: `已搁置约 ${daysSince(rec.firstUnrepliedAt || rec.lastSeenAt)} 天 · 上次看到 ${fmt(rec.lastSeenAt)}`
-        });
-      }
-      if (j.needs_follow_up && j.is_pleasantry !== true && rec.followDismissedSig !== sig) {
-        const threshold = Number.isFinite(Number(j.follow_up_after_days)) ? Number(j.follow_up_after_days) : 2;
-        const elapsed = daysSince(rec.judgedAt || rec.lastSeenAt);
-        if (elapsed >= threshold) {
-          items.push({
-            kind: "follow", key: recKey, threadId: rec.threadId, isGroup: rec.isGroup, title,
-            label: j.reminder_label || `该跟进：${j.waiting_for || ""}`,
-            ai: j.ai_note || "",
-            meta: `在等：${j.waiting_for || "—"} · 已 ${elapsed} 天`
-          });
-        }
-      }
-    });
-    (todos || []).forEach((t) => {
-      if (!t || t.done || t.dismissed) return;
-      const due = Date.parse(t.dueAt);
-      if (Number.isFinite(due) && due <= Date.now()) {
-        items.push({ kind: "todo", todoId: t.id, threadId: t.threadId || "", title: t.text, label: "", meta: `到点：${fmt(t.dueAt)}` });
-      }
-    });
-    return items;
-  }
-
-  function fmt(iso) {
-    const d = new Date(iso);
-    if (isNaN(d)) return "—";
-    return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-  }
-
-  // —— 渲染 ——
-  async function render() {
-    const store = await getLocal(["kolThreads", "kolTodos"]);
-    const threads = store.kolThreads || {};
-    const items = computeItems(threads, store.kolTodos || []);
-    listEl.replaceChildren();
-
-    if (!items.length) {
-      const p = document.createElement("p");
-      p.className = "reminder-empty";
-      p.textContent = "暂无提醒。打开 IG 私信刷一刷，这里会自动出现「待回复 / 待跟进」。";
-      listEl.appendChild(p);
-    } else {
-      const groups = [
-        ["reply", "📥 待回复（红人发了我没回）"],
-        ["follow", "⏳ 待跟进（口头答应没推进 / 该催）"],
-        ["todo", "📝 待办"]
-      ];
-      groups.forEach(([kind, name]) => {
-        const sub = items.filter((i) => i.kind === kind);
-        if (!sub.length) return;
-        const h = document.createElement("div");
-        h.className = "reminder-group-title";
-        h.textContent = `${name} · ${sub.length}`;
-        listEl.appendChild(h);
-        sub.forEach((it) => listEl.appendChild(card(it)));
-      });
-    }
-
-    // 静音群列表
-    mutedEl.replaceChildren();
-    const muted = Object.entries(threads).filter(([, r]) => r && r.muted);
-    if (!muted.length) {
-      const p = document.createElement("div");
-      p.className = "muted-row";
-      p.textContent = "（没有静音的群）";
-      mutedEl.appendChild(p);
-    } else {
-      muted.forEach(([recKey, r]) => {
-        const row = document.createElement("div");
-        row.className = "muted-row";
-        const span = document.createElement("span");
-        span.textContent = r.title || r.creatorName || recKey;
-        const btn = document.createElement("button");
-        btn.textContent = "取消静音";
-        btn.addEventListener("click", async () => { await patchThread(recKey, { muted: false }); });
-        row.append(span, btn);
-        mutedEl.appendChild(row);
-      });
-    }
-  }
-
-  function card(it) {
-    const el = document.createElement("div");
-    el.className = `reminder-card ${it.kind}`;
-    const t = document.createElement("div");
-    t.className = "rc-title";
-    t.textContent = (it.kind === "todo" ? "📝 " : "") + (it.title || "");
-    el.appendChild(t);
-    if (it.label) {
-      const l = document.createElement("div");
-      l.className = "rc-label";
-      l.textContent = it.label;
-      el.appendChild(l);
-    }
-    if (it.ai) {
-      const a = document.createElement("div");
-      a.className = "rc-ai";
-      a.textContent = "🤖 " + it.ai;
-      el.appendChild(a);
-    }
-    const m = document.createElement("div");
-    m.className = "rc-meta";
-    m.textContent = it.meta || "";
-    el.appendChild(m);
-
-    const actions = document.createElement("div");
-    actions.className = "rc-actions";
-    if (it.kind !== "todo") {
-      actions.appendChild(btn("打开对话", () => openConversation(it)));
-    }
-    if (it.kind === "reply") {
-      actions.appendChild(btn("不用提醒了", () => dismissThread(it.key, "reply")));
-    } else if (it.kind === "follow") {
-      actions.appendChild(btn("不用提醒了", () => dismissThread(it.key, "follow")));
-    } else if (it.kind === "todo") {
-      actions.appendChild(btn("完成", () => patchTodo(it.todoId, { done: true })));
-      actions.appendChild(btn("删除", () => patchTodo(it.todoId, { dismissed: true })));
-    }
-    if (it.isGroup && it.key) {
-      actions.appendChild(btn("🔕 这个群别再提醒", () => patchThread(it.key, { muted: true })));
-    }
-    el.appendChild(actions);
-    return el;
-  }
-
-  function btn(label, onClick) {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.textContent = label;
-    b.addEventListener("click", onClick);
-    return b;
-  }
-
-  async function patchThread(id, patch) {
-    const store = await getLocal("kolThreads");
-    const map = store.kolThreads || {};
-    if (map[id]) { map[id] = { ...map[id], ...patch }; await setLocal({ kolThreads: map }); }
-  }
-  async function dismissThread(id, kind) {
-    const store = await getLocal("kolThreads");
-    const map = store.kolThreads || {};
-    if (map[id]) {
-      const sig = map[id].judgeSignature || "";
-      map[id][kind === "reply" ? "replyDismissedSig" : "followDismissedSig"] = sig;
-      await setLocal({ kolThreads: map });
-    }
-  }
   async function patchTodo(id, patch) {
     const store = await getLocal("kolTodos");
     const todos = store.kolTodos || [];
@@ -2878,18 +2664,13 @@ initGuide();
   });
 
   // —— 开关面板 ——
-  function openPanel() { panel.classList.remove("hidden"); render(); panel.scrollIntoView({ behavior: "smooth", block: "start" }); }
+  function openPanel() { panel.classList.remove("hidden"); panel.scrollIntoView({ behavior: "smooth", block: "start" }); }
   openBtn && openBtn.addEventListener("click", () => panel.classList.contains("hidden") ? openPanel() : panel.classList.add("hidden"));
   closeBtn && closeBtn.addEventListener("click", () => panel.classList.add("hidden"));
-  const popoutBtn = document.getElementById("reminder-popout");
-  popoutBtn && popoutBtn.addEventListener("click", () => chrome.runtime.sendMessage({ type: "KOL_OPEN_TODO_WINDOW" }));
 
-  // 记账本一变就重渲染（实时反映采集结果）
-  chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === "local" && (changes.kolThreads || changes.kolTodos) && !panel.classList.contains("hidden")) {
-      render();
-    }
-  });
+  // 「打开完整清单」按钮 → 弹出独立窗口
+  const openTodoWindowBtn = document.getElementById("open-todo-window");
+  openTodoWindowBtn && openTodoWindowBtn.addEventListener("click", () => chrome.runtime.sendMessage({ type: "KOL_OPEN_TODO_WINDOW" }));
 })();
 
 // ===================== ⚡ 我的快捷回复（个人·本地·打字秒出）=====================
