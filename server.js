@@ -104,14 +104,44 @@ const MIME = {
   m4v: "video/x-m4v"
 };
 
-const REPLY_STYLE = `统一回复风格（生成任何对外回复时必须严格遵守）：
-- 【极简短】像真人发私信、口头说话一样，**一般 1~3 句，越短越好**。能用词语或短语就别写成整句，能省的客套一律省掉。宁可短，不要长。
-- 【口语自然】轻松、友好、像朋友聊天，不要书面信、不要正式腔、不堆客套、不夸张吹捧。可以用一个很短的问候（如 Hi / 你好），但不是必须；不写多余的开场白和结尾客套。
-- 【直奔重点】第一句就说要点，不铺垫、不绕弯。
-- 【绝不复述上下文】上下文和对方说过的话只用来帮你理解，**回复里绝对不要重复、引用、复述上下文或对方的原话**。
+// 回复风格分两层，避免「极简」和「日语礼貌」在同一段里互相打架：
+//   ① 核心层 REPLY_STYLE_CORE：纯业务/内容规则，与语言无关，任何回复都生效。
+//   ② 语气层：二选一、互斥。非日语用 REPLY_STYLE_DEFAULT（精简口语）；日语用 REPLY_STYLE_JA（礼貌敬语）。
+// 调用处一律用 replyStyleFor(replyLanguage, sampleText) 拼出「核心层 + 对应语气层」。
+const REPLY_STYLE_CORE = `对外回复通用规则（任何语言都必须遵守）：
+- 【绝不复述上下文】上下文和对方说过的话只用来帮你理解，回复里绝对不要重复、引用、复述上下文或对方的原话。
 - 打招呼用通用问候，不带对方名字或 ID，不要"【填写名字】""{name}"这类占位。
 - 尽量不留变量：只有价格、日期、链接、数量等必须由人确认的关键信息缺失时才保留占位，其余自然写顺。
 - 忠于原意：严格按运营给的中文意图或草稿写，不自行添加运营没表达的承诺、理由、数字或信息。`;
+
+const REPLY_STYLE_DEFAULT = `回复风格（默认，适用于日语以外的语言）：
+- 【极简短】像真人发私信、口头说话一样，一般 1~3 句，越短越好。能用词语或短语就别写成整句，能省的客套一律省掉。宁可短，不要长。
+- 【口语自然】轻松、友好、像朋友聊天，不要书面信、不要正式腔、不堆客套、不夸张吹捧。可以用一个很短的问候（如 Hi / 你好），但不是必须；不写多余的开场白和结尾客套。
+- 【直奔重点】第一句就说要点，不铺垫、不绕弯。`;
+
+// 日语专用语气层：日本商务沟通必须礼貌客套，绝不能套用其他语言的极简直白风格。
+const REPLY_STYLE_JA = `回复风格（日语专用，覆盖上面的"极简/口语"要求）：
+日语必须自然、专业、礼貌，整体语气温和、谦逊——不能照搬其他语言的极简直白。
+- 使用敬语（です・ます体），保持商务沟通应有的正式程度。
+- 避免「〜してください」连续结句，优先更委婉的请求表达：「〜いただけますでしょうか」「〜お願いできますでしょうか」「〜いただけますと幸いです」「〜お願いいたします」。
+- 适当加入缓冲表达：「恐れ入りますが」「お手数ですが」「恐縮ですが」「もし可能でしたら」。
+- 多用商务中自然的表达「〜となります」「〜の予定です」「〜かと思います」，避免语气过于武断。
+- 仍要忠于运营的原意，礼貌但不啰嗦，不堆砌与意图无关的客套。`;
+
+// 判断这次回复要不要走日语礼貌层：reply_language 指明日语，或样本文本里含假名。
+function isJapaneseTarget(replyLanguage, sampleText) {
+  const lang = String(replyLanguage || "").toLowerCase();
+  if (/日本|日语|日文|japanese|にほんご|nihongo/.test(lang) || /\bja\b/.test(lang)) return true;
+  // 含平假名/片假名 → 日语（仅有汉字不算，避免和中文混淆）
+  if (/[぀-ゟ゠-ヿ]/.test(String(sampleText || ""))) return true;
+  return false;
+}
+
+// 拼出最终风格指令：核心层 + 对应语气层（日语 or 默认），二选一互斥不冲突。
+function replyStyleFor(replyLanguage, sampleText) {
+  const tone = isJapaneseTarget(replyLanguage, sampleText) ? REPLY_STYLE_JA : REPLY_STYLE_DEFAULT;
+  return `${REPLY_STYLE_CORE}\n\n${tone}`;
+}
 
 function json(res, status, body) {
   res.writeHead(status, {
@@ -420,7 +450,7 @@ B. 内部处理建议：仅供运营查看，包括询问 TL、预算上限、�
    不得在没有完整历史时断言“之前没有聊过”，只能说“当前提供的上下文中未看到”或“无法判断”。
 16. 专业词可能存在地区差异时必须提醒。例如 invoice / billing document / เอกสารวางบิล 可能指请款单、账单、形式发票、税务发票或付款所需资料，不能默认等同于中国增值税发票，应建议确认具体文件类型。
 
-${REPLY_STYLE}`;
+${replyStyleFor(payload.replyLanguage || payload.detectedLanguage || "", payload.message)}`;
 
   const outputContract = {
     detected_language: "语言",
@@ -543,7 +573,7 @@ async function quickReply(payload) {
 直接给出一条可以发出去的对外回复（红人所用语言）+ 中文对照。只出回复，不做分析、不写内部建议。
 语言规则：reply_target 必须用红人原消息的语言（detected_language）；红人没用英语就别用英语。
 不要编造价格、日期、授权、平台、付款时间、链接等必须由人确认的信息，缺就留占位或不提。
-${REPLY_STYLE}
+${replyStyleFor(payload.replyLanguage || "", payload.message)}
 只返回 JSON：{"detected_language":"语言","reply_target":"外语回复","reply_chinese":"中文对照"}。`;
   const result = await callQwen({
     system: systemPrompt,
@@ -778,7 +808,7 @@ async function rewriteReply(payload) {
 必须准确区分谁让谁做什么，不得虚构此前发生的事情，也不得编造价格、日期、授权、付款承诺、平台或链接。
 reply_target 不能为空；reply_chinese 必须是 reply_target 的准确中文对照。
 
-${REPLY_STYLE}
+${replyStyleFor(replyLanguage, payload.message)}
 
 只返回 JSON：{"reply_target":"修改后的外语回复","reply_chinese":"准确中文对照"}。`,
       user: JSON.stringify({
@@ -841,7 +871,7 @@ ${REPLY_STYLE}
 不得自行编造价格、日期、授权期限、付款承诺、平台、产品账号或链接。
 信息不足时使用安全的澄清表达，不要脑补。
 
-${REPLY_STYLE}
+${replyStyleFor(replyLanguage, payload.message)}
 
 只返回 JSON：{"reply_target":"最终外语回复（不能为空）","reply_chinese":"最终中文对照"}。`,
     user: JSON.stringify({
@@ -889,7 +919,7 @@ filled_chinese_intent 是已经把运营填写的变量替换好的中文写作�
 不得自行编造价格、日期、数量、平台、账号、链接、授权期限或付款时间。
 回复适合 Instagram 私信，除非 channel 指定 Email。
 
-${REPLY_STYLE}
+${replyStyleFor(payload.targetLanguage || "", filledIntent)}
 
 只返回 JSON：{"reply_target":"目标语言回复","reply_chinese":"准确中文对照","required_variables":["仍需填写的变量"]}。`,
     user: JSON.stringify({

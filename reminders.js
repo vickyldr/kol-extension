@@ -88,6 +88,7 @@ function computeItems(threads, todos, summaries) {
         : `已等 ${daysSince(since)} 天${rec.isOnline ? " · 🟢 在线" : ""}`;
       items.push({
         kind: "reply", key: recKey, threadId: rec.threadId, isGroup: rec.isGroup, title,
+        avatar: rec.avatarUrl || "",
         label: rec.isOnline ? `🟢 ${title} 在线，快回复！` : (rec.needsReplyReason || j.reminder_label || "等你回复"),
         ai: j.ai_note || "",
         preview,
@@ -102,6 +103,7 @@ function computeItems(threads, todos, summaries) {
       if (elapsed >= threshold) {
         items.push({
           kind: "follow", key: recKey, threadId: rec.threadId, isGroup: rec.isGroup, title,
+          avatar: rec.avatarUrl || "",
           label: j.reminder_label || `该跟进：${j.waiting_for || ""}`,
           ai: j.ai_note || "",
           preview,
@@ -159,10 +161,22 @@ function btn(label, onClick) {
 function card(it) {
   const el = document.createElement("div");
   el.className = `reminder-card ${it.kind}`;
+  // 标题行：真实头像（红人/群聊）+ 名字
+  const head = document.createElement("div");
+  head.className = "rc-head";
+  if (it.avatar) {
+    const av = document.createElement("img");
+    av.className = "rc-avatar";
+    av.src = it.avatar;
+    av.referrerPolicy = "no-referrer"; // IG 头像 CDN 需要无 referrer 才能加载
+    av.onerror = () => av.remove();    // 链接失效就移除，不显示破图
+    head.appendChild(av);
+  }
   const t = document.createElement("div");
   t.className = "rc-title";
   t.textContent = (it.kind === "todo" ? "📝 " : "") + (it.title || "");
-  el.appendChild(t);
+  head.appendChild(t);
+  el.appendChild(head);
   if (it.label) {
     const l = document.createElement("div");
     l.className = "rc-label";

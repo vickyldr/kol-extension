@@ -437,7 +437,11 @@ async function refreshReminders() {
       const more = fresh.length > 1 ? `\n…等共 ${fresh.length} 条待处理` : "";
       // 固定 ID "kol-reminder"：同 ID 的通知会覆盖旧的，而不是叠出两个。
       // 之前用 "kol-" + Date.now() 导致每次都新建，两次快速触发就会同时弹两条一样的通知。
-      const iconUrl = await makeAvatarIconAsync(head.title || "");
+      // 头像：优先用红人/群聊真实头像（采集时存的 avatarUrl）；取不到再退回首字母彩色圆。
+      const allThreads = (await chrome.storage.local.get("kolThreads")).kolThreads || {};
+      const headRec = head.recKey ? allThreads[head.recKey] : null;
+      const avatarUrl = (headRec && headRec.avatarUrl) || "";
+      const iconUrl = avatarUrl || await makeAvatarIconAsync(head.title || "");
       chrome.notifications.create(
         "kol-reminder",
         {

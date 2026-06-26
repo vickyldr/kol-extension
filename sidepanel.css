@@ -226,6 +226,8 @@ dialog::backdrop { background: rgba(20,24,36,.4); }
 .reminder-card { border: 1px solid #e9ebf2; border-left: 3px solid #e0245e; border-radius: 10px; padding: 9px 11px; background: #fff; }
 .reminder-card.follow { border-left-color: #d9a93c; }
 .reminder-card.todo { border-left-color: #4a8cff; }
+.reminder-card .rc-head { display: flex; align-items: center; gap: 8px; }
+.reminder-card .rc-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex: 0 0 auto; }
 .reminder-card .rc-title { font-weight: 600; font-size: 14px; }
 .reminder-card .rc-label { font-size: 13px; color: #384056; margin: 3px 0; }
 .reminder-card .rc-meta { font-size: 11px; color: #8b90a0; }

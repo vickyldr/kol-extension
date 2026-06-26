@@ -372,8 +372,10 @@
       // 在线状态：IG 对话行里有绿点或"在线/online/active now"文字
       const isOnline = /(在线|online\s*·|active\s*now)/i.test(text) ||
         !!row.querySelector?.("[aria-label*='active'],[aria-label*='在线'],[aria-label*='online']");
+      // 头像图：这一行的头像 img 地址（红人/群聊真实头像），用于提醒卡片和桌面通知
+      const avatarUrl = img.currentSrc || img.getAttribute("src") || "";
       // 用名字归一化前缀当 key（id 字段沿用，后续代码不必大改）
-      rows.push({ id: key, title, preview, unread, lastFromMe, tid, isOnline });
+      rows.push({ id: key, title, preview, unread, lastFromMe, tid, isOnline, avatarUrl });
     });
     return rows;
   }
@@ -480,6 +482,8 @@
     const map = await getThreads();
     const prev = map[id] || {};
     const rec = { ...prev, ...patch, threadId: id, lastSeenAt: nowIso() };
+    // 头像没新值时别让 undefined 把旧头像冲掉
+    if (rec.avatarUrl === undefined) rec.avatarUrl = prev.avatarUrl || "";
 
     // 「第一次发现没回」的锚点：从「不是待回复」变成「待回复」时盖戳
     if (patch.needsReplyRaw && !prev.needsReplyRaw) {
@@ -740,6 +744,7 @@
             // 最后一条是我发的 → 强制视为"已回/已读"，清除 unread 和 needsReply
             unread: myLastMsg ? false : row.unread,
             isOnline: row.isOnline || false,
+            avatarUrl: row.avatarUrl || prev.avatarUrl || "",
             needsReplyRaw: inboxNeedsReply,
             needsReplyReason: inboxNeedsReply ? "未读 · 对方发了新消息" : "",
             lastSeenAt: nowIso()
@@ -778,10 +783,16 @@
             msgs.slice(lastCreatorIdx + 1).some((m) => m.from === "me");
           // 我给对方最后一条消息点了表情，也算已回应（不再当待回复提醒）
           const reactedLast = lastCreatorIdx >= 0 && msgs[lastCreatorIdx].reacted === true;
-          const needsReplyRaw = lastCreatorIdx >= 0 && !myReplyAfter && !reactedLast;
           const last = msgs[msgs.length - 1];
           // 用列表里那条更完整的名字来显示
           const inboxRow = inbox.find((r) => r.id === key);
+          // 兜底：群聊里气泡左右/颜色判断不稳，我发的消息可能没被认成 "me"，
+          // 导致已回复却仍报"待回复"。只要①整段最后一条是我发的，或②收件箱预览是"你: …"，
+          // 就强制视为已回复（needsReplyRaw=false）。这是反复"已回还提醒"的根因修复。
+          const lastIsMine = last && last.from === "me";
+          const inboxSaysMine = Boolean(inboxRow && inboxRow.lastFromMe);
+          const needsReplyRaw =
+            lastCreatorIdx >= 0 && !myReplyAfter && !reactedLast && !lastIsMine && !inboxSaysMine;
           const displayName = (inboxRow && inboxRow.title) || name;
           // 记到累积缓冲，供"离开时自动更新合作进展"
           convBuffer.key = key;
@@ -796,6 +807,7 @@
               title: displayName, // 完整名字用于显示
               lastMsgFrom: last.from,
               lastMsgPreview: last.text.slice(0, 120),
+              avatarUrl: (inboxRow && inboxRow.avatarUrl) || undefined,
               needsReplyRaw,
               needsReplyReason: needsReplyRaw ? "对方最后发的，你还没回" : "",
               unread: false // 打开了就不算未读
