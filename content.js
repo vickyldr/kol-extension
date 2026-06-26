@@ -21,7 +21,7 @@ const TRANSLATION_CLASS = "kol-inline-translation";
 const translatedTexts = new Map();
 const pendingTexts = new Map();
 
-document.documentElement.dataset.kolAssistantVersion = "0.5.7";
+document.documentElement.dataset.kolAssistantVersion = "0.5.8";
 
 function selectedText() {
   return window.getSelection()?.toString().trim() || "";
@@ -87,38 +87,17 @@ function isLikelyMessageElement(element) {
   if (element.children.length > 4) return false;
 
   const rect = element.getBoundingClientRect();
-  if (rect.width < 20 || rect.height < 10 || rect.width > 650) return false;
+  // 宽度上限按窗口自适应：全屏 IG 气泡也可能很宽，固定 650px 会把它们全过滤掉，
+  // 导致「不开侧边栏（挤窄页面）就不翻译」。
+  const maxWidth = Math.min(Math.max(window.innerWidth * 0.85, 650), 1100);
+  if (rect.width < 20 || rect.height < 10 || rect.width > maxWidth) return false;
   if (rect.bottom < 0 || rect.top > window.innerHeight * 1.5) return false;
   // 不再按左右位置过滤：会话列表预览也一起翻译，避免私信里漏翻。
   if (rect.top < 70) return false;
-  if (isOutgoingMessage(element)) return false;
+  // 不再跳过「我方发出」的消息：外语消息无论谁发都翻译（中文消息已被
+  // isForeignMessage 过滤掉，不会被误翻），方便核对自己发出去的外语话术。
 
   return true;
-}
-
-function isBlueLike(color) {
-  const match = String(color).match(
-    /rgba?\((\d+),\s*(\d+),\s*(\d+)/
-  );
-  if (!match) return false;
-  const [, r, g, b] = match.map(Number);
-  return b > 145 && b > r * 1.18 && b > g * 1.08;
-}
-
-function isOutgoingMessage(element) {
-  let current = element;
-  for (let depth = 0; current && depth < 6; depth += 1) {
-    const style = getComputedStyle(current);
-    if (
-      isBlueLike(style.backgroundColor) ||
-      style.justifyContent === "flex-end" ||
-      style.alignSelf === "flex-end"
-    ) {
-      return true;
-    }
-    current = current.parentElement;
-  }
-  return false;
 }
 
 function translationAnchor(element) {
@@ -261,6 +240,18 @@ function scheduleScan() {
 
 createButton();
 scheduleScan();
+// 进页面后消息常常是延迟渲染的：补几次扫描，避免「要手动触发（开侧边栏/滚动）才翻译」。
+[800, 1600, 3000, 5000].forEach((ms) => setTimeout(() => scanMessages(), ms));
+
+// IG 是单页应用，切换会话只改 URL 不刷新页面：监听 URL 变化后重扫。
+let lastUrl = location.href;
+setInterval(() => {
+  if (location.href !== lastUrl) {
+    lastUrl = location.href;
+    scheduleScan();
+    [600, 1400].forEach((ms) => setTimeout(() => scanMessages(), ms));
+  }
+}, 700);
 
 const observer = new MutationObserver(scheduleScan);
 observer.observe(document.documentElement, {
