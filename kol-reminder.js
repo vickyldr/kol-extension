@@ -301,8 +301,18 @@
       const lastFromMe = /^\s*(you|您|你|me)\s*[:：]/i.test(preview) ||
         /^\s*你(发送了|已发送)/.test(preview) ||
         /^\s*you\s+sent/i.test(preview);
+      // 尽量抓出这一行对应的对话数字 ID（IG 部分版本会把整行包成 <a href="/direct/t/xxx/">）。
+      // 抓到了「打开对话」就能直达；抓不到照旧（用名字当 key、退回收件箱首页）。
+      let tid = "";
+      const anchor =
+        (row.closest && row.closest("a[href*='/direct/t/']")) ||
+        (row.querySelector && row.querySelector("a[href*='/direct/t/']"));
+      if (anchor) {
+        const m = (anchor.getAttribute("href") || "").match(/\/direct\/t\/([^/?#]+)/);
+        if (m) tid = m[1];
+      }
       // 用名字归一化前缀当 key（id 字段沿用，后续代码不必大改）
-      rows.push({ id: key, title, preview, unread, lastFromMe });
+      rows.push({ id: key, title, preview, unread, lastFromMe, tid });
     });
     return rows;
   }
@@ -566,6 +576,8 @@
           const next = {
             ...prev,
             title,
+            // 列表里抓到对话 ID 就补上（供"打开对话"深链）；抓不到保留原值
+            threadId: row.tid || prev.threadId || "",
             inboxPreview: row.preview || prev.inboxPreview || "",
             lastMsgPreview: row.preview || prev.lastMsgPreview || "",
             unread: row.unread,
