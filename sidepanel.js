@@ -414,7 +414,7 @@ async function checkService() {
     serviceOnline = false;
     statusButton.textContent = "AI 未启动";
     statusButton.className = "status offline";
-    statusButton.title = "请双击插件文件夹中的 start-assistant.cmd";
+    statusButton.title = "无法连接服务器，请检查「⚙️ 服务器设置」中的地址和团队口令";
   }
 }
 
@@ -2315,7 +2315,7 @@ async function analyze() {
   if (!serviceOnline) {
     renderAnalysis(localFallback(message));
     errorBox.textContent =
-      "千问服务未启动，当前显示离线结果。请双击 start-assistant.cmd 后重试。";
+      "千问服务未连接，当前显示离线结果。请在「⚙️ 服务器设置」检查地址和团队口令后重试。";
     errorBox.classList.remove("hidden");
     analyzeButton.disabled = false;
     analyzeButton.textContent = "💬 生成双语回复";
