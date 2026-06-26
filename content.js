@@ -147,30 +147,39 @@ async function addTranslation(element) {
   element.dataset.kolTranslationState = "loading";
   const anchor = translationAnchor(element);
   const row = anchor.parentElement;
-  if (!row) return;
-  row.classList.add("kol-message-row");
+  // 节点已被 React 卸载/还没挂上 → 放弃这条，下次扫描再来（别往游离节点里插）
+  if (!row || !anchor.isConnected) { delete element.dataset.kolTranslationState; return; }
 
   const translation = document.createElement("div");
   translation.className = `${TRANSLATION_CLASS} loading`;
   translation.textContent = "正在翻译…";
   const wrapper = document.createElement("div");
   wrapper.className = "kol-translation-row";
-  // 用「真正的文字气泡」自身的位置来缩进译文，把译文钉在原文气泡的正下方：
-  // 对方消息靠左 → 译文靠左；我方消息靠右 → 译文也靠右。
-  // （之前用外层容器算，我方那行容器是满宽、左边在最左，算出缩进≈0，译文就跑到左边去了。）
-  const bubbleRect = element.getBoundingClientRect();
-  const rowRect = row.getBoundingClientRect();
-  const indent = Math.max(
-    0,
-    Math.min(bubbleRect.left - rowRect.left, Math.max(0, rowRect.width - 80))
-  );
-  wrapper.style.setProperty("--kol-translation-indent", `${Math.round(indent)}px`);
-  wrapper.style.setProperty(
-    "--kol-translation-width",
-    `${Math.min(Math.max(bubbleRect.width, 180), 520)}px`
-  );
-  wrapper.appendChild(translation);
-  anchor.insertAdjacentElement("afterend", wrapper);
+  // 同步建节点 + 插入，整段包 try/catch：IG 正在重排时插入可能抛错，
+  // 失败就安静放弃这一条，绝不让异常冒泡连累整页（白屏的根源之一）。
+  try {
+    row.classList.add("kol-message-row");
+    // 用「真正的文字气泡」自身的位置来缩进译文，把译文钉在原文气泡的正下方：
+    // 对方消息靠左 → 译文靠左；我方消息靠右 → 译文也靠右。
+    // （之前用外层容器算，我方那行容器是满宽、左边在最左，算出缩进≈0，译文就跑到左边去了。）
+    const bubbleRect = element.getBoundingClientRect();
+    const rowRect = row.getBoundingClientRect();
+    const indent = Math.max(
+      0,
+      Math.min(bubbleRect.left - rowRect.left, Math.max(0, rowRect.width - 80))
+    );
+    wrapper.style.setProperty("--kol-translation-indent", `${Math.round(indent)}px`);
+    wrapper.style.setProperty(
+      "--kol-translation-width",
+      `${Math.min(Math.max(bubbleRect.width, 180), 520)}px`
+    );
+    wrapper.appendChild(translation);
+    anchor.insertAdjacentElement("afterend", wrapper);
+  } catch (e) {
+    try { wrapper.remove(); } catch (_) {}
+    delete element.dataset.kolTranslationState;
+    return;
+  }
 
   try {
     const result = await requestTranslation(text);
@@ -263,11 +272,13 @@ setInterval(() => {
   }
 }, 700);
 
+// 只观察「节点增删」（新消息会新增节点，足够触发翻译），
+// 不再观察 characterData：IG 的时间戳/"正在输入"/在线人数会不停改文字，
+// 那会让扫描被无谓地反复唤醒，既费性能又更频繁地扰动 React DOM（白屏诱因）。
 const observer = new MutationObserver(scheduleScan);
 observer.observe(document.documentElement, {
   childList: true,
-  subtree: true,
-  characterData: true
+  subtree: true
 });
 
 document.addEventListener("scroll", scheduleScan, true);
