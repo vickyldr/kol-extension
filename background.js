@@ -234,10 +234,11 @@ async function computeReminders() {
 
     if (rec.needsReplyRaw && j.is_pleasantry !== true && rec.replyDismissedSig !== sig) {
       if (!rec.unread) {
-        // 已读不回：5分钟 or 对方在线立即提醒，且只提醒一次
+        // 已读不回：固定等满5分钟才提醒一次（给对方留码字时间，在线也不提前）。
+        // 在线只影响"排序靠前 + 标签高亮"，不缩短等待。
         if (!rec.replyReminderSent) {
           const elapsed = minutesSince(rec.lastCreatorMessageAt || rec.firstUnrepliedAt || rec.lastSeenAt, now);
-          if (elapsed >= 5 || rec.isOnline) {
+          if (elapsed >= 5) {
             items.push({
               key: "reply:" + recKey,
               kind: "reply",
