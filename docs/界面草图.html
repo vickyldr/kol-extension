@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; margin:0; padding:0; font-family:"WenQuanYi Zen Hei",sans-serif; }
+  body { width:1180px; background:#e9ebf2; padding:26px 30px; color:#1c2333; }
+  h1 { font-size:20px; margin-bottom:3px; }
+  .sub { font-size:12px; color:#6b7280; margin-bottom:20px; }
+  .stage { display:flex; gap:26px; align-items:flex-start; }
+  .winlabel { font-size:12px; font-weight:700; color:#6b7280; margin-bottom:7px; }
+
+  /* 通用面板 */
+  .panel { background:#fff; border-radius:16px; box-shadow:0 6px 22px rgba(40,40,90,.10); overflow:hidden; }
+  .card { border:1px solid #e6e8f0; border-radius:11px; padding:10px 12px; margin:9px 12px; }
+  .ctitle { font-size:13px; font-weight:700; display:flex; align-items:center; gap:6px; }
+  .muted { color:#9aa0ad; }
+  .chip { display:inline-block; font-size:11px; padding:2px 8px; border-radius:999px; }
+  .btn { display:inline-block; font-size:12px; font-weight:600; padding:5px 10px; border-radius:8px; border:1px solid #d3d7e3; background:#f7f8fb; }
+  .btn.p { background:#6c5ce7; color:#fff; border-color:#6c5ce7; }
+
+  /* 左：待办窗口 */
+  .win { width:430px; }
+  .wintop { background:#2d2a4a; color:#fff; padding:11px 15px; font-size:14px; font-weight:700; display:flex; justify-content:space-between; align-items:center;}
+  .statbar { display:flex; gap:8px; font-size:12px; font-weight:700; padding:11px 14px; border-bottom:1px solid #eef0f6; }
+  .bucket { padding:8px 0; }
+  .bhead { font-size:13px; font-weight:700; padding:8px 14px; display:flex; align-items:center; gap:7px; }
+  .item { display:flex; gap:10px; align-items:center; padding:9px 14px; border-top:1px solid #f3f4f8; }
+  .av { width:38px; height:38px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:15px;}
+  .iname { font-size:13px; font-weight:700; }
+  .imeta { font-size:11px; color:#6b7280; margin-top:1px; }
+  .open { margin-left:auto; font-size:12px; font-weight:700; color:#6c5ce7; border:1px solid #c9c2f3; border-radius:8px; padding:5px 9px; background:#f3f1fe;}
+
+  /* 右：sidepanel */
+  .side { width:412px; }
+  .sidetop { display:flex; gap:6px; align-items:center; padding:11px 13px; border-bottom:1px solid #eef0f6; flex-wrap:wrap;}
+  .sidetop .t { font-size:15px; font-weight:800; margin-right:auto;}
+  .tb { font-size:12px; padding:4px 8px; border-radius:8px; background:#f1f2f7; border:1px solid #e2e4ee;}
+  .collapse { margin:9px 12px; padding:9px 12px; border:1px solid #e6e8f0; border-radius:11px; font-size:12px; color:#6b7280; display:flex; justify-content:space-between;}
+  .aiu { margin:9px 12px; border:2px solid #cdbff0; border-radius:13px; background:linear-gradient(180deg,#faf8ff,#f1ebff); overflow:hidden;}
+  .aiu-h { display:flex; align-items:center; gap:7px; padding:9px 12px; font-size:13px; font-weight:800; color:#4a2d8a;}
+  .badge { font-size:10px; font-weight:700; background:#6b5a9a; color:#fff; padding:2px 7px; border-radius:999px;}
+  .aiu-row { padding:3px 14px; font-size:12px;}
+  .aiu-row b { color:#7c6fb0; font-weight:700; font-size:11px;}
+  .qr { display:flex; gap:6px; flex-wrap:wrap; margin-top:7px;}
+  .qpill { font-size:12px; background:#eef6ff; color:#1e6fd0; border:1px solid #cfe4fb; padding:4px 9px; border-radius:999px;}
+  .ta { border:1px dashed #cfd3e0; border-radius:9px; background:#fafbfd; padding:9px; font-size:12px; color:#9aa0ad; margin-top:7px;}
+  .row6 { display:flex; gap:6px; margin-top:7px;}
+  .result { margin:9px 12px 14px; border:1px solid #b8e6c4; border-radius:11px; background:#f2fdf5; padding:10px 12px;}
+  .green { font-size:11px; font-weight:700; color:#16794c;}
+</style>
+</head>
+<body>
+  <h1>界面草图（改之前先确认）</h1>
+  <div class="sub">左 = 独立待办窗口（开工自动弹）；右 = sidepanel 回复页。点左边「打开对话」→ IG 跳转 → 右边自动认人。</div>
+
+  <div class="stage">
+
+    <!-- 左：待办独立窗口 -->
+    <div class="win">
+      <div class="winlabel">🪟 独立待办窗口 · reminders（自动弹出 / 实时更新）</div>
+      <div class="panel">
+        <div class="wintop"><span>🔔 今天要干嘛</span><span style="font-size:12px;font-weight:400;opacity:.7">↻ 自动刷新</span></div>
+        <div class="statbar">
+          <span style="color:#dc2626">🔴 3 立即回复</span><span class="muted">·</span>
+          <span style="color:#d97706">🟠 2 今天跟进</span><span class="muted">·</span>
+          <span style="color:#6b7280">📅 4 以后</span>
+        </div>
+
+        <div class="bucket">
+          <div class="bhead" style="color:#991b1b">🔴 立即回复 <span class="chip" style="background:#fee2e2;color:#b91c1c">3</span></div>
+          <div class="item">
+            <div class="av" style="background:#7c6ae8">A</div>
+            <div><div class="iname">🟢 Anna</div><div class="imeta">已等 8 分钟 · 在线 · 在等报价</div></div>
+            <div class="open">打开对话</div>
+          </div>
+          <div class="item">
+            <div class="av" style="background:#e8836a">小</div>
+            <div><div class="iname">小树枝</div><div class="imeta">已等 22 分钟 · 问能不能寄样</div></div>
+            <div class="open">打开对话</div>
+          </div>
+          <div class="item">
+            <div class="av" style="background:#5aa9e8">M</div>
+            <div><div class="iname">Maya</div><div class="imeta">已等 1 小时 · 未读</div></div>
+            <div class="open">打开对话</div>
+          </div>
+        </div>
+
+        <div class="bucket" style="border-top:1px solid #eef0f6;">
+          <div class="bhead" style="color:#92400e;background:#fffbeb">🟠 今天跟进 <span class="chip" style="background:#fef3c7;color:#92400e">2</span></div>
+          <div class="item"><div class="av" style="background:#caa14a">J</div><div><div class="iname">Jenny</div><div class="imeta">待跟进 · 等了 2 天 · 等她确认档期</div></div><div class="open">打开对话</div></div>
+        </div>
+
+        <div class="bucket" style="border-top:1px solid #eef0f6;">
+          <div class="bhead" style="color:#374151;background:#f9fafb">📅 以后 <span class="chip" style="background:#eef0f3;color:#4b5563">4</span></div>
+          <div class="item"><div class="av" style="background:#9aa0ad">催</div><div><div class="iname">5天后催小树枝交稿</div><div class="imeta">6/30 15:00</div></div><div class="open">打开对话</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右：sidepanel -->
+    <div class="side">
+      <div class="winlabel">📌 sidepanel 回复页（常驻右侧 · 顺序按你定的）</div>
+      <div class="panel">
+        <div class="sidetop">
+          <span class="t">双语沟通助手</span>
+          <span class="tb">❓</span><span class="tb">🔔 提醒</span><span class="tb">📚 话术库</span><span class="tb">📎 物料库</span>
+        </div>
+        <div class="collapse"><span>⚙️ 服务器设置（填一次收起）</span><span>▸</span></div>
+
+        <!-- 1 红人档案 -->
+        <div class="collapse"><span>🗂️ 红人档案 · Anna（已自动对齐当前对话）</span><span>▸</span></div>
+
+        <!-- 2 AI 理解 -->
+        <div class="aiu">
+          <div class="aiu-h">🧠 AI 理解 <span class="badge">禁止外发</span> <span class="muted" style="margin-left:auto;font-size:11px;font-weight:400">自动·默认展开 ⧉</span></div>
+          <div class="aiu-row"><b>当前阶段</b><br>谈报价</div>
+          <div class="aiu-row"><b>建议下一步</b><br>先确认预算上限再报价，别先松口</div>
+          <div class="aiu-row" style="padding-bottom:10px;"><b>发送前风险</b><br>别承诺视频时长 / 发布数量（未确认）</div>
+        </div>
+
+        <!-- 3 快捷回复 -->
+        <div class="card">
+          <div class="ctitle">⚡ 快捷回复 <span class="muted" style="font-weight:400;font-size:11px">本地秒匹配</span></div>
+          <div class="qr"><span class="qpill">报价话术</span><span class="qpill">寄样说明</span><span class="qpill">感谢回复</span></div>
+        </div>
+
+        <!-- 4 红人原文 -->
+        <div class="card">
+          <div class="ctitle">红人原文 <span class="btn" style="margin-left:auto">贴</span></div>
+          <div class="ta">Hi! What's your rate for a reel?</div>
+          <div class="row6"><span class="btn">这是什么意思</span><span class="btn">这怎么办</span></div>
+        </div>
+
+        <!-- 5 我想回复 -->
+        <div class="card">
+          <div class="ctitle">我想回复（中文）</div>
+          <div class="ta">先问她预算，再给区间报价</div>
+          <div class="row6"><span class="btn">忠实翻译</span><span class="btn p">润色生成</span></div>
+        </div>
+
+        <!-- 6 双语回复 -->
+        <div class="result">
+          <div class="green">✅ 双语回复（A · 可直接发）</div>
+          <div style="font-size:12px;margin-top:5px;">Thanks for reaching out! Could you share your budget range so I can suggest the best fit?</div>
+          <div class="row6"><span class="btn">复制</span><span class="btn">改写</span><span class="btn">存进快捷</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
