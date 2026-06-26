@@ -33,8 +33,11 @@ class TTLCache {
 }
 // 翻译是确定性的（temperature 0），可长缓存；判断稍易变，缓存 1 小时。
 // 两个缓存对【全团队共享】：一个人翻过的常用话术，其他同事直接命中。
-const translateCache = new TTLCache(5000, 24 * 3600 * 1000);
+const translateCache = new TTLCache(20000, 24 * 3600 * 1000);
 const judgeCache = new TTLCache(3000, 3600 * 1000);
+// 同句并发去重：多个同事同一时刻翻同一条新消息时，只发一次 API、共享同一个结果，
+// 避免人多时对同一句话重复调用、互相拖慢。
+const translateInflight = new Map();
 
 const HOST = process.env.KOL_ASSISTANT_HOST || "0.0.0.0";
 const PORT = Number(process.env.KOL_ASSISTANT_PORT || 3210);
@@ -555,6 +558,17 @@ async function translateFaithfully(text) {
   const cacheKey = hashKey("translate:" + text);
   const cached = translateCache.get(cacheKey);
   if (cached) return cached;
+  // 已有同一句正在翻：直接等它的结果，不再重复发请求。
+  const pending = translateInflight.get(cacheKey);
+  if (pending) return pending;
+  const promise = translateOnce(text, cacheKey).finally(() =>
+    translateInflight.delete(cacheKey)
+  );
+  translateInflight.set(cacheKey, promise);
+  return promise;
+}
+
+async function translateOnce(text, cacheKey) {
   const result = await callQwen({
     system: `你是聊天消息翻译器。只做忠实翻译，不分析、不回复、不补充上下文。
 必须准确保留主语、宾语、动作方向、时态、否定、疑问和祈使语气，特别明确“谁让谁做什么”。
@@ -694,14 +708,30 @@ async function askQwen(payload) {
   return { answer: String(result.answer || "").trim() };
 }
 
+// 确定要翻成的外语：手选/已识别优先；都没有时，先确定性识别红人原文的语言
+// （复用翻译函数的 source_language，通常命中缓存近乎零成本），把具体语言名传给生成，
+// 不让弱模型自己猜——否则它会习惯性默认成英语，红人说泰语也翻成英语。
+async function resolveReplyLanguage(payload) {
+  const explicit =
+    String(payload.replyLanguage || "").trim() ||
+    String(payload.detectedLanguage || "").trim();
+  if (explicit) return explicit;
+  const msg = String(payload.message || "").trim();
+  if (!msg) return "";
+  try {
+    const t = await translateFaithfully(msg);
+    const src = String(t.source_language || "").trim();
+    if (src && src !== "未知" && src !== "中文") return src;
+  } catch (_) {}
+  return "";
+}
+
 async function rewriteReply(payload) {
   const product = findProduct(payload.productId);
   const direction = payload.direction;
 
   if (direction === "faithful") {
-    const replyLanguage =
-      String(payload.replyLanguage || "").trim() ||
-      String(payload.detectedLanguage || "").trim();
+    const replyLanguage = await resolveReplyLanguage(payload);
     const result = await callQwen({
       model: MODEL_FAST,
       system: `你是翻译器。把运营给的中文（chinese_text）准确翻译成目标外语。
@@ -727,9 +757,7 @@ async function rewriteReply(payload) {
   }
 
   if (direction === "refine") {
-    const replyLanguage =
-      String(payload.replyLanguage || "").trim() ||
-      String(payload.detectedLanguage || "").trim();
+    const replyLanguage = await resolveReplyLanguage(payload);
     const result = await callQwen({
       model: MODEL_FAST,
       system: `你是中国 KOL 运营人员的双语回复修改助手。
@@ -780,9 +808,7 @@ ${REPLY_STYLE}
     };
   }
 
-  const replyLanguage =
-    String(payload.replyLanguage || "").trim() ||
-    String(payload.detectedLanguage || "").trim();
+  const replyLanguage = await resolveReplyLanguage(payload);
 
   const result = await callQwen({
     model: MODEL_FAST,

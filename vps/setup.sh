@@ -88,7 +88,11 @@ if [ -n "$REPO_DIR" ]; then
 cd "$REPO_DIR" || exit 1
 echo "拉取最新代码..."
 before=\$(git rev-parse HEAD)
-git pull
+# 明确拉 main 分支：避免本地分支上游指向旧分支时 git pull 拉不进来、HEAD 不动、
+# 误判"已是最新"而不重启。
+git fetch origin main
+git checkout main 2>/dev/null || true
+git merge --ff-only origin/main
 after=\$(git rev-parse HEAD)
 if [ "\$before" = "\$after" ]; then
   echo "已是最新，无需重启。"
