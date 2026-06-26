@@ -111,37 +111,13 @@
 
       <!-- ===================== 板块 A：红人来消息 ===================== -->
       <section id="panel-reactive" class="mode-panel">
-        <details id="coop-card" class="coop-card">
-          <summary>📋 当前合作情况</summary>
-
-          <div class="coop-step">① 导入对话（像截图一样，一段段抓）</div>
-          <p class="coop-tip">在 IG 里滚到对话最上面 → 点「抓取这屏」→ 往下滚一点 → 再点 → 一直到底。每点一次把这一屏加进来（重复的会自动去掉）。</p>
-          <div class="coop-actions">
-            <button id="coop-grab" type="button" class="primary">📸 抓取这屏</button>
-            <button id="coop-clear" type="button" class="secondary">清空</button>
-            <button id="coop-done" type="button" class="coop-done-btn">✅ 已完结·不再提醒</button>
-          </div>
-          <textarea id="coop-import" rows="4" placeholder="一段段抓进来的对话会显示在这（也可以自己复制粘贴）。"></textarea>
-
-          <div class="coop-step">② 生成 / 更新进展</div>
-          <div class="coop-actions">
-            <button id="coop-refresh" type="button" class="primary">🔄 总结成进展清单</button>
-            <span id="coop-meta" class="coop-meta"></span>
-          </div>
-
-          <div class="coop-step">
-            ③ 合作进展
-            <button id="coop-edit" type="button" class="coop-edit-btn">✏️ 改</button>
-          </div>
-          <div id="coop-rendered" class="coop-rendered"><span class="coop-empty">还没有进展，先抓取对话→总结。</span></div>
-          <textarea id="coop-text" class="hidden" rows="9" placeholder="一行一条，开头用 ✅ 或 ⬜；改完点上面「✏️ 改」收起。"></textarea>
-        </details>
-
         <!-- 红人固定档案：付款/合同/app ID/备注，按红人名字存档 -->
         <details class="kol-profile-card" id="kol-profile-card">
           <summary>🗂️ 红人固定档案</summary>
+          <p id="kol-profile-auto-hint" class="kol-profile-auto-hint hidden"></p>
           <div class="kol-profile-search-row">
-            <input id="kol-profile-name" type="text" autocomplete="off" placeholder="红人名字 / ins 账号（搜索或新建）" />
+            <input id="kol-profile-name" type="text" autocomplete="off" list="kol-profile-datalist" placeholder="红人名字 / ins 账号（可以是外号，自己认得出就行）" />
+            <datalist id="kol-profile-datalist"></datalist>
             <button id="kol-profile-load" class="secondary" type="button">查</button>
           </div>
           <div id="kol-profile-body" class="kol-profile-body hidden">
@@ -169,7 +145,6 @@
             </div>
             <p id="kol-profile-status" class="template-status hidden"></p>
           </div>
-          <div id="kol-profile-list" class="kol-profile-list"></div>
         </details>
 
         <details class="quickreply-card" id="quickreply-card">
@@ -187,10 +162,16 @@
         </details>
 
         <section class="input-card">
-          <label for="message">红人发来的原文（外语 · 看不懂就贴这）</label>
+          <div class="input-label-row">
+            <label for="message">红人发来的原文（外语 · 看不懂就贴这）</label>
+            <button class="clear-btn" data-clear="message" type="button" title="清空">✕</button>
+          </div>
           <textarea id="message" rows="3" placeholder="把红人的外语消息粘进来 → 点「这是什么意思」翻成中文。&#10;只想翻译、不回复的话，填这一个就够了。"></textarea>
 
-          <label for="reply-intent">我想回复（中文）</label>
+          <div class="input-label-row">
+            <label for="reply-intent">我想回复（中文）</label>
+            <button class="clear-btn" data-clear="reply-intent" type="button" title="清空">✕</button>
+          </div>
           <textarea id="reply-intent" rows="3" placeholder="写你想对红人说的中文 → 点「忠实翻译」照原话翻，或「润色生成」让 AI 润色得更自然。&#10;拿不准怎么说？把疑问写这里 → 点「这怎么办」，AI 结合对话给主意。"></textarea>
 
           <input id="operator-goal" type="text" class="hidden" />
@@ -331,6 +312,33 @@
             <button id="save-scenario" class="primary">保存为确认话术</button>
           </section>
         </section>
+
+        <!-- 合作进展存档：日常用不到，折叠到底部，需要时再展开 -->
+        <details id="coop-card" class="coop-card coop-card-hidden">
+          <summary>📋 合作进展存档（很少用）</summary>
+
+          <div class="coop-step">① 导入对话（像截图一样，一段段抓）</div>
+          <p class="coop-tip">在 IG 里滚到对话最上面 → 点「抓取这屏」→ 往下滚一点 → 再点 → 一直到底。每点一次把这一屏加进来（重复的会自动去掉）。</p>
+          <div class="coop-actions">
+            <button id="coop-grab" type="button" class="primary">📸 抓取这屏</button>
+            <button id="coop-clear" type="button" class="secondary">清空</button>
+            <button id="coop-done" type="button" class="coop-done-btn">✅ 已完结·不再提醒</button>
+          </div>
+          <textarea id="coop-import" rows="4" placeholder="一段段抓进来的对话会显示在这（也可以自己复制粘贴）。"></textarea>
+
+          <div class="coop-step">② 生成 / 更新进展</div>
+          <div class="coop-actions">
+            <button id="coop-refresh" type="button" class="primary">🔄 总结成进展清单</button>
+            <span id="coop-meta" class="coop-meta"></span>
+          </div>
+
+          <div class="coop-step">
+            ③ 合作进展
+            <button id="coop-edit" type="button" class="coop-edit-btn">✏️ 改</button>
+          </div>
+          <div id="coop-rendered" class="coop-rendered"><span class="coop-empty">还没有进展，先抓取对话→总结。</span></div>
+          <textarea id="coop-text" class="hidden" rows="9" placeholder="一行一条，开头用 ✅ 或 ⬜；改完点上面「✏️ 改」收起。"></textarea>
+        </details>
       </section>
 
       <!-- ===================== 板块 B：我主动发 ===================== -->

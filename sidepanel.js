@@ -3853,9 +3853,10 @@ initGuide();
 (function initKolProfile() {
   const PROFILE_KEY = "kolProfiles";
   const nameInput = document.getElementById("kol-profile-name");
+  const datalist = document.getElementById("kol-profile-datalist");
   const loadBtn = document.getElementById("kol-profile-load");
   const body = document.getElementById("kol-profile-body");
-  const listEl = document.getElementById("kol-profile-list");
+  const autoHint = document.getElementById("kol-profile-auto-hint");
   const saveBtn = document.getElementById("kol-profile-save");
   const deleteBtn = document.getElementById("kol-profile-delete");
   const statusEl = document.getElementById("kol-profile-status");
@@ -3888,19 +3889,12 @@ initGuide();
     setTimeout(() => statusEl.classList.add("hidden"), 2500);
   }
 
-  async function renderList() {
-    if (!listEl) return;
+  // 填充 datalist（浏览器原生下拉提示）
+  async function refreshDatalist() {
+    if (!datalist) return;
     const profiles = await getProfiles();
-    const names = Object.keys(profiles).sort();
-    if (!names.length) { listEl.innerHTML = ""; return; }
-    listEl.innerHTML = "<div class='kol-profile-list-title'>已存档红人：</div>" +
-      names.map(n => `<button class="kol-profile-chip" data-name="${n.replace(/"/g, "&quot;")}">${n}</button>`).join("");
-    listEl.querySelectorAll(".kol-profile-chip").forEach(btn => {
-      btn.addEventListener("click", () => {
-        nameInput.value = btn.dataset.name;
-        loadProfile(btn.dataset.name);
-      });
-    });
+    datalist.innerHTML = Object.keys(profiles).sort()
+      .map(n => `<option value="${n.replace(/"/g, "&quot;")}"></option>`).join("");
   }
 
   function fillFields(profile) {
@@ -3917,6 +3911,27 @@ initGuide();
     const profiles = await getProfiles();
     fillFields(profiles[name] || {});
     body.classList.remove("hidden");
+  }
+
+  // 打开档案卡时，自动匹配当前打开的 IG 对话名字
+  async function autoLoadCurrentKol() {
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (!tab || !tab.id) return;
+      const resp = await chrome.tabs.sendMessage(tab.id, { type: "KOL_GET_CONVERSATION_TITLE" }).catch(() => null);
+      const name = resp?.title?.trim();
+      if (!name) return;
+      const profiles = await getProfiles();
+      if (profiles[name]) {
+        nameInput.value = name;
+        loadProfile(name);
+        if (autoHint) { autoHint.textContent = `已自动加载「${name}」的档案`; autoHint.classList.remove("hidden"); }
+      } else {
+        // 填入名字但不自动展开（可能还没建档）
+        nameInput.value = name;
+        if (autoHint) { autoHint.textContent = `当前对话：${name}（尚未建档，填写后点「💾 保存」）`; autoHint.classList.remove("hidden"); }
+      }
+    } catch {}
   }
 
   loadBtn.addEventListener("click", () => loadProfile(nameInput.value.trim()));
@@ -3937,7 +3952,7 @@ initGuide();
     };
     await saveProfiles(profiles);
     showStatus("已保存", true);
-    renderList();
+    refreshDatalist();
   });
 
   deleteBtn.addEventListener("click", async () => {
@@ -3952,12 +3967,21 @@ initGuide();
     nameInput.value = "";
     currentName = "";
     showStatus("已删除", true);
-    renderList();
+    refreshDatalist();
   });
 
   document.getElementById("kol-profile-card")?.addEventListener("toggle", (e) => {
-    if (e.target.open) renderList();
+    if (e.target.open) { refreshDatalist(); autoLoadCurrentKol(); }
+    else if (autoHint) autoHint.classList.add("hidden");
   });
 
-  renderList();
+  refreshDatalist();
 }());
+
+// ===== 一键清空（原文 / 我想回复） =====
+document.querySelectorAll(".clear-btn[data-clear]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const el = document.getElementById(btn.dataset.clear);
+    if (el) { el.value = ""; el.dispatchEvent(new Event("input", { bubbles: true })); }
+  });
+});

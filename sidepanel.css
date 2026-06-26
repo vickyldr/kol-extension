@@ -466,3 +466,15 @@ dialog::backdrop { background: rgba(20,24,36,.4); }
 .kol-profile-chip { display: inline-block; margin: 3px 4px 3px 0; padding: 4px 10px; border: 1px solid #ddd6fe; border-radius: 20px; background: #f5f3ff; color: #6d28d9; font-size: 12px; cursor: pointer; }
 .kol-profile-chip:hover { background: #ede9fe; }
 .kol-profile-subhead { margin: 4px 0 2px; font-size: 12px; font-weight: 700; color: #6d28d9; }
+
+/* 一键清空叉叉 */
+.input-label-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.input-label-row label { margin: 0; }
+.clear-btn { padding: 1px 7px; border: 0; border-radius: 5px; background: transparent; color: #9ca3af; font-size: 13px; cursor: pointer; line-height: 1; }
+.clear-btn:hover { background: #fee2e2; color: #dc2626; }
+
+/* 合作进展沉底（很少用）*/
+.coop-card-hidden > summary { color: #9ca3af; font-size: 12px; }
+
+/* 红人档案自动匹配提示 */
+.kol-profile-auto-hint { margin: 0 0 8px; padding: 6px 10px; border-radius: 8px; background: #f0fdf4; color: #166534; font-size: 12px; }

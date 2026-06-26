@@ -74,11 +74,18 @@ function computeItems(threads, todos) {
     if (!title) title = "未命名对话";
     const sig = rec.judgeSignature || "";
     if (rec.needsReplyRaw && j.is_pleasantry !== true && rec.replyDismissedSig !== sig) {
+      const since = rec.lastCreatorMessageAt || rec.firstUnrepliedAt || rec.lastSeenAt;
+      const elapsedMs = Date.now() - (Date.parse(since) || Date.now());
+      const elapsedMin = Math.floor(elapsedMs / 60000);
+      const metaStr = elapsedMin < 60
+        ? `已等 ${elapsedMin} 分钟${rec.isOnline ? " · 🟢 在线" : ""}`
+        : `已等 ${daysSince(since)} 天${rec.isOnline ? " · 🟢 在线" : ""}`;
       items.push({
         kind: "reply", key: recKey, threadId: rec.threadId, isGroup: rec.isGroup, title,
-        label: rec.needsReplyReason || j.reminder_label || "等你回复",
+        label: rec.isOnline ? `🟢 ${title} 在线，快回复！` : (rec.needsReplyReason || j.reminder_label || "等你回复"),
         ai: j.ai_note || "",
-        meta: `已搁置约 ${daysSince(rec.firstUnrepliedAt || rec.lastSeenAt)} 天`
+        meta: metaStr,
+        elapsedMs
       });
     }
     if (j.needs_follow_up && j.is_pleasantry !== true && rec.followDismissedSig !== sig) {
@@ -89,7 +96,8 @@ function computeItems(threads, todos) {
           kind: "follow", key: recKey, threadId: rec.threadId, isGroup: rec.isGroup, title,
           label: j.reminder_label || `该跟进：${j.waiting_for || ""}`,
           ai: j.ai_note || "",
-          meta: `在等：${j.waiting_for || "—"} · 已 ${elapsed} 天`
+          meta: `在等：${j.waiting_for || "—"} · 已 ${elapsed} 天`,
+          elapsedMs: elapsed * 86400000
         });
       }
     }
@@ -98,8 +106,15 @@ function computeItems(threads, todos) {
     if (!t || t.done || t.dismissed) return;
     const due = Date.parse(t.dueAt);
     if (Number.isFinite(due) && due <= Date.now()) {
-      items.push({ kind: "todo", todoId: t.id, threadId: t.threadId || "", title: t.text, label: "", meta: `到点：${fmt(t.dueAt)}` });
+      items.push({ kind: "todo", todoId: t.id, threadId: t.threadId || "", title: t.text, label: "", meta: `到点：${fmt(t.dueAt)}`, elapsedMs: Date.now() - due });
     }
+  });
+  // 按等待时间降序排列（等最久的排最上面，在线的优先）
+  items.sort((a, b) => {
+    const aOnline = a.label?.includes("在线") ? 1 : 0;
+    const bOnline = b.label?.includes("在线") ? 1 : 0;
+    if (bOnline !== aOnline) return bOnline - aOnline;
+    return (b.elapsedMs || 0) - (a.elapsedMs || 0);
   });
   return items;
 }

@@ -172,7 +172,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
 const REMINDER_ALARM = "kol-reminder-tick";
 function ensureAlarm() {
-  chrome.alarms.create(REMINDER_ALARM, { periodInMinutes: 60 }); // 每小时查一次
+  chrome.alarms.create(REMINDER_ALARM, { periodInMinutes: 1 }); // 每分钟查一次（已读不回5分钟阈值需要）
 }
 chrome.runtime.onInstalled.addListener(ensureAlarm);
 chrome.runtime.onStartup.addListener(ensureAlarm);
@@ -207,8 +207,18 @@ function daysSince(iso, now) {
   if (!Number.isFinite(t)) return 0;
   return (now - t) / 86400000;
 }
+function minutesSince(iso, now) {
+  const t = Date.parse(iso);
+  if (!Number.isFinite(t)) return 0;
+  return (now - t) / 60000;
+}
 
 // 把记账本 + 自定义待办，算成「当前该提醒的清单」
+// 返回 items，每条附 recKey / markReplyReminderSent / markUnreadReminderSent 供 refreshReminders 回写。
+// 提醒逻辑：
+//   已读不回（打开了对话但没回）→ 5分钟后提醒一次；对方在线时跳过等待立即提醒。
+//   未读（根本没点进去）→ 1小时后提醒一次。
+//   以上都只提醒一次；红人发新消息会重置计时（重新等5分钟）。
 async function computeReminders() {
   const store = await chrome.storage.local.get(["kolThreads", "kolTodos"]);
   const threads = store.kolThreads || {};
@@ -217,22 +227,51 @@ async function computeReminders() {
   const items = [];
 
   Object.entries(threads).forEach(([recKey, rec]) => {
-    if (!rec || rec.muted) return; // 静音的群不提醒
+    if (!rec || rec.muted) return;
     const j = rec.judge || {};
     const title = rec.title || rec.creatorName || recKey;
     const sig = rec.judgeSignature || "";
 
-    // 待回复：红人发了我没回，且不是寒暄收尾，且没被「忽略」
     if (rec.needsReplyRaw && j.is_pleasantry !== true && rec.replyDismissedSig !== sig) {
-      const since = rec.firstUnrepliedAt || rec.lastSeenAt;
-      items.push({
-        key: "reply:" + recKey + ":" + sig,
-        kind: "reply",
-        threadId: rec.threadId,
-        title,
-        label: j.reminder_label || `${title} 等你回复`,
-        waitingDays: Math.max(0, Math.floor(daysSince(since, now)))
-      });
+      if (!rec.unread) {
+        // 已读不回：5分钟 or 对方在线立即提醒，且只提醒一次
+        if (!rec.replyReminderSent) {
+          const elapsed = minutesSince(rec.lastCreatorMessageAt || rec.firstUnrepliedAt || rec.lastSeenAt, now);
+          if (elapsed >= 5 || rec.isOnline) {
+            items.push({
+              key: "reply:" + recKey,
+              kind: "reply",
+              recKey,
+              threadId: rec.threadId,
+              title,
+              label: rec.isOnline
+                ? `${title} 在线！快回复`
+                : (j.reminder_label || `${title} 等你回复`),
+              waitingDays: Math.max(0, Math.floor(daysSince(rec.lastCreatorMessageAt || rec.firstUnrepliedAt || rec.lastSeenAt, now))),
+              elapsedMs: now - (Date.parse(rec.lastCreatorMessageAt || rec.firstUnrepliedAt || rec.lastSeenAt) || now),
+              markReplyReminderSent: true
+            });
+          }
+        }
+      } else {
+        // 未读：1小时后提醒一次
+        if (!rec.unreadReminderSent) {
+          const elapsed = minutesSince(rec.unreadSince || rec.firstUnrepliedAt || rec.lastSeenAt, now);
+          if (elapsed >= 60) {
+            items.push({
+              key: "unread:" + recKey,
+              kind: "reply",
+              recKey,
+              threadId: rec.threadId,
+              title,
+              label: `${title} 有未读消息（1小时了）`,
+              waitingDays: Math.max(0, Math.floor(elapsed / 60 / 24)),
+              elapsedMs: elapsed * 60000,
+              markUnreadReminderSent: true
+            });
+          }
+        }
+      }
     }
 
     // 待跟进：我发了/口头答应了但红人没推进，过了阈值
@@ -246,10 +285,12 @@ async function computeReminders() {
         items.push({
           key: "follow:" + recKey + ":" + sig,
           kind: "follow",
+          recKey,
           threadId: rec.threadId,
           title,
           label: j.reminder_label || `${title}：${j.waiting_for || "该跟进了"}`,
-          waitingDays: Math.max(0, Math.floor(elapsed))
+          waitingDays: Math.max(0, Math.floor(elapsed)),
+          elapsedMs: elapsed * 86400000
         });
       }
     }
@@ -265,49 +306,70 @@ async function computeReminders() {
         kind: "todo",
         threadId: t.threadId || "",
         title: t.text || "待办",
-        label: t.text || "待办提醒"
+        label: t.text || "待办提醒",
+        elapsedMs: now - dueAt
       });
     }
   });
 
+  // 按等待时间降序（等最久的排最上面）
+  items.sort((a, b) => (b.elapsedMs || 0) - (a.elapsedMs || 0));
+
   return items;
 }
 
+let _refreshing = false;
 async function refreshReminders() {
-  let items = [];
+  if (_refreshing) return;
+  _refreshing = true;
   try {
-    items = await computeReminders();
-  } catch (e) {
-    console.warn("KOL 提醒计算失败", e);
-    return;
-  }
+    let items = [];
+    try {
+      items = await computeReminders();
+    } catch (e) {
+      console.warn("KOL 提醒计算失败", e);
+      return;
+    }
 
-  // ① 工具栏图标红点数字
-  chrome.action.setBadgeBackgroundColor({ color: "#e0245e" }, ignoreLastError);
-  chrome.action.setBadgeText({ text: items.length ? String(items.length) : "" }, ignoreLastError);
+    // ① 工具栏图标红点数字
+    chrome.action.setBadgeBackgroundColor({ color: "#e0245e" }, ignoreLastError);
+    chrome.action.setBadgeText({ text: items.length ? String(items.length) : "" }, ignoreLastError);
 
-  // ② 桌面弹窗：只对「新出现的」弹，避免每小时重复轰炸
-  const { kolNotified } = await chrome.storage.local.get("kolNotified");
-  const already = new Set(kolNotified || []);
-  const fresh = items.filter((i) => !already.has(i.key));
-  if (fresh.length) {
-    const head = fresh[0];
-    const more = fresh.length > 1 ? `\n…等共 ${fresh.length} 条待处理` : "";
-    chrome.notifications.create(
-      "kol-" + Date.now(),
-      {
-        type: "basic",
-        iconUrl: chrome.runtime.getURL("icon128.png"),
-        title: "KOL 待办提醒",
-        message: (head.label || head.title) + more,
-        priority: 2,
-        // 停在屏幕上直到手动关掉——避免一闪而过的横幅被错过（Mac 上尤其常见）
-        requireInteraction: true
-      },
-      ignoreLastError
-    );
+    // ② 桌面弹窗：只对「新出现的」弹，避免每分钟重复轰炸
+    const { kolNotified } = await chrome.storage.local.get("kolNotified");
+    const already = new Set(kolNotified || []);
+    const fresh = items.filter((i) => !already.has(i.key));
+    if (fresh.length) {
+      const head = fresh[0];
+      const more = fresh.length > 1 ? `\n…等共 ${fresh.length} 条待处理` : "";
+      chrome.notifications.create(
+        "kol-" + Date.now(),
+        {
+          type: "basic",
+          iconUrl: chrome.runtime.getURL("icon128.png"),
+          title: "KOL 待办提醒",
+          message: (head.label || head.title) + more,
+          priority: 2,
+          requireInteraction: true
+        },
+        ignoreLastError
+      );
+
+      // ③ 回写「已提醒」标记，避免下一分钟重复触发同一条
+      const threadsCopy = (await chrome.storage.local.get("kolThreads")).kolThreads || {};
+      let changed = false;
+      fresh.forEach((item) => {
+        if (!item.recKey || !threadsCopy[item.recKey]) return;
+        if (item.markReplyReminderSent) { threadsCopy[item.recKey].replyReminderSent = true; changed = true; }
+        if (item.markUnreadReminderSent) { threadsCopy[item.recKey].unreadReminderSent = true; changed = true; }
+      });
+      if (changed) await chrome.storage.local.set({ kolThreads: threadsCopy });
+    }
+
+    await chrome.storage.local.set({ kolNotified: items.map((i) => i.key) });
+  } finally {
+    _refreshing = false;
   }
-  await chrome.storage.local.set({ kolNotified: items.map((i) => i.key) });
 }
 
 // 记账本/待办一变，立刻刷新角标（搭便车采集后即时反映）

@@ -283,4 +283,9 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message?.type === "GET_SELECTED_TEXT") {
     sendResponse({ text: selectedText() });
   }
+  if (message?.type === "KOL_GET_CONVERSATION_TITLE") {
+    const h1 = document.querySelector("main h1, header h1, [role='main'] h1");
+    const title = h1?.innerText?.trim() || document.title.replace(/\s*[·|·].*$/, "").replace(/\s*- Instagram.*$/i, "").trim() || "";
+    sendResponse({ title });
+  }
 });

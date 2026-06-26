@@ -339,8 +339,11 @@
         const m = (anchor.getAttribute("href") || "").match(/\/direct\/t\/([^/?#]+)/);
         if (m) tid = m[1];
       }
+      // 在线状态：IG 对话行里有绿点或"在线/online/active now"文字
+      const isOnline = /(在线|online\s*·|active\s*now)/i.test(text) ||
+        !!row.querySelector?.("[aria-label*='active'],[aria-label*='在线'],[aria-label*='online']");
       // 用名字归一化前缀当 key（id 字段沿用，后续代码不必大改）
-      rows.push({ id: key, title, preview, unread, lastFromMe, tid });
+      rows.push({ id: key, title, preview, unread, lastFromMe, tid, isOnline });
     });
     return rows;
   }
@@ -453,6 +456,32 @@
     }
     if (!patch.needsReplyRaw) {
       rec.firstUnrepliedAt = null;
+    }
+
+    // 精确计时：记录「最新一条红人消息」的到达时间，用于5分钟提醒倒计时。
+    // 每次有新红人消息（preview 变了且还是待回复状态）就重置，避免"第三分钟又来一条却在第五分钟提醒"。
+    if (patch.needsReplyRaw) {
+      if (!prev.needsReplyRaw) {
+        // 首次进入待回复：开始计时
+        rec.lastCreatorMessageAt = nowIso();
+        rec.replyReminderSent = false;
+      } else if (patch.lastMsgPreview !== prev.lastMsgPreview) {
+        // 还在待回复但红人又发了新消息：重置计时和提醒标记
+        rec.lastCreatorMessageAt = nowIso();
+        rec.replyReminderSent = false;
+      }
+    } else {
+      rec.lastCreatorMessageAt = null;
+      rec.replyReminderSent = false;
+    }
+
+    // 未读计时：第一次出现未读时盖戳，消除未读时清空
+    if (patch.unread && !prev.unread) {
+      rec.unreadSince = nowIso();
+      rec.unreadReminderSent = false;
+    } else if (!patch.unread) {
+      rec.unreadSince = null;
+      rec.unreadReminderSent = false;
     }
 
     map[id] = rec;
@@ -675,6 +704,7 @@
             inboxPreview: row.preview || prev.inboxPreview || "",
             lastMsgPreview: row.preview || prev.lastMsgPreview || "",
             unread: row.unread,
+            isOnline: row.isOnline || false,
             needsReplyRaw: inboxNeedsReply,
             needsReplyReason: inboxNeedsReply ? "未读 · 对方发了新消息" : "",
             lastSeenAt: nowIso()
