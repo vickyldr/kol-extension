@@ -16,9 +16,9 @@
         <div class="header-actions">
           <button id="open-guide" class="status archive-entry" title="新手怎么用">❓</button>
           <button id="open-reminders" class="status archive-entry" title="待回复 / 待跟进 / 待办提醒">🔔 提醒</button>
-          <button id="open-archive" class="status archive-entry" title="查看已保存的话术库">📚 话术库</button>
+          <button id="open-archive" class="status archive-entry" title="团队话术库（会喂给 AI 帮你生成回复）">📚 话术库</button>
           <button id="open-assets" class="status archive-entry" title="logo / 教程图 / 链接等物料">📎 物料库</button>
-          <button id="open-kb-import" class="status archive-entry" title="管理员：上传话术 Word 更新团队库">📥 团队库</button>
+          <button id="open-kb-import" class="status archive-entry" title="管理员：上传 Word 批量增补话术库">📥 上传话术</button>
           <button id="service-status" class="status" title="点击重新检测">检测中</button>
         </div>
       </header>
@@ -31,8 +31,12 @@
         <input id="server-token" type="password" placeholder="团队共享口令" />
         <label for="server-admin">管理员口令（只有管理员填，填了才能编辑/删除话术）</label>
         <input id="server-admin" type="password" placeholder="留空＝普通成员，只能新增和查看" />
-        <label for="server-insid">你的 Instagram ID（用于云端自动备份，换电脑填同一个就能找回）</label>
-        <input id="server-insid" type="text" placeholder="例如 vicky.kol（填了才会自动云备份）" />
+        <label for="server-insid">你的 Instagram ID（=你的身份，用于云端自动备份 + 提醒认人）</label>
+        <input id="server-insid" type="text" placeholder="例如 vicky.kol（填了才会自动云备份、换电脑不丢）" />
+        <label for="product">你负责的产品（生成话术默认用它）</label>
+        <select id="product">
+          <option value="generic">通用产品（不带品牌细节）</option>
+        </select>
         <button id="save-server" type="button" class="primary">保存并连接</button>
         <p id="server-settings-status" class="template-status hidden"></p>
         <hr style="border:none;border-top:1px solid #eee;margin:12px 0" />
@@ -48,11 +52,9 @@
         <small style="color:#888;display:block;margin-top:4px">填了 ins id 后，记录会在改动时自动存到云端；换电脑填同样的 ins id 点「☁️ 从云端恢复」即可。导出/导入是离线文件备份，二选一都行。</small>
       </details>
 
-      <div class="product-bar">
-        <label for="product">当前产品</label>
-        <select id="product">
-          <option value="generic">通用产品（不带品牌细节）</option>
-        </select>
+      <div id="setup-banner" class="setup-banner hidden">
+        <span id="setup-banner-text">请先在 ⚙️ 服务器设置 里填好 团队口令 / 你的 ins id / 产品 —— 填了 ins id 才会自动把你的合作进度、提醒、快捷存到云端（换电脑、清缓存都不丢）。</span>
+        <button id="setup-banner-open" type="button">去填写</button>
       </div>
 
       <section id="guide-card" class="guide-card hidden">
@@ -77,19 +79,6 @@
             <button id="reminder-close" type="button">收起</button>
           </div>
         </div>
-
-        <details class="reminder-settings">
-          <summary>⚙️ 身份设置（认我方 vs 红人）</summary>
-          <label for="my-product">我是哪个产品的（话术默认这个）</label>
-          <select id="my-product"></select>
-          <label for="my-handle">我的 IG 用户名（登录后可自动认出，也可手填）</label>
-          <input id="my-handle" type="text" placeholder="例如 recco_anna" />
-          <label for="product-prefixes">产品前缀清单（逗号分隔，用来认同事）</label>
-          <input id="product-prefixes" type="text" placeholder="recco, rythmix, aicatch, vivavideo" />
-          <label class="reminder-toggle"><input id="reminder-enabled" type="checkbox" checked /> 开启提醒采集（IG 私信页搭便车读屏）</label>
-          <button id="save-reminder-settings" type="button" class="primary">保存设置</button>
-          <p id="reminder-settings-status" class="template-status hidden"></p>
-        </details>
 
         <div class="reminder-add reminder-smart">
           <input id="todo-smart" type="text" placeholder="打一句话，AI 帮你定时间：5天后小树枝交稿 / 明天下午3点催 @Anna" />
@@ -472,9 +461,10 @@
 
       <dialog id="playbook-dialog">
         <div class="playbook-head">
-          <h2>选话术</h2>
+          <h2>话术库</h2>
           <button id="playbook-close" class="secondary" type="button">关闭</button>
         </div>
+        <p class="playbook-hint">📚 这里是<b>团队话术库</b>，里面的话术会<b>喂给 AI</b> 帮你生成回复。<br />只给自己用、<b>不喂 AI</b> 的常用句，请放「⚡ 我的快捷回复」；每条点「⭐ 存进快捷」可一键搬过去。<br />管理员可用顶部「📥 上传话术」用 Word 批量增补。</p>
         <div class="playbook-filters">
           <select id="playbook-product"></select>
           <select id="playbook-stage"></select>

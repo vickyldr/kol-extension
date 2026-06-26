@@ -350,3 +350,42 @@ dialog::backdrop { background: rgba(20,24,36,.4); }
   line-height: 1.6;
 }
 .kb-conflicts b { color: #b45309; }
+
+/* 未配置软提示横幅（没填 ins id / 产品时出现，不锁死功能） */
+.setup-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 4px;
+  padding: 10px 12px;
+  background: #fff7ed;
+  border: 1px solid #fdba74;
+  border-radius: 10px;
+  font-size: 12.5px;
+  color: #9a3412;
+  line-height: 1.5;
+}
+.setup-banner button {
+  flex: none;
+  border: none;
+  background: #f97316;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+.setup-banner.hidden { display: none; }
+
+/* 话术库说明（区分话术库=喂AI vs 快捷=个人） */
+.playbook-hint {
+  margin: 0 0 10px;
+  padding: 8px 10px;
+  background: #f5f3ff;
+  border: 1px solid #ddd6fe;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #5b21b6;
+  line-height: 1.6;
+}

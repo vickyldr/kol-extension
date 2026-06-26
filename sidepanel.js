@@ -1,7 +1,8 @@
 let API_BASE = "http://106.54.206.174:3210";
 let API_TOKEN = "";
 let API_ADMIN = "";
-let API_INSID = ""; // 用户 ins id：云端自动备份的身份钥匙
+let API_INSID = ""; // 用户 ins id：云端自动备份的身份钥匙 + 提醒认人
+let API_PRODUCT = ""; // 用户负责的产品：现在统一存在服务器设置里
 
 // 给受保护的接口附带团队口令。
 function authHeaders(base = {}) {
@@ -26,6 +27,7 @@ async function loadConfig() {
       API_TOKEN = stored.kolConfig.token || "";
       API_ADMIN = stored.kolConfig.adminToken || "";
       API_INSID = stored.kolConfig.insId || "";
+      API_PRODUCT = stored.kolConfig.product || "";
     }
   } catch {
     // 读取失败时沿用默认本机地址。
@@ -166,10 +168,22 @@ async function loadProducts() {
       option.textContent = `${product.name}${product.status === "example" ? "（示例）" : ""}`;
       productSelect.appendChild(option);
     }
-    productSelect.value = selected || "generic";
+    // 优先用「服务器设置」里保存的产品（API_PRODUCT），其次沿用当前选择。
+    productSelect.value = API_PRODUCT || selected || "generic";
   } catch {
     // Keep the generic local option.
   }
+}
+
+// 产品改了就持久化进 kolConfig（产品现在跟口令/ins id 一样存在服务器设置里）。
+if (productSelect) {
+  productSelect.addEventListener("change", async () => {
+    API_PRODUCT = productSelect.value || "generic";
+    const stored = (await chrome.storage.local.get("kolConfig")).kolConfig || {};
+    await chrome.storage.local.set({ kolConfig: { ...stored, product: API_PRODUCT } });
+    await syncReminderIdentity();
+    refreshSetupBanner();
+  });
 }
 
 function renderTemplateCategories() {
@@ -1489,8 +1503,42 @@ function buildPlaybookItem(entry) {
   btn.className = "secondary";
   btn.textContent = "选用";
   btn.addEventListener("click", () => expandPlaybookItem(item, entry));
-  item.append(h, meta, btn);
+  // 一键把这条话术搬进「我的快捷回复」（个人高频用，不喂 AI）。
+  const toQuick = document.createElement("button");
+  toQuick.type = "button";
+  toQuick.className = "secondary";
+  toQuick.textContent = "⭐ 存进快捷";
+  toQuick.title = "复制到「我的快捷回复」，以后打字秒出（个人用，不喂 AI）";
+  toQuick.addEventListener("click", async () => {
+    const ok = await playbookEntryToQuick(entry);
+    toQuick.textContent = ok ? "✓ 已进快捷" : "无可存内容";
+    toQuick.disabled = true;
+  });
+  item.append(h, meta, btn, toQuick);
   return item;
+}
+
+// 把一条话术库条目 {name, texts:{语言:文本}} 存进个人快捷回复 kolQuickReplies。
+async function playbookEntryToQuick(entry) {
+  const texts = entry && entry.texts ? entry.texts : {};
+  const langs = Object.keys(texts);
+  if (!langs.length) return false;
+  const zhKey = langs.find((l) => /中文|中$|^zh/i.test(l));
+  const targetKey = langs.find((l) => l !== zhKey) || langs[0];
+  const target = String(texts[targetKey] || "").trim();
+  const chinese = zhKey ? String(texts[zhKey] || "").trim() : "";
+  if (!target && !chinese) return false;
+  const s = await chrome.storage.local.get("kolQuickReplies");
+  const list = Array.isArray(s.kolQuickReplies) ? s.kolQuickReplies : [];
+  list.unshift({
+    id: `${Date.now()}-${Math.floor(Math.random() * 1e4)}`,
+    trigger: entry.name || "",
+    target,
+    chinese,
+    createdAt: new Date().toISOString()
+  });
+  await chrome.storage.local.set({ kolQuickReplies: list });
+  return true;
 }
 
 function expandPlaybookItem(item, entry) {
@@ -2781,23 +2829,60 @@ if (saveServerButton) {
       return;
     }
     const insIdChanged = insId && insId !== API_INSID;
+    const product = (productSelect && productSelect.value) || API_PRODUCT || "generic";
     API_BASE = apiBase;
     API_TOKEN = token;
     API_ADMIN = adminToken;
     API_INSID = insId;
+    API_PRODUCT = product;
     await chrome.storage.local.set({
-      kolConfig: { apiBase, token, adminToken, insId }
+      kolConfig: { apiBase, token, adminToken, insId, product }
     });
+    // ins id 同时是提醒里「我自己的号」、产品同时是「我负责的产品」——写进提醒身份。
+    await syncReminderIdentity();
     serverSettingsStatus.textContent = "已保存，正在重新连接服务……";
     serverSettingsStatus.classList.remove("hidden");
     await checkService();
     serverSettingsStatus.textContent = serviceOnline
       ? "已连接到该服务器。"
       : "保存了，但暂时连不上，请检查地址、口令和服务器防火墙。";
+    refreshSetupBanner();
     // 首次填/改了 ins id：尝试从云端拉回历史记录（本地为空才合并，不覆盖更新的本地）。
     if (insIdChanged && serviceOnline) await cloudRestore(true);
     // 之后开启自动备份（把当前本地推一份上去，确保云端有最新）。
     if (insId && serviceOnline) scheduleCloudBackup();
+  });
+}
+
+// 把「服务器设置」里的 ins id / 产品 写进提醒身份(kolReminderSettings)，
+// 保留前缀清单/开关等其它字段。提醒据此认「我方 vs 红人」。
+async function syncReminderIdentity() {
+  try {
+    const cur = (await chrome.storage.local.get("kolReminderSettings")).kolReminderSettings || {};
+    const next = { ...cur };
+    if (API_INSID) next.myHandle = API_INSID.replace(/^@/, "");
+    if (API_PRODUCT && API_PRODUCT !== "generic") next.myProduct = API_PRODUCT;
+    if (next.enabled === undefined) next.enabled = true;
+    await chrome.storage.local.set({ kolReminderSettings: next });
+  } catch (_) {}
+}
+
+// 软提示横幅：没填 ins id / 产品时提醒去服务器设置（不锁死功能）。
+function refreshSetupBanner() {
+  const banner = document.getElementById("setup-banner");
+  if (!banner) return;
+  const missing = !API_INSID || !API_PRODUCT;
+  banner.classList.toggle("hidden", !missing);
+}
+const setupBannerOpen = document.getElementById("setup-banner-open");
+if (setupBannerOpen) {
+  setupBannerOpen.addEventListener("click", () => {
+    const box = document.querySelector(".server-settings");
+    if (box) {
+      box.setAttribute("open", "");
+      box.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    if (serverInsIdInput && !API_INSID) serverInsIdInput.focus();
   });
 }
 
@@ -2905,6 +2990,7 @@ loadConfig().then(async () => {
   fillServerSettings();
   loadPendingMessage();
   await checkService();
+  refreshSetupBanner();
   // 启动时若已填 ins id：静默从云端补回缺失的本地记录（换电脑/清缓存后自动找回）。
   if (API_INSID && serviceOnline) cloudRestore(true);
 });
@@ -3114,11 +3200,8 @@ initGuide();
   const closeBtn = document.getElementById("reminder-close");
   const listEl = document.getElementById("reminder-list");
   const mutedEl = document.getElementById("muted-list");
-  const myProductSel = document.getElementById("my-product");
-  const myHandleInput = document.getElementById("my-handle");
-  const prefixInput = document.getElementById("product-prefixes");
-  const enabledInput = document.getElementById("reminder-enabled");
-  const settingsStatus = document.getElementById("reminder-settings-status");
+  // 身份设置已并入「⚙️ 服务器设置」：myHandle=你的 ins id、myProduct=你负责的产品。
+  // 这里不再有独立的身份表单。
 
   function nowIso() { return new Date().toISOString(); }
   function daysSince(iso) {
@@ -3145,42 +3228,6 @@ initGuide();
 
   async function getLocal(keys) { return chrome.storage.local.get(keys); }
   async function setLocal(obj) { return chrome.storage.local.set(obj); }
-
-  // —— 身份设置 ——
-  async function loadSettings() {
-    const s = (await getLocal(SETTINGS_KEY))[SETTINGS_KEY] || {};
-    const prefixes = (s.productPrefixes && s.productPrefixes.length)
-      ? s.productPrefixes
-      : DEFAULT_PREFIXES;
-    // 我的产品下拉：直接来自产品前缀清单（recco/rythmix/aicatch/vivavideo）
-    myProductSel.replaceChildren();
-    const blank = document.createElement("option");
-    blank.value = ""; blank.textContent = "（未选）";
-    myProductSel.appendChild(blank);
-    prefixes.forEach((p) => {
-      const opt = document.createElement("option");
-      opt.value = p; opt.textContent = p;
-      myProductSel.appendChild(opt);
-    });
-    myProductSel.value = s.myProduct || "";
-    myHandleInput.value = s.myHandle || "";
-    prefixInput.value = prefixes.join(", ");
-    enabledInput.checked = s.enabled !== false;
-  }
-
-  document.getElementById("save-reminder-settings").addEventListener("click", async () => {
-    const prefixes = prefixInput.value.split(/[,，\s]+/).map((x) => x.trim().toLowerCase()).filter(Boolean);
-    const next = {
-      enabled: enabledInput.checked,
-      myProduct: myProductSel.value || "",
-      myHandle: myHandleInput.value.trim().replace(/^@/, ""),
-      productPrefixes: prefixes.length ? prefixes : DEFAULT_PREFIXES.slice()
-    };
-    await setLocal({ [SETTINGS_KEY]: next });
-    settingsStatus.textContent = "已保存 ✓";
-    settingsStatus.classList.remove("hidden");
-    setTimeout(() => settingsStatus.classList.add("hidden"), 1500);
-  });
 
   // —— 计算提醒清单（与后台一致） ——
   function computeItems(threads, todos) {
@@ -3413,7 +3460,7 @@ initGuide();
   });
 
   // —— 开关面板 ——
-  function openPanel() { panel.classList.remove("hidden"); loadSettings(); render(); panel.scrollIntoView({ behavior: "smooth", block: "start" }); }
+  function openPanel() { panel.classList.remove("hidden"); render(); panel.scrollIntoView({ behavior: "smooth", block: "start" }); }
   openBtn && openBtn.addEventListener("click", () => panel.classList.contains("hidden") ? openPanel() : panel.classList.add("hidden"));
   closeBtn && closeBtn.addEventListener("click", () => panel.classList.add("hidden"));
   const popoutBtn = document.getElementById("reminder-popout");
