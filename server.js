@@ -80,6 +80,18 @@ const ARCHIVE_PATH = path.join(DATA_DIR, "scenario-archive.json");
 // 物料库：metadata 存 assets.json，图片文件存 assets/ 子目录。
 const ASSETS_PATH = path.join(DATA_DIR, "assets.json");
 const ASSETS_DIR = path.join(DATA_DIR, "assets");
+// 云端备份：每个员工按自己的 ins id 存一份 backups/<id>.json（合作进度/快捷回复/提醒等）。
+// 浏览器缓存清了/换电脑也不丢——填同样的 ins id 就能恢复。
+const BACKUP_DIR = path.join(DATA_DIR, "backups");
+// ins id 清洗成安全文件名：只留字母数字和 . _ -，转小写，截断长度，避免路径穿越。
+function backupFile(userId) {
+  const safe = String(userId || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]/g, "")
+    .slice(0, 80);
+  if (!safe) return "";
+  return path.join(BACKUP_DIR, `${safe}.json`);
+}
 
 const MIME = {
   png: "image/png",
@@ -1383,6 +1395,30 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === "GET" && req.url === "/api/playbook") {
       return json(res, 200, loadJson(PLAYBOOK_PATH, []));
+    }
+
+    // 团队库（Word 导入落库的话术）：界面「话术库」直接搜这个，不再只看 playbook 种子。
+    if (req.method === "GET" && req.url === "/api/knowledge") {
+      return json(res, 200, loadJson(knowledgeReadPath(), []));
+    }
+
+    // 云端备份：按 ins id 存/取个人本地数据（合作进度/快捷回复/提醒等）。
+    if (req.method === "GET" && req.url.startsWith("/api/backup")) {
+      const url = new URL(req.url, `http://${HOST}:${PORT}`);
+      const file = backupFile(url.searchParams.get("id"));
+      if (!file) return json(res, 400, { error: "缺少有效的 ins id。" });
+      return json(res, 200, loadJson(file, { data: null, updatedAt: 0 }));
+    }
+    if (req.method === "POST" && req.url === "/api/backup") {
+      const payload = await readBody(req);
+      const file = backupFile(payload.userId);
+      if (!file) return json(res, 400, { error: "缺少有效的 ins id。" });
+      saveJson(file, {
+        userId: String(payload.userId).trim(),
+        data: payload.data ?? {},
+        updatedAt: Date.now()
+      });
+      return json(res, 200, { ok: true });
     }
 
     if (req.method === "GET" && req.url.startsWith("/api/assets/file/")) {

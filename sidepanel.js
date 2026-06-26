@@ -1,6 +1,7 @@
 let API_BASE = "http://106.54.206.174:3210";
 let API_TOKEN = "";
 let API_ADMIN = "";
+let API_INSID = ""; // 用户 ins id：云端自动备份的身份钥匙
 
 // 给受保护的接口附带团队口令。
 function authHeaders(base = {}) {
@@ -24,6 +25,7 @@ async function loadConfig() {
       API_BASE = stored.kolConfig.apiBase || API_BASE;
       API_TOKEN = stored.kolConfig.token || "";
       API_ADMIN = stored.kolConfig.adminToken || "";
+      API_INSID = stored.kolConfig.insId || "";
     }
   } catch {
     // 读取失败时沿用默认本机地址。
@@ -1373,15 +1375,39 @@ async function handleImportFile(file) {
 
 async function loadPlaybook() {
   if (!serviceOnline) return;
+  // 话术库 = 预置话术脚本(playbook) + 团队库(Word 导入落库的 knowledge-base)，合并成一份搜。
+  let seed = [];
+  let team = [];
   try {
-    const response = await fetch(`${API_BASE}/api/playbook`, {
-      headers: authHeaders()
-    });
-    const data = await response.json();
-    playbook = Array.isArray(data) ? data : [];
-  } catch {
-    playbook = [];
+    const r = await fetch(`${API_BASE}/api/playbook`, { headers: authHeaders() });
+    const d = await r.json();
+    seed = Array.isArray(d) ? d.map((e) => ({ ...e, _source: "话术脚本" })) : [];
+  } catch { seed = []; }
+  try {
+    const r = await fetch(`${API_BASE}/api/knowledge`, { headers: authHeaders() });
+    const d = await r.json();
+    team = Array.isArray(d) ? d.map(knowledgeToPlaybook).filter(Boolean) : [];
+  } catch { team = []; }
+  playbook = [...team, ...seed];
+}
+
+// 把团队库一条记录 {scene, fields:{语言:文本}, product, region} 归一成话术库条目结构。
+function knowledgeToPlaybook(rec) {
+  if (!rec || typeof rec !== "object") return null;
+  const fields = rec.fields && typeof rec.fields === "object" ? rec.fields : {};
+  // 只保留值是「文本」的字段当多语言话术，过滤掉数组/对象等非话术字段。
+  const texts = {};
+  for (const [k, v] of Object.entries(fields)) {
+    if (typeof v === "string" && v.trim()) texts[k] = v;
   }
+  if (!Object.keys(texts).length) return null;
+  return {
+    name: rec.scene || "（未命名话术）",
+    product: rec.product || "通用",
+    stage: rec.region ? `团队库·${rec.region}` : "团队库",
+    texts,
+    _source: "团队库"
+  };
 }
 
 function openPlaybookPicker(target) {
@@ -1456,7 +1482,8 @@ function buildPlaybookItem(entry) {
   h.textContent = entry.name;
   const meta = document.createElement("p");
   meta.className = "archive-meta";
-  meta.textContent = `${entry.product} · ${entry.stage} · ${Object.keys(entry.texts).join(" / ")}`;
+  const tag = entry._source ? `${entry._source} · ` : "";
+  meta.textContent = `${tag}${entry.product} · ${entry.stage} · ${Object.keys(entry.texts).join(" / ")}`;
   const btn = document.createElement("button");
   btn.type = "button";
   btn.className = "secondary";
@@ -2732,6 +2759,7 @@ document.querySelectorAll("[data-copy-value]").forEach((button) => {
 const serverAddressInput = document.getElementById("server-address");
 const serverTokenInput = document.getElementById("server-token");
 const serverAdminInput = document.getElementById("server-admin");
+const serverInsIdInput = document.getElementById("server-insid");
 const saveServerButton = document.getElementById("save-server");
 const serverSettingsStatus = document.getElementById("server-settings-status");
 
@@ -2739,6 +2767,7 @@ function fillServerSettings() {
   if (serverAddressInput) serverAddressInput.value = API_BASE;
   if (serverTokenInput) serverTokenInput.value = API_TOKEN;
   if (serverAdminInput) serverAdminInput.value = API_ADMIN;
+  if (serverInsIdInput) serverInsIdInput.value = API_INSID;
 }
 
 if (saveServerButton) {
@@ -2746,15 +2775,18 @@ if (saveServerButton) {
     const apiBase = serverAddressInput.value.trim().replace(/\/+$/, "");
     const token = serverTokenInput.value.trim();
     const adminToken = serverAdminInput ? serverAdminInput.value.trim() : "";
+    const insId = serverInsIdInput ? serverInsIdInput.value.trim() : "";
     if (!apiBase) {
       serverAddressInput.focus();
       return;
     }
+    const insIdChanged = insId && insId !== API_INSID;
     API_BASE = apiBase;
     API_TOKEN = token;
     API_ADMIN = adminToken;
+    API_INSID = insId;
     await chrome.storage.local.set({
-      kolConfig: { apiBase, token, adminToken }
+      kolConfig: { apiBase, token, adminToken, insId }
     });
     serverSettingsStatus.textContent = "已保存，正在重新连接服务……";
     serverSettingsStatus.classList.remove("hidden");
@@ -2762,8 +2794,87 @@ if (saveServerButton) {
     serverSettingsStatus.textContent = serviceOnline
       ? "已连接到该服务器。"
       : "保存了，但暂时连不上，请检查地址、口令和服务器防火墙。";
+    // 首次填/改了 ins id：尝试从云端拉回历史记录（本地为空才合并，不覆盖更新的本地）。
+    if (insIdChanged && serviceOnline) await cloudRestore(true);
+    // 之后开启自动备份（把当前本地推一份上去，确保云端有最新）。
+    if (insId && serviceOnline) scheduleCloudBackup();
   });
 }
+
+// ===== 云端自动备份（按 ins id）：复用 BACKUP_KEYS，改动后自动推送，换电脑可恢复 =====
+let cloudBackupTimer = null;
+function setCloudStatus(msg, ok) {
+  const el = document.getElementById("cloud-sync-status");
+  if (!el) return;
+  el.textContent = msg;
+  el.style.color = ok === false ? "#c0392b" : "#2e7d32";
+}
+// 防抖：改动密集时只在停手 2.5s 后推一次，省请求。
+function scheduleCloudBackup() {
+  if (!API_INSID) return;
+  clearTimeout(cloudBackupTimer);
+  cloudBackupTimer = setTimeout(cloudBackupNow, 2500);
+}
+async function cloudBackupNow() {
+  if (!API_INSID) return;
+  try {
+    const data = await chrome.storage.local.get(BACKUP_KEYS);
+    const r = await fetch(`${API_BASE}/api/backup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...authHeaders() },
+      body: JSON.stringify({ userId: API_INSID, data })
+    });
+    if (r.ok) setCloudStatus(`☁️ 已自动备份到云端（${API_INSID}）`, true);
+  } catch (_) {
+    // 网络抖动忽略，下次改动再推。
+  }
+}
+// 从云端恢复：silent=true 时只在本地为空的项才填（避免覆盖更新的本地数据）。
+async function cloudRestore(silent) {
+  if (!API_INSID) {
+    if (!silent) setCloudStatus("请先填写并保存你的 ins id。", false);
+    return;
+  }
+  try {
+    const r = await fetch(
+      `${API_BASE}/api/backup?id=${encodeURIComponent(API_INSID)}`,
+      { headers: authHeaders() }
+    );
+    const body = await r.json();
+    const inc = body && body.data;
+    if (!inc || typeof inc !== "object") {
+      if (!silent) setCloudStatus("云端还没有你的备份。", false);
+      return;
+    }
+    const cur = await chrome.storage.local.get(BACKUP_KEYS);
+    const merged = {};
+    // 对象型(合作进度/对话线程/待办)按 key 合并；其它(快捷/设置)云端非空才覆盖。
+    ["kolSummaries", "kolThreads", "kolTodos"].forEach((k) => {
+      merged[k] = { ...(inc[k] || {}), ...(cur[k] || {}) };
+    });
+    ["kolQuickReplies", "kolReminderSettings", "kolProactiveLang", "kolThreadsSchema"].forEach((k) => {
+      const incomingHas = inc[k] !== undefined && inc[k] !== null &&
+        !(Array.isArray(inc[k]) && !inc[k].length);
+      const localEmpty = cur[k] === undefined || cur[k] === null ||
+        (Array.isArray(cur[k]) && !cur[k].length);
+      if (incomingHas && (localEmpty || !silent)) merged[k] = inc[k];
+    });
+    await chrome.storage.local.set(merged);
+    const n = Object.keys(merged.kolSummaries || {}).length;
+    setCloudStatus(`☁️ 已从云端恢复（合作进度 ${n} 条等）`, true);
+  } catch (e) {
+    if (!silent) setCloudStatus("从云端恢复失败：" + e.message, false);
+  }
+}
+const cloudRestoreButton = document.getElementById("cloud-restore");
+if (cloudRestoreButton) {
+  cloudRestoreButton.addEventListener("click", () => cloudRestore(false));
+}
+// 任何本地记录变化（合作进度/快捷/提醒等）→ 自动安排一次云备份。
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area !== "local") return;
+  if (BACKUP_KEYS.some((k) => k in changes)) scheduleCloudBackup();
+});
 
 // 新手指引：首次打开显示，点"知道了"永久收起，顶部"❓"可再调出。
 const guideCard = document.getElementById("guide-card");
@@ -2790,10 +2901,12 @@ document.getElementById("open-guide").addEventListener("click", () => {
   guideCard.scrollIntoView({ behavior: "smooth", block: "start" });
 });
 
-loadConfig().then(() => {
+loadConfig().then(async () => {
   fillServerSettings();
   loadPendingMessage();
-  checkService();
+  await checkService();
+  // 启动时若已填 ins id：静默从云端补回缺失的本地记录（换电脑/清缓存后自动找回）。
+  if (API_INSID && serviceOnline) cloudRestore(true);
 });
 initGuide();
 

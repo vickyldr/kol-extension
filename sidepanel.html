@@ -31,17 +31,21 @@
         <input id="server-token" type="password" placeholder="团队共享口令" />
         <label for="server-admin">管理员口令（只有管理员填，填了才能编辑/删除话术）</label>
         <input id="server-admin" type="password" placeholder="留空＝普通成员，只能新增和查看" />
+        <label for="server-insid">你的 Instagram ID（用于云端自动备份，换电脑填同一个就能找回）</label>
+        <input id="server-insid" type="text" placeholder="例如 vicky.kol（填了才会自动云备份）" />
         <button id="save-server" type="button" class="primary">保存并连接</button>
         <p id="server-settings-status" class="template-status hidden"></p>
         <hr style="border:none;border-top:1px solid #eee;margin:12px 0" />
-        <label>本地记录备份（合作进度 / 提醒 / 待办 / 身份）</label>
+        <label>记录备份（合作进度 / 提醒 / 待办 / 快捷）</label>
+        <p id="cloud-sync-status" class="template-status" style="color:#2e7d32"></p>
         <div class="button-row">
-          <button id="backup-export" type="button" class="secondary">💾 导出备份</button>
-          <button id="backup-import" type="button" class="secondary">📂 导入恢复</button>
+          <button id="cloud-restore" type="button" class="secondary">☁️ 从云端恢复</button>
+          <button id="backup-export" type="button" class="secondary">💾 导出文件</button>
+          <button id="backup-import" type="button" class="secondary">📂 导入文件</button>
           <input id="backup-file" type="file" accept="application/json,.json" class="hidden" />
         </div>
         <p id="backup-status" class="template-status hidden"></p>
-        <small style="color:#888;display:block;margin-top:4px">换电脑、或万一记录丢了，用这两个按钮搬家 / 还原。</small>
+        <small style="color:#888;display:block;margin-top:4px">填了 ins id 后，记录会在改动时自动存到云端；换电脑填同样的 ins id 点「☁️ 从云端恢复」即可。导出/导入是离线文件备份，二选一都行。</small>
       </details>
 
       <div class="product-bar">
