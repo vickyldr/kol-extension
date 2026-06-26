@@ -123,21 +123,19 @@ curl -s localhost:3399/health
 
 #### VPS 实际目录和操作（2026-06 迁移后）
 - **仓库位置**：`/home/ubuntu/kol-repo/`（注意：`bilingual-extension/` 子目录是旧结构残留，已空，别在那里操作）
-- **启动服务**：
+- **⚠️ 服务由 systemd 托管，名字 `kol-assistant.service`（以 root 运行，会开机自启 + 崩溃自动拉起）。**
+  **千万别再手动 `nohup node server.js`**——systemd 那个进程一直占着 3210，你手动起的会撞 `EADDRINUSE`，而且数据目录会跑偏。一切走 systemctl。
+- **部署 / 更新代码（标准三步，记住这个）**：
   ```bash
   cd /home/ubuntu/kol-repo
-  nohup node server.js >> ~/kol.log 2>&1 &
+  git pull origin main                  # 现在 main 是发布分支；SSH 已配，直接拉
+  sudo systemctl restart kol-assistant  # systemd 重启，自动用配置的用户和数据目录
+  curl -s localhost:3210/health         # 看到 ok:true 就成功
   ```
-- **更新代码**：
-  ```bash
-  cd /home/ubuntu/kol-repo
-  git pull   # SSH 已配置，直接拉
-  kill <旧PID>
-  nohup node server.js >> ~/kol.log 2>&1 &
-  curl -s localhost:3210/health   # 看到 ok:true 就成功
-  ```
-- **查当前进程**：`ps aux | grep server.js`
-- **看日志**：`tail -50 ~/kol.log`
+- **查状态**：`sudo systemctl status kol-assistant --no-pager`
+- **看日志**：`sudo journalctl -u kol-assistant -n 50 --no-pager`（不是 `~/kol.log`，那是历史手动启动留下的）
+- **服务配置**：`/etc/systemd/system/kol-assistant.service` + 覆盖目录 `kol-assistant.service.d/model.conf`（里面有 `DASHSCOPE_MODEL_SMART` 等环境变量）。改了配置要 `sudo systemctl daemon-reload` 再 restart。
+- **排查端口被占 / 多个杂进程**：`sudo lsof -i :3210`；务必只留 systemd 那一个 node 进程。
 - **git 用 SSH**（已配置，不用 token）：remote 是 `git@github.com:vickyldr/kol-extension.git`
 
 ---
@@ -192,3 +190,4 @@ build-store-zip.sh     打商店 zip（FILES 白名单！）
 7. **manifest.json 不能带 `key` 字段上传商店**，会报"key 字段值与当前内容不符"。`key` 只在本地开发时用，打商店包前确认已删除。
 8. **VPS GitHub 认证用 SSH**（`~/.ssh/id_ed25519`），不用 token，`git remote` 地址必须是 `git@github.com:...` 格式，不能是 `https://` 格式。
 9. **提醒「打开对话」要靠 threadId 深链**：IG 收件箱列表行这版**不一定是链接**，从列表扫出的提醒可能拿不到对话数字 ID，`threadId` 为空时「打开对话」只能退回收件箱首页（看着像打不开）。`kol-reminder.js` 的 `scanInbox()` 会尽量从行内 `<a href="/direct/t/xxx/">` 抓 ID；抓不到就退回首页。改提醒相关逻辑时注意保留这个兜底。
+10. **VPS 后端是 systemd 服务 `kol-assistant`，不是手动 nohup！** 部署只用 `git pull origin main && sudo systemctl restart kol-assistant`。手动 `nohup node server.js` 会和 systemd 进程抢 3210 端口（`EADDRINUSE`）、还会用错数据目录。详见 §5。
