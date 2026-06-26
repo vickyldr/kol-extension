@@ -137,6 +137,37 @@
           <textarea id="coop-text" class="hidden" rows="9" placeholder="一行一条，开头用 ✅ 或 ⬜；改完点上面「✏️ 改」收起。"></textarea>
         </details>
 
+        <!-- 红人固定档案：付款/合同/app ID/备注，按红人名字存档 -->
+        <details class="kol-profile-card" id="kol-profile-card">
+          <summary>🗂️ 红人固定档案</summary>
+          <div class="kol-profile-search-row">
+            <input id="kol-profile-name" type="text" autocomplete="off" placeholder="红人名字 / ins 账号（搜索或新建）" />
+            <button id="kol-profile-load" class="secondary" type="button">查</button>
+          </div>
+          <div id="kol-profile-body" class="kol-profile-body hidden">
+            <div class="kol-profile-fields">
+              <label>App User ID
+                <input id="kp-appid" type="text" placeholder="例如：TikTok / YouTube / 品牌后台 ID" />
+              </label>
+              <label>付款信息
+                <textarea id="kp-payment" rows="2" placeholder="PayPal / 银行卡号 / 收款方式备注"></textarea>
+              </label>
+              <label>合同信息
+                <textarea id="kp-contract" rows="2" placeholder="合同编号 / 签署日期 / 授权期限 / 平台范围"></textarea>
+              </label>
+              <label>备注
+                <textarea id="kp-notes" rows="2" placeholder="其他固定信息（折扣率、特殊要求……）"></textarea>
+              </label>
+            </div>
+            <div class="kol-profile-actions">
+              <button id="kol-profile-save" class="primary" type="button">💾 保存</button>
+              <button id="kol-profile-delete" class="secondary danger-btn" type="button">🗑️ 删除档案</button>
+            </div>
+            <p id="kol-profile-status" class="template-status hidden"></p>
+          </div>
+          <div id="kol-profile-list" class="kol-profile-list"></div>
+        </details>
+
         <details class="quickreply-card" id="quickreply-card">
           <summary>⚡ 我的快捷回复（打字秒出）</summary>
           <input id="qr-search" type="text" autocomplete="off" placeholder="打几个字搜你存的快捷（触发词或内容）→ 点一下填进回复" />
@@ -160,6 +191,26 @@
 
           <input id="operator-goal" type="text" class="hidden" />
           <textarea id="context" class="hidden"></textarea>
+          <div class="reply-toolbar reply-toolbar-top">
+            <label class="reply-language-label">回复语言
+              <select id="reply-language" class="reply-language-select">
+                <option value="">自动（跟随红人语言）</option>
+                <option value="英语">英语</option>
+                <option value="日语">日语</option>
+                <option value="韩语">韩语</option>
+                <option value="繁体中文">繁中（台湾）</option>
+                <option value="土耳其语">土耳其语</option>
+                <option value="西班牙语">西班牙语</option>
+                <option value="葡萄牙语">葡萄牙语</option>
+                <option value="意大利语">意大利语</option>
+                <option value="德语">德语</option>
+                <option value="法语">法语</option>
+                <option value="俄语">俄语</option>
+                <option value="阿拉伯语">阿拉伯语</option>
+                <option value="泰语">泰语</option>
+              </select>
+            </label>
+          </div>
           <div class="button-row">
             <button id="do-faithful" class="secondary">🔤 忠实翻译</button>
             <button id="do-polish" class="primary">📝 润色生成</button>
@@ -200,26 +251,6 @@
             <div id="bi-split" class="bi-split"></div>
             <p class="bi-hint">每句自动对齐 · 鼠标移到一行两边对应高亮 · 点外语标记该行 · 点「复制」只拿这一句</p>
             <button id="rewrite-from-zh" class="secondary" type="button">✅ 按修改后的中文改写外语</button>
-            <div class="reply-toolbar">
-              <label class="reply-language-label">回复语言
-                <select id="reply-language" class="reply-language-select">
-                  <option value="">自动（跟随红人语言）</option>
-                  <option value="英语">英语</option>
-                  <option value="日语">日语</option>
-                  <option value="韩语">韩语</option>
-                  <option value="繁体中文">繁中（台湾）</option>
-                  <option value="土耳其语">土耳其语</option>
-                  <option value="西班牙语">西班牙语</option>
-                  <option value="葡萄牙语">葡萄牙语</option>
-                  <option value="意大利语">意大利语</option>
-                  <option value="德语">德语</option>
-                  <option value="法语">法语</option>
-                  <option value="俄语">俄语</option>
-                  <option value="阿拉伯语">阿拉伯语</option>
-                  <option value="泰语">泰语</option>
-                </select>
-              </label>
-            </div>
             <!-- 数据载体（隐藏）：供复制/保存/改写复用 -->
             <textarea id="reply-target" class="hidden"></textarea>
             <textarea id="reply-zh" class="hidden"></textarea>

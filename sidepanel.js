@@ -2191,15 +2191,13 @@ function pickReplyLanguage() {
 // 决定这次回复用什么语言（统一各处生成入口的兜底顺序）：
 //   1) 有红人原文 → 返回 ""（让服务端从原文识别，最准）
 //   2) 没原文 → 扫当前对话窗口识别红人语言
-//   3) 还没有 → 手动「回复语言」/「常用语言」设置
-//   4) 都没有（只有图片/视频，毫无文字线索）→ 弹窗让运营选
+//   3) 都没有（只有图片/视频，毫无文字线索）→ 弹窗让运营选
+// 注意：「回复语言」下拉必须始终保持「跟随红人语言」，不用作兜底。
 // 返回语言名字符串；返回 null 表示弹窗里用户取消了，调用方应中止生成。
 async function resolveReplyLanguage(redText) {
   if (redText) return "";
   const detected = await detectConversationLanguage();
   if (detected) return detected;
-  const manual = (replyLanguageSelect?.value || "").trim() || (targetLanguage?.value || "").trim();
-  if (manual) return manual;
   return await pickReplyLanguage(); // 语言名 或 null（取消）
 }
 
@@ -2760,7 +2758,7 @@ statusButton.addEventListener("click", checkService);
 // ===== 本地记录备份 / 恢复（合作进度·提醒·待办·身份设置） =====
 const BACKUP_KEYS = [
   "kolSummaries", "kolThreads", "kolTodos", "kolQuickReplies",
-  "kolReminderSettings", "kolProactiveLang", "kolThreadsSchema"
+  "kolReminderSettings", "kolProactiveLang", "kolThreadsSchema", "kolProfiles"
 ];
 function showBackupStatus(msg, ok) {
   const el = document.getElementById("backup-status");
@@ -3850,3 +3848,113 @@ initGuide();
     resultEl.classList.remove("hidden");
   }
 })();
+
+// ===== 红人固定档案（付款/合同/App ID/备注，按名字存档，云端备份） =====
+(function initKolProfile() {
+  const PROFILE_KEY = "kolProfiles";
+  const nameInput = document.getElementById("kol-profile-name");
+  const loadBtn = document.getElementById("kol-profile-load");
+  const body = document.getElementById("kol-profile-body");
+  const listEl = document.getElementById("kol-profile-list");
+  const saveBtn = document.getElementById("kol-profile-save");
+  const deleteBtn = document.getElementById("kol-profile-delete");
+  const statusEl = document.getElementById("kol-profile-status");
+  const fields = {
+    appid: document.getElementById("kp-appid"),
+    payment: document.getElementById("kp-payment"),
+    contract: document.getElementById("kp-contract"),
+    notes: document.getElementById("kp-notes")
+  };
+  if (!nameInput) return;
+
+  let currentName = "";
+
+  async function getProfiles() {
+    const s = await chrome.storage.local.get(PROFILE_KEY);
+    return s[PROFILE_KEY] || {};
+  }
+
+  async function saveProfiles(profiles) {
+    await chrome.storage.local.set({ [PROFILE_KEY]: profiles });
+    if (typeof triggerCloudBackup === "function") triggerCloudBackup();
+  }
+
+  function showStatus(msg, ok) {
+    if (!statusEl) return;
+    statusEl.textContent = msg;
+    statusEl.style.color = ok === false ? "#c0392b" : "#2e7d32";
+    statusEl.classList.remove("hidden");
+    setTimeout(() => statusEl.classList.add("hidden"), 2500);
+  }
+
+  async function renderList() {
+    if (!listEl) return;
+    const profiles = await getProfiles();
+    const names = Object.keys(profiles).sort();
+    if (!names.length) { listEl.innerHTML = ""; return; }
+    listEl.innerHTML = "<div class='kol-profile-list-title'>已存档红人：</div>" +
+      names.map(n => `<button class="kol-profile-chip" data-name="${n.replace(/"/g, "&quot;")}">${n}</button>`).join("");
+    listEl.querySelectorAll(".kol-profile-chip").forEach(btn => {
+      btn.addEventListener("click", () => {
+        nameInput.value = btn.dataset.name;
+        loadProfile(btn.dataset.name);
+      });
+    });
+  }
+
+  function fillFields(profile) {
+    fields.appid.value = profile?.appid || "";
+    fields.payment.value = profile?.payment || "";
+    fields.contract.value = profile?.contract || "";
+    fields.notes.value = profile?.notes || "";
+  }
+
+  async function loadProfile(name) {
+    if (!name) { body.classList.add("hidden"); return; }
+    currentName = name;
+    const profiles = await getProfiles();
+    fillFields(profiles[name] || {});
+    body.classList.remove("hidden");
+  }
+
+  loadBtn.addEventListener("click", () => loadProfile(nameInput.value.trim()));
+  nameInput.addEventListener("keydown", (e) => { if (e.key === "Enter") loadProfile(nameInput.value.trim()); });
+
+  saveBtn.addEventListener("click", async () => {
+    const name = nameInput.value.trim();
+    if (!name) { showStatus("请先输入红人名字", false); return; }
+    currentName = name;
+    const profiles = await getProfiles();
+    profiles[name] = {
+      appid: fields.appid.value.trim(),
+      payment: fields.payment.value.trim(),
+      contract: fields.contract.value.trim(),
+      notes: fields.notes.value.trim(),
+      updatedAt: new Date().toISOString()
+    };
+    await saveProfiles(profiles);
+    showStatus("已保存", true);
+    renderList();
+  });
+
+  deleteBtn.addEventListener("click", async () => {
+    const name = currentName || nameInput.value.trim();
+    if (!name) return;
+    if (!confirm(`确定删除「${name}」的档案？`)) return;
+    const profiles = await getProfiles();
+    delete profiles[name];
+    await saveProfiles(profiles);
+    fillFields({});
+    body.classList.add("hidden");
+    nameInput.value = "";
+    currentName = "";
+    showStatus("已删除", true);
+    renderList();
+  });
+
+  document.getElementById("kol-profile-card")?.addEventListener("toggle", (e) => {
+    if (e.target.open) renderList();
+  });
+
+  renderList();
+}());

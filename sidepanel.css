@@ -446,3 +446,22 @@ dialog::backdrop { background: rgba(20,24,36,.4); }
 .kol-lang-cancel:hover {
   background: #e2e8f0;
 }
+
+/* 回复语言选择器移到生成按钮前 */
+.reply-toolbar-top { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 8px; }
+
+/* 红人固定档案卡片 */
+.kol-profile-card { margin-bottom: 10px; }
+.kol-profile-search-row { display: flex; gap: 6px; margin: 8px 0; }
+.kol-profile-search-row input { flex: 1; }
+.kol-profile-body { margin-top: 8px; }
+.kol-profile-fields { display: flex; flex-direction: column; gap: 10px; }
+.kol-profile-fields label { display: flex; flex-direction: column; gap: 4px; font-size: 11px; font-weight: 600; color: #6b7280; }
+.kol-profile-fields input, .kol-profile-fields textarea { font-size: 13px; }
+.kol-profile-actions { display: flex; gap: 8px; margin-top: 10px; }
+.kol-profile-actions .danger-btn { color: #dc2626; background: #fef2f2; border: 1px solid #fca5a5; }
+.kol-profile-actions .danger-btn:hover { background: #fee2e2; }
+.kol-profile-list { margin-top: 12px; }
+.kol-profile-list-title { font-size: 11px; color: #9ca3af; margin-bottom: 6px; }
+.kol-profile-chip { display: inline-block; margin: 3px 4px 3px 0; padding: 4px 10px; border: 1px solid #ddd6fe; border-radius: 20px; background: #f5f3ff; color: #6d28d9; font-size: 12px; cursor: pointer; }
+.kol-profile-chip:hover { background: #ede9fe; }
