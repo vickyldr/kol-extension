@@ -21,7 +21,7 @@ const TRANSLATION_CLASS = "kol-inline-translation";
 const translatedTexts = new Map();
 const pendingTexts = new Map();
 
-document.documentElement.dataset.kolAssistantVersion = "0.5.8";
+document.documentElement.dataset.kolAssistantVersion = "0.5.9";
 
 function selectedText() {
   return window.getSelection()?.toString().trim() || "";
@@ -86,16 +86,11 @@ function isLikelyMessageElement(element) {
   }
   if (element.children.length > 4) return false;
 
+  // 无脑翻译：不再按宽度 / 左右 / 上下位置过滤。只要是 main 里、非按钮/导航/链接的
+  // 外语文本就翻译（中文已被 isForeignMessage 过滤掉，不会误翻）。
+  // 仅保留最小尺寸校验，避免抓到 0×0 的隐藏占位元素。
   const rect = element.getBoundingClientRect();
-  // 宽度上限按窗口自适应：全屏 IG 气泡也可能很宽，固定 650px 会把它们全过滤掉，
-  // 导致「不开侧边栏（挤窄页面）就不翻译」。
-  const maxWidth = Math.min(Math.max(window.innerWidth * 0.85, 650), 1100);
-  if (rect.width < 20 || rect.height < 10 || rect.width > maxWidth) return false;
-  if (rect.bottom < 0 || rect.top > window.innerHeight * 1.5) return false;
-  // 不再按左右位置过滤：会话列表预览也一起翻译，避免私信里漏翻。
-  if (rect.top < 70) return false;
-  // 不再跳过「我方发出」的消息：外语消息无论谁发都翻译（中文消息已被
-  // isForeignMessage 过滤掉，不会被误翻），方便核对自己发出去的外语话术。
+  if (rect.width < 10 || rect.height < 6) return false;
 
   return true;
 }
@@ -218,7 +213,8 @@ function scanMessages(root = document) {
 
   let translated = 0;
   for (const element of candidates) {
-    if (translated >= 8) break;
+    // 一次扫描放宽到 30 条：全屏消息一次性都翻译出来，不用滚动慢慢补。
+    if (translated >= 30) break;
     if (isLikelyMessageElement(element)) {
       addTranslation(element);
       translated += 1;
