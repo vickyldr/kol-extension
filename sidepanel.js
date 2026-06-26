@@ -1990,43 +1990,8 @@ async function doReply(mode) {
     btn.disabled = false;
     btn.textContent = orig;
   }
-  // 有红人原文时，后台补上「识别 & 内部提醒」深层分析（不挡回复）
-  runDeepAnalysis(redText);
-}
-
-// 后台跑红人消息的深层分析，填进下方折叠的「识别 & 内部提醒」
-async function runDeepAnalysis(redText) {
-  const ab = document.getElementById("analysis-block");
-  if (!ab) return;
-  if (!redText || !serviceOnline) { ab.classList.add("hidden"); return; }
-  const summary = document.getElementById("analysis-summary");
-  if (summary) summary.textContent = "识别 & 内部提醒（分析中…）";
-  ab.classList.remove("hidden");
-  try {
-    const autoCtx = await getConversationContext();
-    const payload = {
-      message: redText,
-      productId: productSelect.value,
-      context: [redText, autoCtx].filter(Boolean).join("\n"),
-      replyLanguage: replyLanguageSelect?.value || "",
-      channel: "Instagram"
-    };
-    const r = await fetch(`${API_BASE}/api/analyze`, {
-      method: "POST",
-      headers: authHeaders({ "Content-Type": "application/json" }),
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(65000)
-    });
-    const b = await r.json();
-    if (b && !b.error) {
-      renderAnalysis(b);
-      if (summary) summary.textContent = "识别 & 内部提醒";
-    } else if (summary) {
-      summary.textContent = "识别 & 内部提醒（分析未完成）";
-    }
-  } catch (e) {
-    if (summary) summary.textContent = "识别 & 内部提醒（分析未完成）";
-  }
+  // 注：AI 理解（识别/阶段/风险）已改为「打开对话时自动跑」(maybeRunUnderstanding)，
+  // 这里不再用粘贴/翻译动作重复触发分析。
 }
 
 // 这是什么意思 = 纯翻译（任何外语 → 中文；红人的、你自己的、AI 给你的都行）
