@@ -408,21 +408,31 @@ async function refreshReminders() {
     const fresh = items.filter((i) => !already.has(i.key));
     if (fresh.length) {
       const head = fresh[0];
-      const more = fresh.length > 1 ? `\n…等共 ${fresh.length} 条待处理` : "";
       // 固定 ID "kol-reminder"：同 ID 的通知会覆盖旧的，而不是叠出两个。
       // 之前用 "kol-" + Date.now() 导致每次都新建，两次快速触发就会同时弹两条一样的通知。
       // 头像：优先用红人/群聊真实头像（采集时存的 avatarUrl）；取不到再退回首字母彩色圆。
-      const allThreads = (await chrome.storage.local.get("kolThreads")).kolThreads || {};
+      const { kolThreads: allThreads2, kolSummaries: allSummaries } =
+        await chrome.storage.local.get(["kolThreads", "kolSummaries"]);
+      const allThreads = allThreads2 || {};
       const headRec = head.recKey ? allThreads[head.recKey] : null;
       const avatarUrl = (headRec && headRec.avatarUrl) || "";
       const iconUrl = avatarUrl || await makeAvatarIconAsync(head.title || "");
+      // 通知正文：主标签 + 红人最新消息原文 + 合作进展摘要（都是真实内容，不让 AI 编）
+      const summaries = allSummaries || {};
+      const sumRec = summaries[head.recKey] || (headRec?.threadId ? summaries[headRec.threadId] : null);
+      const preview = ((headRec?.lastMsgPreview || headRec?.inboxPreview) || "").trim().slice(0, 60);
+      const sumText = (sumRec?.text || "").trim().slice(0, 60);
+      const msgParts = [head.label || head.title];
+      if (preview) msgParts.push(`💬 ${preview}`);
+      if (sumText) msgParts.push(`📋 ${sumText}`);
+      if (fresh.length > 1) msgParts.push(`…等共 ${fresh.length} 条待处理`);
       chrome.notifications.create(
         "kol-reminder",
         {
           type: "basic",
           iconUrl,
           title: "KOL 待办提醒",
-          message: (head.label || head.title) + more,
+          message: msgParts.join("\n"),
           priority: 2,
           requireInteraction: true
         },
