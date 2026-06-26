@@ -12,6 +12,7 @@ STAGE=".store-stage"
 FILES=(
   manifest.json
   background.js
+  react-guard.js
   content.js
   content.css
   kol-reminder.js
