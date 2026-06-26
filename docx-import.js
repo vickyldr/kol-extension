@@ -100,16 +100,55 @@
   }
 
   // ---------- 小工具 ----------
+  // 单行清洗：压扁所有空白（用于表头、标题、场景名等短标签）
   function clean(text) {
     return String(text || "").replace(/\s+/g, " ").trim();
   }
 
-  // 收集某节点下所有 <w:t> 文本（用于段落 / 单元格）
+  // 多行清洗：保留段落换行，只压扁每行内部的多余空格（用于单元格正文）。
+  // 之前用 clean() 会把 1/2/3 分点的换行也压成空格，导致话术"连成一坨"。
+  function cleanMultiline(text) {
+    return String(text || "")
+      .replace(/\r\n?/g, "\n")
+      .split("\n")
+      .map((line) => line.replace(/[^\S\n]+/g, " ").trim())
+      .join("\n")
+      .replace(/\n{3,}/g, "\n\n") // 最多保留一个空行
+      .replace(/^\n+|\n+$/g, "")
+      .trim();
+  }
+
+  // 收集某节点下所有 <w:t> 文本（用于段落 / 标题，单行用途）
   function collectText(el) {
     const ts = el.getElementsByTagName(WORD_NS.T);
     let out = "";
     for (let i = 0; i < ts.length; i++) out += ts[i].textContent || "";
     return out;
+  }
+
+  // 一个段落内的文本：按文档顺序取 <w:t>，遇到 <w:br>/<w:cr> 插换行、<w:tab> 插空格。
+  function paragraphInlineText(p) {
+    let out = "";
+    (function walk(node) {
+      const kids = node.childNodes;
+      for (let i = 0; i < kids.length; i++) {
+        const c = kids[i];
+        if (c.nodeType !== 1) continue;
+        const tag = c.tagName;
+        if (tag === WORD_NS.T) out += c.textContent || "";
+        else if (tag === "w:br" || tag === "w:cr") out += "\n";
+        else if (tag === "w:tab") out += " ";
+        else walk(c);
+      }
+    })(p);
+    return out;
+  }
+
+  // 收集单元格文本并保留换行：每个段落 <w:p> 之间插 \n（这样 1/2/3 分点不会粘成一行）。
+  function collectCellText(tc) {
+    const ps = directChildren(tc, WORD_NS.P);
+    if (!ps.length) return collectText(tc); // 兜底：没有直接段落就退回老办法
+    return ps.map(paragraphInlineText).join("\n");
   }
 
   // 段落最大字号（half-points）+ 是否加粗，用来判断标题层级
@@ -222,7 +261,8 @@
           let nonEmpty = false;
           let firstText = "";
           for (let c = 0; c < cells.length; c++) {
-            const value = clean(collectText(cells[c]));
+            // 单元格正文保留换行（1/2/3 分点不粘成一坨）
+            const value = cleanMultiline(collectCellText(cells[c]));
             const key = headers[c] || `列${c + 1}`;
             if (value) {
               fields[key] = value;
@@ -231,7 +271,8 @@
             }
           }
           if (!nonEmpty) continue;
-          const scene = (firstText || `表格 ${ti + 1}`).slice(0, 120);
+          // 场景名是短标签，单行即可
+          const scene = (clean(firstText) || `表格 ${ti + 1}`).slice(0, 120);
           records.push({
             source: "Word导入",
             stable_id: `${currentProduct || "通用"}/${currentRegion || "默认"}/t${ti}r${r}`,
