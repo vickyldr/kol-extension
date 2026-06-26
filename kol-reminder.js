@@ -317,6 +317,72 @@
     return rows;
   }
 
+  // 在左边收件箱列表里，按归一化名字找到那一行的可点元素（供"打开对话"直接点开）。
+  // 不依赖 IG 把行做成链接——找到行后真实地派发点击，让 IG 自己导航过去。
+  function findInboxRowEl(targetKey) {
+    if (!targetKey) return null;
+    const imgs = document.querySelectorAll("img");
+    for (const img of imgs) {
+      const r = img.getBoundingClientRect();
+      if (r.left > 460 || r.top < 60) continue; // 只看左侧列表区
+      if (r.width < 18 || r.width > 84) continue; // 头像大小
+      let row = img.parentElement;
+      for (let hops = 0; row && hops < 9; hops += 1) {
+        const t = row.innerText || "";
+        if (
+          t && t.length < 240 &&
+          /(分钟|小时|天前|周前|昨天|今天|刚刚|秒前|new message|新消息|在线|online|active)/i.test(t)
+        ) break;
+        row = row.parentElement;
+      }
+      if (!row) continue;
+      const title = ((row.innerText || "").trim().split("\n")[0] || "").slice(0, 80);
+      if (titleKey(title) === targetKey) return row;
+    }
+    return null;
+  }
+
+  // 真实点击一个元素（IG 是 React，单纯 .click() 不一定触发，派发冒泡的鼠标事件最稳）
+  function realClick(el) {
+    if (!el) return false;
+    // 优先点行内可点的链接/按钮/头像，点不到再点行本身
+    const target =
+      el.querySelector("a[href*='/direct/t/']") ||
+      el.querySelector("[role='button']") ||
+      el.querySelector("img") ||
+      el;
+    const opts = { bubbles: true, cancelable: true, view: window };
+    try {
+      target.dispatchEvent(new MouseEvent("pointerdown", opts));
+      target.dispatchEvent(new MouseEvent("mousedown", opts));
+      target.dispatchEvent(new MouseEvent("mouseup", opts));
+      target.dispatchEvent(new MouseEvent("click", opts));
+      return true;
+    } catch (e) {
+      try { target.click(); return true; } catch (_) { return false; }
+    }
+  }
+
+  // 按名字打开对话：先在当前可见列表里找；找不到就滚动列表多试几次（懒加载的行）
+  async function openThreadByName(targetKey) {
+    if (!targetKey) return false;
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      const row = findInboxRowEl(targetKey);
+      if (row) { realClick(row); return true; }
+      // 没找到：把收件箱列表往下滚一屏再试（找装着多行头像的可滚动容器）
+      const firstImg = document.querySelector("img");
+      let scroller = firstImg ? firstImg.parentElement : null;
+      for (let i = 0; scroller && i < 12; i += 1) {
+        if (scroller.scrollHeight > scroller.clientHeight + 40 &&
+            scroller.getBoundingClientRect().left < 460) break;
+        scroller = scroller.parentElement;
+      }
+      if (scroller) scroller.scrollTop += scroller.clientHeight * 0.8;
+      await new Promise((res) => setTimeout(res, 300));
+    }
+    return false;
+  }
+
   // 行内找一个蓝色的小圆点（IG 未读指示）
   function hasUnreadDot(container) {
     const els = container.querySelectorAll("div, span");
@@ -713,6 +779,18 @@
 
   // 供侧边栏"合作情况总结"取当前打开对话的消息（读屏，不碰 IG 接口）
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+    // 按名字在收件箱里找到那条对话并点开（提醒"打开对话"在拿不到深链 ID 时用）
+    if (message?.type === "KOL_OPEN_THREAD_BY_NAME") {
+      (async () => {
+        try {
+          const ok = await openThreadByName(message.key || "");
+          sendResponse({ ok });
+        } catch (e) {
+          sendResponse({ ok: false });
+        }
+      })();
+      return true;
+    }
     if (message?.type !== "KOL_GET_CONVERSATION") return;
     try {
       const tid = currentThreadId();

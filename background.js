@@ -300,7 +300,9 @@ async function refreshReminders() {
         iconUrl: chrome.runtime.getURL("icon128.png"),
         title: "KOL 待办提醒",
         message: (head.label || head.title) + more,
-        priority: 1
+        priority: 2,
+        // 停在屏幕上直到手动关掉——避免一闪而过的横幅被错过（Mac 上尤其常见）
+        requireInteraction: true
       },
       ignoreLastError
     );

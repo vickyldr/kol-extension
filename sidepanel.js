@@ -3210,19 +3210,40 @@ initGuide();
     return Math.max(0, Math.floor((Date.now() - t) / 86400000));
   }
   function threadUrl(id) { return `https://www.instagram.com/direct/t/${id}/`; }
-  // 优先复用已打开的 IG 标签页（导航过去并聚焦），没有才开新标签
-  function openConversationTab(url) {
+  // 打开提醒对应对话：有数字ID(threadId)→深链直达；没有→让IG页面脚本按名字在左边列表找到那行点开。
+  function openConversation(it) {
+    const deepUrl = it.threadId ? threadUrl(it.threadId) : "";
     try {
       chrome.tabs.query({ url: "*://*.instagram.com/*" }, (tabs) => {
-        if (tabs && tabs.length) {
-          chrome.tabs.update(tabs[0].id, { url, active: true });
-          if (tabs[0].windowId != null) chrome.windows.update(tabs[0].windowId, { focused: true });
+        const tab = tabs && tabs.length ? tabs[0] : null;
+        if (!tab) {
+          chrome.tabs.create({ url: deepUrl || "https://www.instagram.com/direct/inbox/" });
+          return;
+        }
+        if (deepUrl) {
+          chrome.tabs.update(tab.id, { url: deepUrl, active: true });
+          if (tab.windowId != null) chrome.windows.update(tab.windowId, { focused: true });
+          return;
+        }
+        chrome.tabs.update(tab.id, { active: true });
+        if (tab.windowId != null) chrome.windows.update(tab.windowId, { focused: true });
+        const tryClick = () => {
+          chrome.tabs.sendMessage(tab.id, { type: "KOL_OPEN_THREAD_BY_NAME", key: it.key }, (resp) => {
+            if (chrome.runtime.lastError || !resp || !resp.ok) {
+              chrome.tabs.update(tab.id, { url: "https://www.instagram.com/direct/inbox/", active: true });
+            }
+          });
+        };
+        if (/\/direct\//.test(tab.url || "")) {
+          tryClick();
         } else {
-          chrome.tabs.create({ url });
+          chrome.tabs.update(tab.id, { url: "https://www.instagram.com/direct/inbox/", active: true }, () => {
+            setTimeout(tryClick, 1800);
+          });
         }
       });
     } catch (e) {
-      chrome.tabs.create({ url });
+      chrome.tabs.create({ url: deepUrl || "https://www.instagram.com/direct/inbox/" });
     }
   }
 
@@ -3358,9 +3379,7 @@ initGuide();
     const actions = document.createElement("div");
     actions.className = "rc-actions";
     if (it.kind !== "todo") {
-      // 有数字ID就深链到对话；没有(只在列表见过、没点开过)就打开私信收件箱
-      const url = it.threadId ? threadUrl(it.threadId) : "https://www.instagram.com/direct/inbox/";
-      actions.appendChild(btn("打开对话", () => openConversationTab(url)));
+      actions.appendChild(btn("打开对话", () => openConversation(it)));
     }
     if (it.kind === "reply") {
       actions.appendChild(btn("不用提醒了", () => dismissThread(it.key, "reply")));
