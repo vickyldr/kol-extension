@@ -749,9 +749,7 @@
             avatarUrl: row.avatarUrl || prev.avatarUrl || "",
             needsReplyRaw: inboxNeedsReply,
             needsReplyReason: inboxNeedsReply ? "未读 · 对方发了新消息" : "",
-            lastSeenAt: nowIso(),
-            // 未读时用收件箱预览做兜底总结，供提醒卡片显示；有 kolSummaries 时会被覆盖
-            autoSummary: row.preview ? (row.preview.slice(0, 100) + (row.preview.length > 100 ? "…" : "")) : (prev.autoSummary || "")
+            lastSeenAt: nowIso()
           };
           // 「第一次发现没回」锚点：从"不是待回复"变成"待回复"时盖戳
           if (inboxNeedsReply && !prev.needsReplyRaw) next.firstUnrepliedAt = nowIso();
@@ -760,6 +758,9 @@
           changed = true;
         });
         if (changed) await saveThreads(map);
+        // 对"没点进去过的待回复"行，把红人最新预览交给 AI 归纳成一句中文，存进 autoSummary。
+        // 运营看不懂外语，提醒卡片要的是中文 gist，不是原文。去重靠 previewSummarizedSig。
+        await summarizePreviewsForReply(map);
       }
 
       // 2) 当前打开的对话：精读消息，判断待回复 + 触发 AI 判断
@@ -838,6 +839,48 @@
   function scheduleScan() {
     clearTimeout(scanTimer);
     scanTimer = setTimeout(scan, 600);
+  }
+
+  // 没点进去过的待回复对话：用 AI 把红人最新预览归纳成一句中文，写进 autoSummary。
+  // - 只对 needsReplyRaw 且没有 kolSummaries（点进去过会生成更完整的真总结）的行做；
+  // - 预览没变就跳过（previewSummarizedSig 去重，别重复花钱）；
+  // - 一次扫描最多处理 3 条，避免几十个未读时一次性爆发请求。
+  async function summarizePreviewsForReply(map) {
+    try {
+      const store = await chrome.storage.local.get("kolSummaries");
+      const summaries = store.kolSummaries || {};
+      const candidates = [];
+      Object.entries(map || {}).forEach(([key, rec]) => {
+        if (!rec || rec.muted || !rec.needsReplyRaw) return;
+        const preview = String(rec.inboxPreview || rec.lastMsgPreview || "").trim();
+        if (!preview) return;
+        // 点进去过、已有真总结的，不用预览总结
+        const hasReal = summaries[key] || (rec.threadId && summaries[rec.threadId]);
+        if (hasReal) return;
+        const sig = preview.slice(0, 60);
+        if (rec.previewSummarizedSig === sig) return; // 预览没变
+        candidates.push({ key, rec, preview, sig });
+      });
+      if (!candidates.length) return;
+      let updated = false;
+      for (const c of candidates.slice(0, 3)) {
+        const res = await chrome.runtime.sendMessage({
+          type: "KOL_SUMMARY",
+          payload: { mode: "preview", text: c.preview, creatorName: c.rec.title || c.rec.creatorName || "" }
+        });
+        // 写回最新的 map（期间可能被其它扫描改过，重新取一次）
+        const latest = await getThreads();
+        if (!latest[c.key]) continue;
+        latest[c.key].previewSummarizedSig = c.sig; // 不管成不成功都记，避免反复重试同一条
+        if (res && res.summary) latest[c.key].autoSummary = String(res.summary).trim();
+        await saveThreads(latest);
+        map[c.key] = latest[c.key];
+        updated = true;
+      }
+      return updated;
+    } catch (e) {
+      /* 预览总结失败不影响提醒本身 */
+    }
   }
 
   // 离开对话时，把这次聊的内容自动并进"合作进展"（增量更新，不丢旧的）

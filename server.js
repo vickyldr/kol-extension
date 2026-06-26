@@ -532,6 +532,27 @@ async function summarizeConversation(payload) {
   const messages = Array.isArray(payload.messages) ? payload.messages : [];
   const rawText = String(payload.text || "").trim();
   const prev = String(payload.previousSummary || "").trim();
+  // 预览模式：手上只有红人最新一句（收件箱预览），没点进过对话。
+  // 不跑 12 步流程清单（会全是"未见"），只把这句外语翻译+归纳成一句中文：他说了啥、想要啥。
+  // 给提醒卡片当「最新进度」用——运营看不懂外语，IG 原文对他没用，这里必须是中文 gist。
+  if (payload.mode === "preview") {
+    const previewText = (rawText || messages.map((m) => m && m.text).filter(Boolean).join(" ")).slice(0, 600);
+    if (!previewText) return { summary: "" };
+    const result = await callQwen({
+      system: `你帮看不懂外语的中国 KOL 运营，把红人发来的最新一句消息，归纳成一句简短中文。
+要点：说清红人表达了什么、想要什么或在等什么（如果能看出来）。
+规则：
+- 只用一句中文，不超过 30 字，不要分点、不要加引号、不要附原文。
+- 忠实原意，绝不编造金额/日期/承诺等没说的信息。
+- 看不出实质内容（纯寒暄/表情）就用一句话点明，例如"只是打招呼"。
+只返回 JSON：{"summary":"一句中文"}。`,
+      user: JSON.stringify({ creator_name: payload.creatorName || "", latest_message: previewText }),
+      maxTokens: 120,
+      temperature: 0.2,
+      model: MODEL_FAST
+    });
+    return { summary: String(result.summary || "").trim() };
+  }
   const systemPrompt = `你帮中国 KOL 运营整理一个红人合作的进展，输出一份"按合作流程顺序排列的清单"，每一步都标明做了没做。
 固定按这个顺序逐条输出，每条开头用 ✅(已完成) / ⬜(未做或在等) / ➖(不涉及)：
 1. 建联 / 触达

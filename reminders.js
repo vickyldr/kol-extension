@@ -79,13 +79,15 @@ function computeItems(threads, todos, summaries) {
     if (!title) title = (rec.inboxPreview || rec.lastMsgPreview || "").slice(0, 24);
     if (!title) title = "未命名对话";
     const sig = rec.judgeSignature || "";
-    // 一行总结：优先用「最新进度」（kolSummaries，离开对话时总结）。
-    // 没采集过 / 未读的：用 background 兜底生成的 autoSummary；都没有给个软提示（Phase4 会补全）。
+    // 一行总结（中文，给看不懂外语的运营）：
+    //   ① 点进去过 → kolSummaries 的真总结（离开对话时按 12 步流程生成，最完整）；
+    //   ② 没点进去过的待回复 → autoSummary（AI 把红人最新预览归纳成一句中文）；
+    //   ③ 都没有 → 留空，不显示那行（绝不贴外语原文、不放占位）。
     const sumRec = (summaries && (summaries[recKey] || (rec.threadId && summaries[rec.threadId]))) || null;
     const summary =
       (sumRec ? (sumRec.text || "").trim() : "") ||
       (rec.autoSummary || "").trim() ||
-      "（还没读过，点进去看一眼，AI 会总结进度）";
+      "";
 
     // 🔴 立即回复：needsReplyRaw 天然含「未读 + 已读不回」
     if (rec.needsReplyRaw && j.is_pleasantry !== true && rec.replyDismissedSig !== sig) {
