@@ -61,6 +61,28 @@
 | `products.json` | 产品资料 | 有 `generic` 兜底 + `forbidden_claims` |
 | `scenario-archive.json` | 用户存的话术存档 | 用户数据，放 `KOL_DATA_DIR` |
 | `assets.json` + `assets/` | 物料库（图片/链接/备注） | 图片文件存 `assets/<id>.<ext>` |
+| `backups/<insid>.json` | 各人浏览器数据的云端备份（按 ins id） | 进度/提醒/待办/个人快捷，`/api/backup` 读写，id 已清洗成安全文件名 |
+
+---
+
+## 3b. 三套「话术/回复」系统别混（最容易搞混，团队也常问）
+
+| | 话术库（= 团队库） | ⚡ 快捷回复 | 出厂话术脚本 |
+|---|---|---|---|
+| 存在哪 | 服务器 `knowledge-base.json`（线上） | 各人浏览器 `kolQuickReplies` | 仓库种子 `playbook.json` |
+| 谁能改 | 管理员用「📥 上传话术」(Word) 批量增补 | 你自己，一条条加 | 跟代码走 |
+| **喂不喂 AI** | **喂**（影响 `/api/reply` 等生成质量） | **不喂**，纯本地关键词匹配、打字秒出 | 喂 |
+| 共享吗 | 团队共享 | **个人私有** | 所有人装上就带 |
+| 前端入口 | 「📚 话术库」搜索（合并 `/api/playbook`+`/api/knowledge`） | 主路径搜索框 | 并进话术库一起搜 |
+
+- **话术库前端会同时拉 `/api/playbook`（脚本）和 `/api/knowledge`（团队库 Word 落库）合并搜**——`knowledgeToPlaybook()` 把 `{scene, fields:{语言:文本}}` 归一成话术条目。以前团队库只有 AI 用得到、运营搜不到，就是因为只读了 playbook。
+- 话术库每条有「⭐ 存进快捷」一键搬进个人快捷。**搬过去就脱离 AI**（个人私有），这是有意的。
+- 「📥 团队库」按钮已更名「📥 上传话术」——团队库就是话术库，不是两个东西。
+
+## 3c. 云端备份 + 设置收口（v0.24.7）
+
+- **配置唯一入口 = 「⚙️ 服务器设置」**：服务地址 + 团队口令 + **你的 ins id** + **你负责的产品**。ins id 同时当提醒里「我自己的号」，产品同时当「我负责的产品」（保存时写进 `kolReminderSettings`，见 `syncReminderIdentity()`）。已删掉主框的产品选择条、提醒里重复的「身份设置」表单。没填 ins id/产品时顶部出橙色软提示横幅（不锁按钮）。
+- **云端自动备份（按 ins id）**：进度/提醒/待办/个人快捷（`BACKUP_KEYS`）改动后防抖 2.5s 自动 POST 到 `/api/backup`，存 `~/kol-data/backups/<insid>.json`。换电脑/清缓存后填同一个 ins id → 启动静默恢复，或点「☁️ 从云端恢复」。恢复时对象按 key 合并、其余「本地为空才填」，不覆盖更新的本地数据。原「💾导出/📂导入文件」离线备份仍保留。
 
 ---
 
@@ -147,7 +169,7 @@ build-store-zip.sh     打商店 zip（FILES 白名单！）
 团队使用说明-大白话.md   给非技术成员的使用说明
 ```
 
-主要后端接口：`/api/reply` `/api/analyze` `/api/translate` `/api/rewrite` `/api/ask` `/api/judge` `/api/summary` `/api/parse-todo` `/api/assets` `/api/archive` `/api/playbook` `/api/knowledge/import`（团队库 Word 导入，仅管理员）。
+主要后端接口：`/api/reply` `/api/analyze` `/api/translate` `/api/rewrite` `/api/ask` `/api/judge` `/api/summary` `/api/parse-todo` `/api/assets` `/api/archive` `/api/playbook` `/api/knowledge`（GET：取团队库，供话术库前端合并搜索）`/api/knowledge/import`（团队库 Word 导入，仅管理员）`/api/backup`（GET 按 ins id 取 / POST 存：各人浏览器数据的云端备份）。
 
 ---
 
@@ -169,3 +191,4 @@ build-store-zip.sh     打商店 zip（FILES 白名单！）
 6. **VPS git pull 要在 `/home/ubuntu/kol-repo/` 下运行**，不是 `bilingual-extension/`（那个目录是旧结构残留，已空）。
 7. **manifest.json 不能带 `key` 字段上传商店**，会报"key 字段值与当前内容不符"。`key` 只在本地开发时用，打商店包前确认已删除。
 8. **VPS GitHub 认证用 SSH**（`~/.ssh/id_ed25519`），不用 token，`git remote` 地址必须是 `git@github.com:...` 格式，不能是 `https://` 格式。
+9. **提醒「打开对话」要靠 threadId 深链**：IG 收件箱列表行这版**不一定是链接**，从列表扫出的提醒可能拿不到对话数字 ID，`threadId` 为空时「打开对话」只能退回收件箱首页（看着像打不开）。`kol-reminder.js` 的 `scanInbox()` 会尽量从行内 `<a href="/direct/t/xxx/">` 抓 ID；抓不到就退回首页。改提醒相关逻辑时注意保留这个兜底。
