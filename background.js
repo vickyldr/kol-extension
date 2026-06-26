@@ -202,6 +202,65 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === REMINDER_ALARM) refreshReminders();
 });
 
+// 用红人名字首字母生成彩色圆形头像 data URL，替换通知里千篇一律的 logo。
+// 颜色根据名字哈希取，同一个红人颜色固定。
+function makeAvatarIcon(name) {
+  try {
+    const initials = (name || "?").trim().replace(/[^\p{L}\p{N}]/gu, "").slice(0, 2).toUpperCase() || "?";
+    const colors = ["#e0245e","#4a8cff","#d9a93c","#27ae60","#8e44ad","#e67e22","#16a085","#c0392b"];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) & 0xffffffff;
+    const bg = colors[Math.abs(hash) % colors.length];
+    const size = 128;
+    const canvas = new OffscreenCanvas(size, size);
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = bg;
+    ctx.beginPath();
+    ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#fff";
+    ctx.font = `bold ${size * 0.42}px sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(initials, size / 2, size / 2 + 2);
+    // OffscreenCanvas → Blob → data URL（service worker 里没有 toDataURL，用 convertToBlob）
+    // 这里是同步路径不能 await，退回 logo；调用方用 Promise 版本
+    return chrome.runtime.getURL("icon128.png"); // 下面的异步版本才真正用到 canvas
+  } catch (_) {
+    return chrome.runtime.getURL("icon128.png");
+  }
+}
+async function makeAvatarIconAsync(name) {
+  try {
+    const initials = (name || "?").trim().replace(/[^\p{L}\p{N}]/gu, "").slice(0, 2).toUpperCase() || "?";
+    const colors = ["#e0245e","#4a8cff","#d9a93c","#27ae60","#8e44ad","#e67e22","#16a085","#c0392b"];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) & 0xffffffff;
+    const bg = colors[Math.abs(hash) % colors.length];
+    const size = 128;
+    const canvas = new OffscreenCanvas(size, size);
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = bg;
+    ctx.beginPath();
+    ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#fff";
+    ctx.font = `bold ${Math.round(size * 0.42)}px sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(initials, size / 2, size / 2 + 2);
+    const blob = await canvas.convertToBlob({ type: "image/png" });
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => resolve(chrome.runtime.getURL("icon128.png"));
+      reader.readAsDataURL(blob);
+    });
+  } catch (_) {
+    return chrome.runtime.getURL("icon128.png");
+  }
+}
+
 function daysSince(iso, now) {
   const t = Date.parse(iso);
   if (!Number.isFinite(t)) return 0;
@@ -376,11 +435,14 @@ async function refreshReminders() {
     if (fresh.length) {
       const head = fresh[0];
       const more = fresh.length > 1 ? `\n…等共 ${fresh.length} 条待处理` : "";
+      // 固定 ID "kol-reminder"：同 ID 的通知会覆盖旧的，而不是叠出两个。
+      // 之前用 "kol-" + Date.now() 导致每次都新建，两次快速触发就会同时弹两条一样的通知。
+      const iconUrl = await makeAvatarIconAsync(head.title || "");
       chrome.notifications.create(
-        "kol-" + Date.now(),
+        "kol-reminder",
         {
           type: "basic",
-          iconUrl: chrome.runtime.getURL("icon128.png"),
+          iconUrl,
           title: "KOL 待办提醒",
           message: (head.label || head.title) + more,
           priority: 2,

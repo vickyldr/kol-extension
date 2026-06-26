@@ -230,6 +230,13 @@ dialog::backdrop { background: rgba(20,24,36,.4); }
 .reminder-card .rc-label { font-size: 13px; color: #384056; margin: 3px 0; }
 .reminder-card .rc-meta { font-size: 11px; color: #8b90a0; }
 .reminder-card .rc-ai { font-size: 12px; color: #6b4a9a; margin-top: 4px; }
+.reminder-card .rc-preview { font-size: 12px; color: #3a4060; background: #f4f6fb; border-radius: 6px; padding: 4px 7px; margin: 4px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.reminder-card details.rc-summary { margin-top: 4px; }
+.reminder-card details.rc-summary summary { font-size: 11px; color: #8b90a0; cursor: pointer; list-style: none; }
+.reminder-card details.rc-summary summary::-webkit-details-marker { display: none; }
+.reminder-card details.rc-summary summary::before { content: "▶ "; font-size: 9px; }
+.reminder-card details.rc-summary[open] summary::before { content: "▼ "; }
+.reminder-card .rc-summary-text { font-size: 11px; color: #555e80; margin-top: 3px; line-height: 1.5; }
 .reminder-card .rc-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; }
 .reminder-card .rc-actions button { border: 1px solid #d8dced; background: #f4f6fb; border-radius: 999px; padding: 3px 9px; font-size: 12px; cursor: pointer; }
 .reminder-card .rc-actions button:hover { background: #e8ecf6; }

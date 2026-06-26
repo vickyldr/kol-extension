@@ -723,7 +723,10 @@
           const prev = map[row.id] || {};
           // 列表判待回复：只在真正"未读"时算，避免把你已回/已读的也报上来。
           // "已读但没回"留给你点进对话时精读判断，不在列表瞎报。
-          const inboxNeedsReply = Boolean(row.unread) && !row.lastFromMe;
+          // 最后一条是我发的（"你: …"）→ 就算列表显示"未读"角标也清掉，
+          // 群聊里你回完别人又发了新消息前、IG 角标还没消时会误报——用 lastFromMe 提前消除。
+          const myLastMsg = Boolean(row.lastFromMe);
+          const inboxNeedsReply = Boolean(row.unread) && !myLastMsg;
           // 显示名保留更长更完整的那个
           const title =
             (row.title || "").length > (prev.title || "").length ? row.title : (prev.title || row.title || "");
@@ -734,7 +737,8 @@
             threadId: row.tid || prev.threadId || "",
             inboxPreview: row.preview || prev.inboxPreview || "",
             lastMsgPreview: row.preview || prev.lastMsgPreview || "",
-            unread: row.unread,
+            // 最后一条是我发的 → 强制视为"已回/已读"，清除 unread 和 needsReply
+            unread: myLastMsg ? false : row.unread,
             isOnline: row.isOnline || false,
             needsReplyRaw: inboxNeedsReply,
             needsReplyReason: inboxNeedsReply ? "未读 · 对方发了新消息" : "",

@@ -62,7 +62,7 @@ function openConversation(it) {
   }
 }
 
-function computeItems(threads, todos) {
+function computeItems(threads, todos, summaries) {
   const items = [];
   const looksLikeId = (x) => /^\d{6,}$/.test(String(x || ""));
   Object.entries(threads || {}).forEach(([recKey, rec]) => {
@@ -73,6 +73,12 @@ function computeItems(threads, todos) {
     if (!title) title = (rec.inboxPreview || rec.lastMsgPreview || "").slice(0, 24);
     if (!title) title = "未命名对话";
     const sig = rec.judgeSignature || "";
+    // 最近一条消息预览（不打开对话就能看到对方说了什么）
+    const preview = (rec.lastMsgPreview || rec.inboxPreview || "").slice(0, 80);
+    // 合作进展摘要：从 kolSummaries 里按对话 key 或 threadId 找
+    const sumRec = (summaries && (summaries[recKey] || (rec.threadId && summaries[rec.threadId]))) || null;
+    const summary = sumRec ? (sumRec.text || "").slice(0, 100) : "";
+
     if (rec.needsReplyRaw && j.is_pleasantry !== true && rec.replyDismissedSig !== sig) {
       const since = rec.lastCreatorMessageAt || rec.firstUnrepliedAt || rec.lastSeenAt;
       const elapsedMs = Date.now() - (Date.parse(since) || Date.now());
@@ -84,6 +90,8 @@ function computeItems(threads, todos) {
         kind: "reply", key: recKey, threadId: rec.threadId, isGroup: rec.isGroup, title,
         label: rec.isOnline ? `🟢 ${title} 在线，快回复！` : (rec.needsReplyReason || j.reminder_label || "等你回复"),
         ai: j.ai_note || "",
+        preview,
+        summary,
         meta: metaStr,
         elapsedMs
       });
@@ -96,6 +104,8 @@ function computeItems(threads, todos) {
           kind: "follow", key: recKey, threadId: rec.threadId, isGroup: rec.isGroup, title,
           label: j.reminder_label || `该跟进：${j.waiting_for || ""}`,
           ai: j.ai_note || "",
+          preview,
+          summary,
           meta: `在等：${j.waiting_for || "—"} · 已 ${elapsed} 天`,
           elapsedMs: elapsed * 86400000
         });
@@ -159,11 +169,32 @@ function card(it) {
     l.textContent = it.label;
     el.appendChild(l);
   }
+  // 最近消息预览（不用点开对话就能看到对方说了什么）
+  if (it.preview) {
+    const p = document.createElement("div");
+    p.className = "rc-preview";
+    p.textContent = "💬 " + it.preview;
+    el.appendChild(p);
+  }
+  // AI 判断摘要
   if (it.ai) {
     const a = document.createElement("div");
     a.className = "rc-ai";
     a.textContent = "🤖 " + it.ai;
     el.appendChild(a);
+  }
+  // 合作进展历史（上次总结的对话背景）
+  if (it.summary) {
+    const s = document.createElement("details");
+    s.className = "rc-summary";
+    const sm = document.createElement("summary");
+    sm.textContent = "📋 合作进展";
+    s.appendChild(sm);
+    const st = document.createElement("div");
+    st.className = "rc-summary-text";
+    st.textContent = it.summary;
+    s.appendChild(st);
+    el.appendChild(s);
   }
   const m = document.createElement("div");
   m.className = "rc-meta";
@@ -191,8 +222,8 @@ function card(it) {
 }
 
 async function render() {
-  const store = await chrome.storage.local.get(["kolThreads", "kolTodos"]);
-  const items = computeItems(store.kolThreads || {}, store.kolTodos || []);
+  const store = await chrome.storage.local.get(["kolThreads", "kolTodos", "kolSummaries"]);
+  const items = computeItems(store.kolThreads || {}, store.kolTodos || [], store.kolSummaries || {});
   listEl.replaceChildren();
   subEl.textContent = items.length ? `共 ${items.length} 项待处理` : "";
   if (!items.length) {
