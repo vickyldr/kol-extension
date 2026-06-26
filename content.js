@@ -21,7 +21,7 @@ const TRANSLATION_CLASS = "kol-inline-translation";
 const translatedTexts = new Map();
 const pendingTexts = new Map();
 
-document.documentElement.dataset.kolAssistantVersion = "0.5.6";
+document.documentElement.dataset.kolAssistantVersion = "0.5.7";
 
 function selectedText() {
   return window.getSelection()?.toString().trim() || "";
@@ -62,6 +62,24 @@ function isForeignMessage(text) {
   return chineseCount / Math.max(letterCount, 1) < 0.45;
 }
 
+// 计算私信对话区的左边界：取消息输入框的左边缘（容差 80px），
+// 找不到输入框（非私信页）时退回到原来的相对阈值。这样不同屏幕宽度都能适配。
+let cachedBoundary = { value: 0, at: 0 };
+function threadLeftBoundary() {
+  const now = Date.now();
+  if (now - cachedBoundary.at < 1500) return cachedBoundary.value;
+  let boundary = Math.max(330, window.innerWidth * 0.24);
+  const box = document.querySelector(
+    "main [contenteditable='true'], main textarea, main [role='textbox']"
+  );
+  if (box) {
+    const r = box.getBoundingClientRect();
+    if (r.left > 0) boundary = Math.max(0, r.left - 80);
+  }
+  cachedBoundary = { value: boundary, at: now };
+  return boundary;
+}
+
 function isLikelyMessageElement(element) {
   if (!(element instanceof HTMLElement)) return false;
   if (!element.closest("main")) return false;
@@ -89,7 +107,10 @@ function isLikelyMessageElement(element) {
   const rect = element.getBoundingClientRect();
   if (rect.width < 20 || rect.height < 10 || rect.width > 650) return false;
   if (rect.bottom < 0 || rect.top > window.innerHeight * 1.5) return false;
-  if (rect.left < Math.max(390, window.innerWidth * 0.28)) return false;
+  // 跳过左侧会话列表的预览：以「私信输入框的左边缘」为对话区左界，动态判断。
+  // 之前写死 390px，小屏笔记本上红人消息气泡会整段落在 390 以内被误杀，
+  // 导致私信里一条都不翻译。改成按输入框位置自适应。
+  if (rect.left < threadLeftBoundary()) return false;
   if (rect.top < 70) return false;
   if (isOutgoingMessage(element)) return false;
 
