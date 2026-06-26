@@ -5,125 +5,101 @@
 <title>红人资源库</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f4f5f7; color: #1c2733; font-size: 14px; }
-  .topbar { background: #fff; border-bottom: 1px solid #e6e9ed; padding: 14px 24px; display: flex; align-items: center; gap: 18px; position: sticky; top: 0; }
-  .logo { font-size: 18px; font-weight: 700; }
-  .tabs { display: flex; gap: 6px; margin-left: 8px; }
-  .tab { padding: 6px 14px; border-radius: 8px; color: #5b6b7b; cursor: pointer; }
-  .tab.active { background: #eaf2ff; color: #1f6feb; font-weight: 600; }
-  .search { margin-left: auto; display: flex; align-items: center; gap: 10px; }
-  .search input { width: 240px; padding: 8px 12px; border: 1px solid #d6dbe1; border-radius: 8px; font-size: 14px; }
-  .who { color: #8a97a5; font-size: 13px; }
-  .wrap { padding: 20px 24px; }
-  .stats { display: flex; gap: 14px; margin-bottom: 16px; }
-  .stat { background: #fff; border: 1px solid #e6e9ed; border-radius: 12px; padding: 14px 20px; flex: 1; }
-  .stat .n { font-size: 24px; font-weight: 700; }
-  .stat .l { color: #8a97a5; font-size: 12px; margin-top: 4px; }
-  .filters { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
-  .chip { background: #fff; border: 1px solid #d6dbe1; border-radius: 20px; padding: 6px 14px; color: #5b6b7b; cursor: pointer; font-size: 13px; }
-  .chip.on { background: #1f6feb; color: #fff; border-color: #1f6feb; }
-  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; border: 1px solid #e6e9ed; }
-  th { text-align: left; padding: 12px 14px; background: #fafbfc; color: #8a97a5; font-weight: 600; font-size: 12px; border-bottom: 1px solid #e6e9ed; }
-  td { padding: 12px 14px; border-bottom: 1px solid #f0f2f4; vertical-align: middle; }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: #fafcff; }
-  .kol { display: flex; align-items: center; gap: 10px; }
-  .av { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 14px; }
-  .kol .nm { font-weight: 600; }
-  .kol .hd { color: #8a97a5; font-size: 12px; }
-  .plat { display: inline-block; background: #eef1f4; border-radius: 5px; padding: 2px 7px; font-size: 11px; color: #5b6b7b; margin-right: 4px; }
-  .price { font-weight: 700; color: #0a7d33; }
-  .yes { color: #1f6feb; font-weight: 700; }
-  .star { color: #f5a623; font-weight: 700; }
-  .black { background: #fdecec; color: #d23; border-radius: 5px; padding: 2px 8px; font-size: 12px; }
-  .sum { color: #5b6b7b; font-size: 13px; max-width: 220px; }
-  .owner { font-size: 12px; color: #5b6b7b; }
-  .muted { color: #c2cad2; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f4f5f7; color: #1f2329; font-size: 13px; }
+  .topbar { background: #fff; border-bottom: 1px solid #e7e9ed; padding: 12px 22px; display: flex; align-items: center; gap: 16px; }
+  .logo { font-size: 17px; font-weight: 700; }
+  .nav { display: flex; gap: 4px; margin-left: 6px; }
+  .nav .t { padding: 5px 12px; border-radius: 7px; color: #5e6470; cursor: pointer; }
+  .nav .t.active { background: #eaf2ff; color: #1456f0; font-weight: 600; }
+  .search { margin-left: auto; }
+  .search input { width: 240px; padding: 7px 12px; border: 1px solid #d9dce1; border-radius: 8px; font-size: 13px; }
+
+  .stats { display: flex; gap: 12px; padding: 14px 22px; background: #fff; border-bottom: 1px solid #e7e9ed; }
+  .st { background: #f7f8fa; border: 1px solid #e7e9ed; border-radius: 10px; padding: 9px 18px; }
+  .st .n { font-size: 20px; font-weight: 700; }
+  .st .l { color: #8f959e; font-size: 11px; margin-top: 2px; }
+
+  .filters { display: flex; gap: 8px; padding: 12px 22px; flex-wrap: wrap; align-items: center; }
+  .chip { background: #fff; border: 1px solid #d9dce1; border-radius: 18px; padding: 5px 13px; color: #5e6470; cursor: pointer; font-size: 12px; }
+  .chip.on { background: #1456f0; color: #fff; border-color: #1456f0; }
+  .chip.gold.on { background: #f5a623; border-color: #f5a623; }
+  .chip.black.on { background: #d23; border-color: #d23; }
+
+  table { width: 100%; border-collapse: collapse; background: #fff; }
+  th { text-align: left; padding: 9px 12px; background: #fafbfc; color: #8f959e; font-weight: 600; font-size: 12px; border-bottom: 1px solid #e7e9ed; white-space: nowrap; }
+  td { padding: 10px 12px; border-bottom: 1px solid #f0f1f3; vertical-align: middle; }
+  tr:hover td { background: #fafcff; cursor: pointer; }
+  .nm { font-weight: 600; }
+  .hd { color: #a6abb3; font-size: 11px; margin-left: 5px; }
+  .reg { background: #eef1f4; border-radius: 4px; padding: 2px 7px; font-size: 11px; color: #5e6470; }
+  .reg.kr { background: #fbeaef; color: #c0397b; }
+  .type { background: #fff3e0; color: #b46a00; border-radius: 4px; padding: 2px 8px; font-size: 11px; }
+  .type.bm { background: #eafbf0; color: #0a7d33; }
+  .type.jc { background: #e8f0ff; color: #1456f0; }
+  .price { font-weight: 600; white-space: nowrap; }
+  .tag { display: inline-block; background: #f0e9ff; color: #6b3fd1; border-radius: 4px; padding: 2px 7px; font-size: 11px; margin: 1px 1px; }
+  .tag.b { background: #e6f7ff; color: #0a72b5; }
+  .worth { color: #1456f0; font-weight: 700; }
+  .worth .why { color: #8f959e; font-weight: 400; font-size: 11px; margin-left: 4px; }
+  .gold { background: #fff6e0; color: #b8860b; border: 1px solid #f3d27a; border-radius: 5px; padding: 2px 8px; font-size: 11px; font-weight: 700; }
+  .black { background: #fdecec; color: #d23; border-radius: 5px; padding: 2px 8px; font-size: 11px; }
+  .muted { color: #c8 ; color:#c2c8cf; }
+  .owner { font-size: 12px; }
+  .who { color: #8f959e; font-size: 12px; }
+  .hint { color: #8f959e; font-size: 12px; padding: 12px 22px; }
+  .ico { font-size: 11px; color: #a6abb3; }
 </style>
 </head>
 <body>
   <div class="topbar">
     <div class="logo">🗂️ 红人资源库</div>
-    <div class="tabs">
-      <div class="tab active">资源库</div>
-      <div class="tab">📊 进度看板</div>
+    <div class="nav">
+      <div class="t active">资源库</div>
+      <div class="t">📊 进度看板</div>
     </div>
-    <div class="search">
-      <input placeholder="🔍 搜名字 / handle / 主题…">
-      <span class="who">领导视角 · 已登录</span>
-    </div>
+    <div class="search"><input placeholder="🔍 搜外号 / handle / 主题…"></div>
   </div>
 
-  <div class="wrap">
-    <div class="stats">
-      <div class="stat"><div class="n">128</div><div class="l">红人总数</div></div>
-      <div class="stat"><div class="n">86</div><div class="l">已合作</div></div>
-      <div class="stat"><div class="n" style="color:#f5a623">23</div><div class="l">★ 优质</div></div>
-      <div class="stat"><div class="n" style="color:#d23">5</div><div class="l">黑名单</div></div>
-    </div>
-
-    <div class="filters">
-      <div class="chip on">全部</div>
-      <div class="chip">Instagram</div>
-      <div class="chip">TikTok</div>
-      <div class="chip">★ 仅优质</div>
-      <div class="chip">值得合作</div>
-      <div class="chip">黑名单</div>
-      <div class="chip">价格 &lt; $300</div>
-      <div class="chip">对接人 ▾</div>
-    </div>
-
-    <table>
-      <thead>
-        <tr>
-          <th>红人</th><th>平台</th><th>价格</th><th>授权</th>
-          <th>值得</th><th>优质</th><th>黑名单</th><th>对接人</th><th>最近沟通</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><div class="kol"><div class="av" style="background:#6c5ce7">J</div><div><div class="nm">janyourdiary_</div><div class="hd">@janyourdiary_</div></div></div></td>
-          <td><span class="plat">IG</span><span class="plat">TikTok</span><span class="plat">FB</span></td>
-          <td><span class="price">$250</span></td><td>1个月</td>
-          <td><span class="yes">✓</span></td><td><span class="star">★ 优质</span></td><td class="muted">—</td>
-          <td class="owner">小王</td>
-          <td class="sum">已报价 $250，等对方确认脚本方向</td>
-        </tr>
-        <tr>
-          <td><div class="kol"><div class="av" style="background:#00b894">M</div><div><div class="nm">Maria Lopez</div><div class="hd">@maria.beauty</div></div></div></td>
-          <td><span class="plat">Instagram</span></td>
-          <td><span class="price">$420</span></td><td>永久</td>
-          <td><span class="yes">✓</span></td><td><span class="star">★ 优质</span></td><td class="muted">—</td>
-          <td class="owner">小美 (2号)</td>
-          <td class="sum">已发布，效果好，问能不能续约</td>
-        </tr>
-        <tr>
-          <td><div class="kol"><div class="av" style="background:#0984e3">K</div><div><div class="nm">kenji_film</div><div class="hd">@kenji_film</div></div></div></td>
-          <td><span class="plat">YouTube</span><span class="plat">IG</span></td>
-          <td><span class="price">$600</span></td><td>3个月</td>
-          <td class="muted">—</td><td class="muted">未标记</td><td class="muted">—</td>
-          <td class="owner">小王</td>
-          <td class="sum">洽谈中，嫌报价低，在谈</td>
-        </tr>
-        <tr>
-          <td><div class="kol"><div class="av" style="background:#e17055">A</div><div><div class="nm">aria.travels</div><div class="hd">@aria.travels</div></div></div></td>
-          <td><span class="plat">TikTok</span></td>
-          <td><span class="price">$180</span></td><td>1个月</td>
-          <td><span class="yes">✓</span></td><td class="muted">未标记</td><td class="muted">—</td>
-          <td class="owner">小李</td>
-          <td class="sum">脚本已过，约本周拍摄</td>
-        </tr>
-        <tr style="opacity:.7">
-          <td><div class="kol"><div class="av" style="background:#b2bec3">L</div><div><div class="nm">luca_xyz</div><div class="hd">@luca_xyz</div></div></div></td>
-          <td><span class="plat">Instagram</span></td>
-          <td><span class="price">$300</span></td><td>—</td>
-          <td class="muted">—</td><td class="muted">—</td><td><span class="black">⚠ 放鸽子</span></td>
-          <td class="owner">小美</td>
-          <td class="sum">收了定金未交稿，已拉黑</td>
-        </tr>
-      </tbody>
-    </table>
-    <p style="color:#8a97a5;font-size:12px;margin-top:12px">点任意一行 → 右侧抽屉展开详情：身份 / 合同 / 历次合作记录 / 脚本主题 / 性格备注 / 沟通时间线。「优质」一项领导可改，其余只读。</p>
+  <div class="stats">
+    <div class="st"><div class="n">128</div><div class="l">红人总数</div></div>
+    <div class="st"><div class="n">86</div><div class="l">已合作</div></div>
+    <div class="st"><div class="n" style="color:#b8860b">23</div><div class="l">⭐ 优质（领导标）</div></div>
+    <div class="st"><div class="n" style="color:#1456f0">61</div><div class="l">实习生标「值得」</div></div>
+    <div class="st"><div class="n" style="color:#d23">5</div><div class="l">黑名单</div></div>
   </div>
+
+  <div class="filters">
+    <span class="who" style="margin-right:4px">筛选：</span>
+    <div class="chip on">全部</div>
+    <div class="chip gold on">⭐ 仅优质</div>
+    <div class="chip">值得合作</div>
+    <div class="chip black">黑名单</div>
+    <div class="chip">口播</div>
+    <div class="chip">宝妈</div>
+    <div class="chip">街采</div>
+    <div class="chip">TW</div>
+    <div class="chip">KR</div>
+    <div class="chip">价格 &lt; $300</div>
+    <div class="chip">对接人 ▾</div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>外号 / 红人</th><th>地区</th><th>类型</th><th>价格 / 平台</th><th>主题</th>
+        <th>值得合作（实习生）</th><th>⭐ 优质（领导）</th><th>黑名单</th><th>对接人</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="nm">尤栗妈</span><span class="hd">@joyce_yiling</span></td><td><span class="reg">TW</span></td><td><span class="type bm">宝妈</span></td><td class="price">3k / reel·tt</td><td><span class="tag b">宝妈带娃</span></td><td><span class="worth">✓ 值得<span class="why">配合度高、效果好</span></span></td><td><span class="gold">⭐ 优质</span></td><td class="muted">—</td><td class="owner">小美</td></tr>
+      <tr><td><span class="nm">达薪</span><span class="hd">@dashempower</span></td><td><span class="reg">TW</span></td><td><span class="type">口播</span></td><td class="price">900刀 / 2视频</td><td><span class="tag">拉踩录音上传ai</span></td><td><span class="worth">✓ 值得<span class="why">脚本理解快</span></span></td><td><span class="gold">⭐ 优质</span></td><td class="muted">—</td><td class="owner">小王</td></tr>
+      <tr><td><span class="nm">卷龙</span><span class="hd">@reels_drgn</span></td><td><span class="reg kr">KR</span></td><td><span class="type">口播</span></td><td class="price">30w / ig+tt+yt</td><td><span class="tag">拉踩录音上传ai</span></td><td><span class="worth">✓ 值得<span class="why">三平台一起发</span></span></td><td class="muted">未标</td><td class="muted">—</td><td class="owner">小美</td></tr>
+      <tr><td><span class="nm">hogan</span><span class="hd">@hogan.tech</span></td><td><span class="reg">TW</span></td><td><span class="type">口播</span></td><td class="price">2.5w台币 / 2条ig</td><td><span class="tag">拉踩GPT</span><span class="tag">付费AI</span></td><td class="muted">—</td><td class="muted">未标</td><td class="muted">—</td><td class="owner">小敏</td></tr>
+      <tr><td><span class="nm">小猪马</span><span class="hd">@nini90229</span></td><td><span class="reg">TW</span></td><td><span class="type jc">口播</span></td><td class="price">160USD / 2条igtt</td><td><span class="tag b">教育/育儿</span></td><td><span class="worth">✓ 值得<span class="why">便宜量大</span></span></td><td class="muted">未标</td><td class="muted">—</td><td class="owner">小敏</td></tr>
+      <tr style="opacity:.72"><td><span class="nm">格瑞斯</span><span class="hd">@zerotoscale_gr</span></td><td><span class="reg">TW</span></td><td><span class="type">口播</span></td><td class="price">5k一年 / igttytb</td><td><span class="tag b">小组件</span></td><td class="muted">—</td><td class="muted">—</td><td><span class="black">⚠ 鸽子姐</span></td><td class="owner">小敏</td></tr>
+      <tr style="opacity:.72"><td><span class="nm">菌子</span><span class="hd">@papa.juns_</span></td><td><span class="reg kr">KR</span></td><td><span class="type">口播</span></td><td class="price">—</td><td><span class="tag">拉踩录音上传ai</span></td><td class="muted">—</td><td class="muted">—</td><td><span class="black">⚠ 催不回</span></td><td class="owner">小李</td></tr>
+    </tbody>
+  </table>
+  <p class="hint">点任意一行 → 右侧抽屉展开详情：身份（App ID/法定名称/邮箱/付款）· <b>历次合作记录</b>（每次价格/平台/主题/脚本/授权期限）· 性格备注 · 沟通总结时间线 · 历任对接人。其中「⭐ 优质」领导可改，其余只读。</p>
 </body>
 </html>
