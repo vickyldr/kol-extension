@@ -353,10 +353,17 @@ async function generateFree(direction) {
   const originalText = button.textContent;
   button.disabled = true;
   button.textContent = faithful ? "正在翻译…" : "正在生成…";
+  const langLabel = (targetLanguage.value || "").trim() || "自动识别语言";
   freeStatus.textContent = faithful
-    ? `正在用${targetLanguage.value}忠实翻译……`
-    : `正在用${targetLanguage.value}润色你的话……`;
+    ? `正在用${langLabel}忠实翻译……`
+    : `正在用${langLabel}润色你的话……`;
   freeStatus.classList.remove("hidden");
+
+  // 如没有手动设置目标语言，从对话窗口自动探测红人语言
+  let freeLang = (targetLanguage.value || "").trim();
+  if (!freeLang) {
+    freeLang = await detectConversationLanguage();
+  }
 
   try {
     const body = await postRewrite({
@@ -364,7 +371,7 @@ async function generateFree(direction) {
       message: "",
       context: "",
       productId: productSelect.value,
-      replyLanguage: targetLanguage.value,
+      replyLanguage: freeLang,
       replyTarget: "",
       replyChinese: intent
     });
@@ -2043,6 +2050,32 @@ function localFallback(text) {
   };
 }
 
+// 从当前打开对话里取最近一条对方消息文本（用于无原文时识别目标语言）
+async function detectConversationLanguage() {
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab) return "";
+    const conv = await chrome.tabs.sendMessage(tab.id, { type: "KOL_GET_CONVERSATION" });
+    if (!conv || !conv.messages || !conv.messages.length) return "";
+    // 取最近一条"对方"消息作为语言探针
+    const theirMsgs = conv.messages.filter((m) => m.from !== "me" && m.from !== "colleague");
+    const probe = theirMsgs.length ? theirMsgs[theirMsgs.length - 1].text : "";
+    if (!probe || probe.length < 2) return "";
+    // 请求后端翻译接口识别语言（走缓存，不额外计费）
+    const res = await fetch(`${API_BASE}/api/translate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...authHeaders() },
+      body: JSON.stringify({ text: probe })
+    });
+    if (!res.ok) return "";
+    const data = await res.json();
+    const src = String(data.source_language || "").trim();
+    return (src && src !== "未知" && src !== "中文") ? src : "";
+  } catch (_) {
+    return "";
+  }
+}
+
 // 背后悄悄抓当前打开对话，当上下文（读屏；抓不到就返回空）
 async function getConversationContext() {
   try {
@@ -2083,9 +2116,12 @@ async function doReply(mode) {
   }
   const redText = messageInput.value.trim(); // 红人原文
   // 回复语言：手选优先；没选时——有红人原文就跟随红人语言（服务端识别），
-  // 没有红人原文就退回你设置的「常用语言」，避免翻译不出来只剩中文。
+  // 没有红人原文：先扫对话窗口自动识别，再退回「常用语言」设置。
   const pickedLang = (replyLanguageSelect?.value || "").trim();
-  const fallbackLang = pickedLang || (redText ? "" : (targetLanguage?.value || "").trim());
+  let fallbackLang = pickedLang || (redText ? "" : (targetLanguage?.value || "").trim());
+  if (!fallbackLang && !redText) {
+    fallbackLang = await detectConversationLanguage();
+  }
   const btn = document.getElementById(mode === "faithful" ? "do-faithful" : "do-polish");
   const orig = btn.textContent;
   btn.disabled = true;
