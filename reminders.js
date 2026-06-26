@@ -62,6 +62,12 @@ function openConversation(it) {
   }
 }
 
+function endOfToday() {
+  const d = new Date();
+  d.setHours(23, 59, 59, 999);
+  return d.getTime();
+}
+
 function computeItems(threads, todos, summaries) {
   const items = [];
   const looksLikeId = (x) => /^\d{6,}$/.test(String(x || ""));
@@ -73,59 +79,49 @@ function computeItems(threads, todos, summaries) {
     if (!title) title = (rec.inboxPreview || rec.lastMsgPreview || "").slice(0, 24);
     if (!title) title = "未命名对话";
     const sig = rec.judgeSignature || "";
-    // 最近一条消息预览（不打开对话就能看到对方说了什么）
-    const preview = (rec.lastMsgPreview || rec.inboxPreview || "").slice(0, 80);
-    // 合作进展摘要：从 kolSummaries 里按对话 key 或 threadId 找
+    // 一行总结：优先用「最新进度」（kolSummaries，离开对话时总结）。
+    // 没采集过 / 未读的：用 background 兜底生成的 autoSummary；都没有给个软提示（Phase4 会补全）。
     const sumRec = (summaries && (summaries[recKey] || (rec.threadId && summaries[rec.threadId]))) || null;
-    const summary = sumRec ? (sumRec.text || "").slice(0, 100) : "";
+    const summary =
+      (sumRec ? (sumRec.text || "").trim() : "") ||
+      (rec.autoSummary || "").trim() ||
+      "（还没读过，点进去看一眼，AI 会总结进度）";
 
+    // 🔴 立即回复：needsReplyRaw 天然含「未读 + 已读不回」
     if (rec.needsReplyRaw && j.is_pleasantry !== true && rec.replyDismissedSig !== sig) {
       const since = rec.lastCreatorMessageAt || rec.firstUnrepliedAt || rec.lastSeenAt;
       const elapsedMs = Date.now() - (Date.parse(since) || Date.now());
       const elapsedMin = Math.floor(elapsedMs / 60000);
-      const metaStr = elapsedMin < 60
-        ? `已等 ${elapsedMin} 分钟${rec.isOnline ? " · 🟢 在线" : ""}`
-        : `已等 ${daysSince(since)} 天${rec.isOnline ? " · 🟢 在线" : ""}`;
+      const unreadTag = rec.unread ? "未读" : "已读未回";
+      const elapsedStr = elapsedMin < 60 ? `${elapsedMin} 分钟` : `${daysSince(since)} 天`;
       items.push({
         kind: "reply", key: recKey, threadId: rec.threadId, isGroup: rec.isGroup, title,
         avatar: rec.avatarUrl || "",
-        label: rec.isOnline ? `🟢 ${title} 在线，快回复！` : (rec.needsReplyReason || j.reminder_label || "等你回复"),
-        ai: j.ai_note || "",
-        preview,
         summary,
-        meta: metaStr,
+        online: !!rec.isOnline,
+        meta: `${unreadTag} ${elapsedStr}${rec.isOnline ? " · 🟢 在线" : ""}`,
         elapsedMs
       });
     }
-    if (j.needs_follow_up && j.is_pleasantry !== true && rec.followDismissedSig !== sig) {
-      const threshold = Number.isFinite(Number(j.follow_up_after_days)) ? Number(j.follow_up_after_days) : 2;
-      const elapsed = daysSince(rec.judgedAt || rec.lastSeenAt);
-      if (elapsed >= threshold) {
-        items.push({
-          kind: "follow", key: recKey, threadId: rec.threadId, isGroup: rec.isGroup, title,
-          avatar: rec.avatarUrl || "",
-          label: j.reminder_label || `该跟进：${j.waiting_for || ""}`,
-          ai: j.ai_note || "",
-          preview,
-          summary,
-          meta: `在等：${j.waiting_for || "—"} · 已 ${elapsed} 天`,
-          elapsedMs: elapsed * 86400000
-        });
-      }
-    }
   });
+  // 待办：今天到点（含已过期）→🟠今天跟进；未来日期→📅以后
   (todos || []).forEach((t) => {
     if (!t || t.done || t.dismissed) return;
     const due = Date.parse(t.dueAt);
-    if (Number.isFinite(due) && due <= Date.now()) {
-      items.push({ kind: "todo", todoId: t.id, threadId: t.threadId || "", title: t.text, label: "", meta: `到点：${fmt(t.dueAt)}`, elapsedMs: Date.now() - due });
+    if (!Number.isFinite(due)) return;
+    if (due <= endOfToday()) {
+      items.push({ kind: "today", todoId: t.id, threadId: t.threadId || "", title: t.text, summary: "", meta: `到点：${fmt(t.dueAt)}`, elapsedMs: Date.now() - due });
+    } else {
+      items.push({ kind: "future", todoId: t.id, threadId: t.threadId || "", title: t.text, summary: "", meta: fmt(t.dueAt), elapsedMs: due - Date.now() });
     }
   });
-  // 按等待时间降序排列（等最久的排最上面，在线的优先）
+  // 🔴 在线优先、再按等最久降序；待办按到点先后
   items.sort((a, b) => {
-    const aOnline = a.label?.includes("在线") ? 1 : 0;
-    const bOnline = b.label?.includes("在线") ? 1 : 0;
-    if (bOnline !== aOnline) return bOnline - aOnline;
+    if (a.kind === "reply" && b.kind === "reply") {
+      const ao = a.online ? 1 : 0, bo = b.online ? 1 : 0;
+      if (bo !== ao) return bo - ao;
+      return (b.elapsedMs || 0) - (a.elapsedMs || 0);
+    }
     return (b.elapsedMs || 0) - (a.elapsedMs || 0);
   });
   return items;
@@ -172,42 +168,17 @@ function card(it) {
     av.onerror = () => av.remove();    // 链接失效就移除，不显示破图
     head.appendChild(av);
   }
+  const isTodo = it.kind === "today" || it.kind === "future";
   const t = document.createElement("div");
   t.className = "rc-title";
-  t.textContent = (it.kind === "todo" ? "📝 " : "") + (it.title || "");
+  t.textContent = (isTodo ? "📝 " : "") + (it.title || "");
   head.appendChild(t);
   el.appendChild(head);
-  if (it.label) {
-    const l = document.createElement("div");
-    l.className = "rc-label";
-    l.textContent = it.label;
-    el.appendChild(l);
-  }
-  // 最近消息预览（不用点开对话就能看到对方说了什么）
-  if (it.preview) {
-    const p = document.createElement("div");
-    p.className = "rc-preview";
-    p.textContent = "💬 " + it.preview;
-    el.appendChild(p);
-  }
-  // AI 判断摘要
-  if (it.ai) {
-    const a = document.createElement("div");
-    a.className = "rc-ai";
-    a.textContent = "🤖 " + it.ai;
-    el.appendChild(a);
-  }
-  // 合作进展历史（上次总结的对话背景）
+  // 一行总结（每条必有）：红人说到哪了 + 该干嘛。待办没有总结。
   if (it.summary) {
-    const s = document.createElement("details");
-    s.className = "rc-summary";
-    const sm = document.createElement("summary");
-    sm.textContent = "📋 合作进展";
-    s.appendChild(sm);
-    const st = document.createElement("div");
-    st.className = "rc-summary-text";
-    st.textContent = it.summary;
-    s.appendChild(st);
+    const s = document.createElement("div");
+    s.className = "rc-summary-line";
+    s.textContent = it.summary;
     el.appendChild(s);
   }
   const m = document.createElement("div");
@@ -217,14 +188,14 @@ function card(it) {
 
   const actions = document.createElement("div");
   actions.className = "rc-actions";
-  if (it.kind !== "todo") {
+  if (!isTodo) {
+    actions.appendChild(btn("打开对话", () => openConversation(it)));
+  } else if (it.threadId) {
     actions.appendChild(btn("打开对话", () => openConversation(it)));
   }
   if (it.kind === "reply") {
     actions.appendChild(btn("不用提醒了", async () => { await dismissThread(it.key, "reply"); render(); }));
-  } else if (it.kind === "follow") {
-    actions.appendChild(btn("不用提醒了", async () => { await dismissThread(it.key, "follow"); render(); }));
-  } else if (it.kind === "todo") {
+  } else if (isTodo) {
     actions.appendChild(btn("完成", async () => { await patchTodo(it.todoId, { done: true }); render(); }));
     actions.appendChild(btn("删除", async () => { await patchTodo(it.todoId, { dismissed: true }); render(); }));
   }
@@ -248,9 +219,9 @@ async function render() {
     return;
   }
   const groups = [
-    ["reply", "📥 待回复（红人发了我没回）"],
-    ["follow", "⏳ 待跟进（口头答应没推进 / 该催）"],
-    ["todo", "📝 待办"]
+    ["reply", "🔴 立即回复（含未读 + 已读不回）"],
+    ["today", "🟠 今天跟进"],
+    ["future", "📅 以后"]
   ];
   groups.forEach(([kind, name]) => {
     const sub = items.filter((i) => i.kind === kind);
