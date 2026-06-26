@@ -353,16 +353,13 @@ async function generateFree(direction) {
   const originalText = button.textContent;
   button.disabled = true;
   button.textContent = faithful ? "正在翻译…" : "正在生成…";
-  const langLabel = (targetLanguage.value || "").trim() || "自动识别语言";
-  freeStatus.textContent = faithful
-    ? `正在用${langLabel}忠实翻译……`
-    : `正在用${langLabel}润色你的话……`;
+  freeStatus.textContent = faithful ? "正在识别红人语言并翻译……" : "正在识别红人语言并润色……";
   freeStatus.classList.remove("hidden");
 
-  // 如没有手动设置目标语言，从对话窗口自动探测红人语言
-  let freeLang = (targetLanguage.value || "").trim();
+  // 永远优先匹配红人语言：先扫当前对话窗口识别，识别不到才退回「常用语言」设置。
+  let freeLang = await detectConversationLanguage();
   if (!freeLang) {
-    freeLang = await detectConversationLanguage();
+    freeLang = (targetLanguage.value || "").trim();
   }
 
   try {
@@ -587,14 +584,22 @@ async function rewriteFromChinese() {
   btn.textContent = "改写中…";
   errorBox.classList.add("hidden");
   const redText = messageInput.value.trim();
-  const pickedLang = (replyLanguageSelect?.value || "").trim();
+  // 永远优先匹配红人语言：有原文让服务端识别；没原文先扫对话窗口，最后才退回设置。
+  let lang = "";
+  if (!redText) {
+    lang = await detectConversationLanguage();
+    if (!lang) {
+      lang = (replyLanguageSelect?.value || "").trim()
+        || (targetLanguage?.value || "").trim();
+    }
+  }
   try {
     const body = await postRewrite({
       direction: "chinese_to_target",
       message: redText,
       context: redText,
       productId: productSelect.value,
-      replyLanguage: pickedLang || (redText ? "" : (targetLanguage?.value || "").trim()),
+      replyLanguage: lang,
       replyChinese: zh
     });
     replyTargetInput.value = body.reply_target || "";
@@ -2115,12 +2120,17 @@ async function doReply(mode) {
     return;
   }
   const redText = messageInput.value.trim(); // 红人原文
-  // 回复语言：手选优先；没选时——有红人原文就跟随红人语言（服务端识别），
-  // 没有红人原文：先扫对话窗口自动识别，再退回「常用语言」设置。
-  const pickedLang = (replyLanguageSelect?.value || "").trim();
-  let fallbackLang = pickedLang || (redText ? "" : (targetLanguage?.value || "").trim());
-  if (!fallbackLang && !redText) {
+  // 回复语言：永远优先匹配红人语言，不靠手动选择（90% 的同事不会去选）。
+  //   1) 有红人原文 → 留空，让服务端从原文识别语言；
+  //   2) 没有红人原文 → 先扫当前对话窗口自动识别红人语言；
+  //   3) 都识别不到 → 才退回手动选择 / 「常用语言」设置兜底。
+  let fallbackLang = "";
+  if (!redText) {
     fallbackLang = await detectConversationLanguage();
+    if (!fallbackLang) {
+      fallbackLang = (replyLanguageSelect?.value || "").trim()
+        || (targetLanguage?.value || "").trim();
+    }
   }
   const btn = document.getElementById(mode === "faithful" ? "do-faithful" : "do-polish");
   const orig = btn.textContent;
