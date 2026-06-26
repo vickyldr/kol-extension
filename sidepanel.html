@@ -101,8 +101,41 @@
           </div>
           <div id="kol-profile-body" class="kol-profile-body hidden">
             <div class="kol-profile-fields">
+              <label>外号（自己叫的小名）
+                <input id="kp-nickname" type="text" placeholder="给红人起的外号，比如 阳光哥、小猪马" />
+              </label>
+              <label>红人类型
+                <select id="kp-category">
+                  <option value="">未分类</option>
+                  <option value="口播">口播</option>
+                  <option value="街采">街采</option>
+                  <option value="宝妈">宝妈</option>
+                </select>
+              </label>
               <label>App User ID（给 ta 充积分用）
                 <input id="kp-appid" type="text" placeholder="红人在 App 里的 User ID（按图示让对方复制发来）" />
+              </label>
+              <div class="kol-profile-subhead">📋 合作信息（红人资源库用）</div>
+              <label>脚本 / 方向
+                <input id="kp-script" type="text" placeholder="这条片子的脚本方向，比如 拉踩录音上传ai" />
+              </label>
+              <label>主题
+                <input id="kp-theme" type="text" placeholder="内容主题，比如 教育/育儿、宝妈带娃" />
+              </label>
+              <label>性格备注（脾气好不好、会不会脱稿）
+                <textarea id="kp-temperament" rows="2" placeholder="比如：配合度高、脚本理解快；或：爱拖、容易脱稿"></textarea>
+              </label>
+              <label class="kp-check">
+                <input id="kp-recommend" type="checkbox" /> 值得合作（推荐以后再找 ta）
+              </label>
+              <label>推荐理由（为什么推荐）
+                <input id="kp-recommend-reason" type="text" placeholder="比如：效果好、三平台一起发" />
+              </label>
+              <label class="kp-check">
+                <input id="kp-blacklist" type="checkbox" /> ⚠ 拉黑（进黑名单）
+              </label>
+              <label>拉黑原因
+                <input id="kp-blacklist-reason" type="text" placeholder="比如：收了定金不交稿、催了好几次都不回" />
               </label>
               <div class="kol-profile-subhead">📄 合同信息（付款信息合并在这里）</div>
               <label>法定名称（合同抬头）

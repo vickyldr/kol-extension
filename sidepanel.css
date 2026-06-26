@@ -468,7 +468,9 @@ dialog::backdrop { background: rgba(20,24,36,.4); }
 .kol-profile-body { margin-top: 8px; }
 .kol-profile-fields { display: flex; flex-direction: column; gap: 10px; }
 .kol-profile-fields label { display: flex; flex-direction: column; gap: 4px; font-size: 11px; font-weight: 600; color: #6b7280; }
-.kol-profile-fields input, .kol-profile-fields textarea { font-size: 13px; }
+.kol-profile-fields input, .kol-profile-fields textarea, .kol-profile-fields select { font-size: 13px; }
+.kol-profile-fields label.kp-check { flex-direction: row; align-items: center; gap: 6px; color: #374151; font-weight: 600; }
+.kol-profile-fields label.kp-check input { width: auto; }
 .kol-profile-actions { display: flex; gap: 8px; margin-top: 10px; }
 .kol-profile-actions .danger-btn { color: #dc2626; background: #fef2f2; border: 1px solid #fca5a5; }
 .kol-profile-actions .danger-btn:hover { background: #fee2e2; }

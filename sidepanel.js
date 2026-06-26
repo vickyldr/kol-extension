@@ -2228,7 +2228,8 @@ statusButton.addEventListener("click", checkService);
 // ===== 本地记录备份 / 恢复（合作进度·提醒·待办·身份设置） =====
 const BACKUP_KEYS = [
   "kolSummaries", "kolThreads", "kolTodos", "kolQuickReplies",
-  "kolReminderSettings", "kolProactiveLang", "kolThreadsSchema", "kolProfiles"
+  "kolReminderSettings", "kolProactiveLang", "kolThreadsSchema", "kolProfiles",
+  "kolUnderstanding" // AI 当前阶段，供红人资源库/进度看板读
 ];
 function showBackupStatus(msg, ok) {
   const el = document.getElementById("backup-status");
@@ -2863,12 +2864,25 @@ initGuide();
   const saveBtn = document.getElementById("kol-profile-save");
   const deleteBtn = document.getElementById("kol-profile-delete");
   const statusEl = document.getElementById("kol-profile-status");
+  // 文本/下拉字段（值用 .value）
   const fields = {
+    nickname: document.getElementById("kp-nickname"),
+    category: document.getElementById("kp-category"),
     appid: document.getElementById("kp-appid"),
     legalname: document.getElementById("kp-legalname"),
     email: document.getElementById("kp-email"),
     payment: document.getElementById("kp-payment"),
+    script: document.getElementById("kp-script"),
+    theme: document.getElementById("kp-theme"),
+    temperament: document.getElementById("kp-temperament"),
+    recommendReason: document.getElementById("kp-recommend-reason"),
+    blacklistReason: document.getElementById("kp-blacklist-reason"),
     notes: document.getElementById("kp-notes")
+  };
+  // 勾选字段（值用 .checked）：值得合作 / 黑名单
+  const checks = {
+    recommend: document.getElementById("kp-recommend"),
+    blacklist: document.getElementById("kp-blacklist")
   };
   if (!nameInput) return;
 
@@ -2926,11 +2940,8 @@ initGuide();
   }
 
   function fillFields(profile) {
-    fields.appid.value = profile?.appid || "";
-    fields.legalname.value = profile?.legalname || "";
-    fields.email.value = profile?.email || "";
-    fields.payment.value = profile?.payment || "";
-    fields.notes.value = profile?.notes || "";
+    for (const k in fields) fields[k].value = profile?.[k] || "";
+    for (const k in checks) checks[k].checked = !!profile?.[k];
   }
 
   async function loadProfile(name) {
@@ -2975,16 +2986,14 @@ initGuide();
     const profiles = await getProfiles();
     // 保留 displayName（第一次存时用输入的，后续更新时保留原名，除非主动改了输入框）
     const existing = profiles[k] || {};
-    profiles[k] = {
+    const rec = {
       ...existing,
       displayName: rawName, // 输入的最新名字作为展示名
-      appid: fields.appid.value.trim(),
-      legalname: fields.legalname.value.trim(),
-      email: fields.email.value.trim(),
-      payment: fields.payment.value.trim(),
-      notes: fields.notes.value.trim(),
       updatedAt: new Date().toISOString()
     };
+    for (const fk in fields) rec[fk] = fields[fk].value.trim();
+    for (const ck in checks) rec[ck] = checks[ck].checked;
+    profiles[k] = rec;
     await saveProfiles(profiles);
     showStatus("已保存", true);
     refreshDatalist();

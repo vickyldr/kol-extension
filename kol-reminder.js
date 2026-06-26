@@ -497,6 +497,13 @@
       rec.firstUnrepliedAt = null;
     }
 
+    // 「最近跟进」锚点：从「待回复」翻转成「已回复」= 实习生刚回了 → 盖戳。
+    // 给红人资源库/进度看板算「多久没跟进 / 有没有漏人」用。
+    // 注意：只加这个字段，绝不改 needsReplyRaw 判定本身（见 CLAUDE.md §9.14）。
+    if ("needsReplyRaw" in patch && prev.needsReplyRaw && !patch.needsReplyRaw) {
+      rec.lastFollowUpAt = nowIso();
+    }
+
     // 精确计时：记录「最新一条红人消息」的到达时间，用于5分钟提醒倒计时。
     // 每次有新红人消息（preview 变了且还是待回复状态）就重置，避免"第三分钟又来一条却在第五分钟提醒"。
     if (patch.needsReplyRaw) {
