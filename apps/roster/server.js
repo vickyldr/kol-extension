@@ -101,10 +101,11 @@ function cleanGroupName(title) {
   return t || title;
 }
 // 产品缩写（写进代码文档，方便从 ins id 认产品）：
-//   vivavideo=VA  aicatch=AC  rythmix=RM  vivacut=VC  recco=RC  wisemeal=WM
+//   vivavideo=VA  aicatch=AC  rythmix=RM  vivacut=VC  recco=RC  wisemeal=WM  rymo=RY  inspo=IN
 const PRODUCTS = [
   ["vivavideo", "VA"], ["aicatch", "AC"], ["rythmix", "RM"],
-  ["vivacut", "VC"], ["recco", "RC"], ["wisemeal", "WM"]
+  ["vivacut", "VC"], ["recco", "RC"], ["wisemeal", "WM"],
+  ["rymo", "RY"], ["inspo", "IN"]
 ];
 const PRODUCT_CODES = PRODUCTS.map(([, c]) => c);
 // 从 ins id 认产品（aicatch_vip2 → AC）

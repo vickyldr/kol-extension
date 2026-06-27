@@ -113,5 +113,77 @@
       "不得承诺未确认的付款日期",
       "不得把内部预算上限发给红人"
     ]
+  },
+  {
+    "id": "wisemeal",
+    "name": "Wisemeal",
+    "status": "active",
+    "description": "产品资料待录入。暂时只生成通用回复，不编造产品名细节、社媒账号、下载链接或授权条件。",
+    "social_accounts": {},
+    "download_links": {},
+    "audience": "",
+    "selling_points": [],
+    "subscription_rule": "",
+    "default_platforms": [],
+    "usage_policy": "",
+    "payment_policy": "",
+    "brief_links": [],
+    "forbidden_claims": [
+      "产品资料未录入，不得自行编造产品信息、社媒账号或链接"
+    ]
+  },
+  {
+    "id": "vivacut",
+    "name": "VivaCut",
+    "status": "active",
+    "description": "产品资料待录入。暂时只生成通用回复，不编造产品名细节、社媒账号、下载链接或授权条件。",
+    "social_accounts": {},
+    "download_links": {},
+    "audience": "",
+    "selling_points": [],
+    "subscription_rule": "",
+    "default_platforms": [],
+    "usage_policy": "",
+    "payment_policy": "",
+    "brief_links": [],
+    "forbidden_claims": [
+      "产品资料未录入，不得自行编造产品信息、社媒账号或链接"
+    ]
+  },
+  {
+    "id": "rymo",
+    "name": "Rymo",
+    "status": "active",
+    "description": "产品资料待录入。暂时只生成通用回复，不编造产品名细节、社媒账号、下载链接或授权条件。",
+    "social_accounts": {},
+    "download_links": {},
+    "audience": "",
+    "selling_points": [],
+    "subscription_rule": "",
+    "default_platforms": [],
+    "usage_policy": "",
+    "payment_policy": "",
+    "brief_links": [],
+    "forbidden_claims": [
+      "产品资料未录入，不得自行编造产品信息、社媒账号或链接"
+    ]
+  },
+  {
+    "id": "inspo",
+    "name": "Inspo",
+    "status": "active",
+    "description": "产品资料待录入。暂时只生成通用回复，不编造产品名细节、社媒账号、下载链接或授权条件。",
+    "social_accounts": {},
+    "download_links": {},
+    "audience": "",
+    "selling_points": [],
+    "subscription_rule": "",
+    "default_platforms": [],
+    "usage_policy": "",
+    "payment_policy": "",
+    "brief_links": [],
+    "forbidden_claims": [
+      "产品资料未录入，不得自行编造产品信息、社媒账号或链接"
+    ]
   }
 ]
