@@ -6,7 +6,38 @@
 
   const THREADS_KEY = "kolThreads"; // 记账本：每个对话一条
   const SETTINGS_KEY = "kolReminderSettings"; // 身份设置：我的产品 / 产品清单 / 我的号
-  const DEFAULT_PREFIXES = ["recco", "rythmix", "aicatch", "vivavideo"];
+  const DEFAULT_PREFIXES = ["recco", "rythmix", "aicatch", "vivavideo", "vivacut", "wisemeal", "rymo", "inspo"];
+  // 产品别名：标准全名 → 可能写法（全名 + 两字代码）。只用来认「我方自己的号」属于哪个产品，
+  // 因为只作用在我自己的号上，两字代码再短也不怕误伤红人名字（红人不会用我们的命名规范）。
+  const PRODUCT_ALIASES = [
+    ["vivavideo", ["vivavideo", "va"]],
+    ["aicatch", ["aicatch", "aictach", "ac"]],
+    ["rythmix", ["rythmix", "rm"]],
+    ["vivacut", ["vivacut", "vc"]],
+    ["recco", ["recco", "rc"]],
+    ["wisemeal", ["wisemeal", "wm"]],
+    ["rymo", ["rymo", "ry"]],
+    ["inspo", ["inspo", "in"]]
+  ];
+  // 从「我方号」认产品：全名直接 includes；两字代码要后接分隔符/数字/结尾（防 "ryan" 命中 "ry"）。
+  function productFromHandle(handle) {
+    const h = String(handle || "").toLowerCase().replace(/^@/, "").trim();
+    if (!h) return "";
+    for (const [name, aliases] of PRODUCT_ALIASES) {
+      for (const a of aliases) {
+        const hit = a.length > 2 ? h.includes(a) : new RegExp("^" + a + "([_.\\-\\s\\d]|$)").test(h);
+        if (hit) return name;
+      }
+    }
+    return "";
+  }
+  // 把 href 解析成纯 ig handle（单段、非 IG 保留词）。/xiaoli/ → xiaoli；/direct/ → ""
+  const IG_RESERVED = new Set(["direct", "explore", "reels", "p", "stories", "accounts", "about", "instagram", "tv", "channel"]);
+  function bareHandleFromHref(href) {
+    const m = String(href || "").match(/^\/([a-z0-9._]+)\/?$/i);
+    if (!m) return "";
+    return IG_RESERVED.has(m[1].toLowerCase()) ? "" : m[1];
+  }
 
   let settings = {
     enabled: true,
@@ -141,19 +172,39 @@
   }
 
   // 登录后顺手认出「我自己的号」，自动判出我的产品（读不到就算了，可手填）
+  // 自动认出「我方号」+ 产品。每次 scan 都会再调一次：
+  //  - 已有号：只补一次产品（旧版只存了号没认产品时补救），然后早退。
+  //  - 没有号：从左侧导航栏「我的头像链接」抠 handle。导航栏才是登录账号入口，
+  //    比全局扫 img[alt*=头像] 稳得多（后者会扫到对话里红人的头像 → 认错号）。
   function maybeAutodetectHandle() {
-    if (settings.myHandle) return;
+    if (settings.myHandle) {
+      if (!settings.myProduct) {
+        const product = productFromHandle(settings.myHandle);
+        if (product) {
+          const next = { ...settings, myProduct: product };
+          settings = next;
+          chrome.storage.local.set({ [SETTINGS_KEY]: next });
+          log("补认产品:", product);
+        }
+      }
+      return;
+    }
     try {
-      // 个人头像/菜单里常带 href="/<myhandle>/"，或 IG 注入的全局变量
-      const link = document.querySelector('a[href^="/"][role="link"] img[alt*="头像"], a[href^="/"] img[alt*="profile picture"]');
       let handle = "";
-      if (link) {
-        const a = link.closest('a[href^="/"]');
-        const href = a && a.getAttribute("href");
-        if (href) handle = href.replace(/\//g, "").trim();
+      // 优先：导航栏里带头像 img 的个人主页链接（href="/<我的号>/"）
+      const navLinks = document.querySelectorAll('nav a[href^="/"], [role="navigation"] a[href^="/"]');
+      for (const a of navLinks) {
+        const h = bareHandleFromHref(a.getAttribute("href"));
+        if (h && a.querySelector("img")) { handle = h; break; }
+      }
+      // 兜底：老选择器（个人头像 alt），但用 bareHandleFromHref 过滤掉 /direct/ 这类
+      if (!handle) {
+        const link = document.querySelector('a[href^="/"][role="link"] img[alt*="头像"], a[href^="/"] img[alt*="profile picture"], a[href^="/"] img[alt*="个人资料照片"]');
+        const a = link && link.closest('a[href^="/"]');
+        if (a) handle = bareHandleFromHref(a.getAttribute("href"));
       }
       if (handle && handle.length < 40) {
-        const product = prefixes().find((p) => handle.toLowerCase().startsWith(p)) || "";
+        const product = productFromHandle(handle);
         const next = { ...settings, myHandle: handle };
         if (product && !settings.myProduct) next.myProduct = product;
         settings = next;
@@ -739,6 +790,7 @@
 
   async function scan() {
     if (!settings.enabled || !inDirect()) return;
+    maybeAutodetectHandle(); // 没认出号/产品时每轮重试（首次页面没渲染好会漏，这里补）
     try {
       // 1) 收件箱列表：把你划过的对话都记一笔。
       //    关键：只在列表里看到「未读」或「最后一条不是我发的」，就算待回复，
