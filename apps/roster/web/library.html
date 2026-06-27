@@ -32,6 +32,10 @@
   .tablewrap { overflow-x: auto; max-width: 100vw; -webkit-overflow-scrolling: touch; }
   table { width: 100%; border-collapse: collapse; background: #fff; min-width: 680px; }
   th { text-align: left; padding: 10px 16px; background: #fafbfc; color: #8f959e; font-weight: 600; font-size: 12px; border-bottom: 1px solid #e7e9ed; white-space: nowrap; }
+  th.sortable { cursor: pointer; user-select: none; }
+  th.sortable:hover { color: #1456f0; }
+  th.sortable::after { content: attr(data-arrow); color: #1456f0; }
+  td.num { font-variant-numeric: tabular-nums; color: #1f2329; }
   td { padding: 12px 16px; border-bottom: 1px solid #f0f1f3; vertical-align: middle; }
   tr.row:hover td { background: #fafcff; cursor: pointer; }
   .nm { font-weight: 600; font-size: 14px; }
@@ -99,7 +103,7 @@
   </div>
   <div class="tablewrap">
     <table>
-      <thead><tr><th>外号 / 红人</th><th>地区</th><th>类型</th><th>状态</th><th>对接人</th><th></th></tr></thead>
+      <thead><tr><th>外号 / 红人</th><th>地区</th><th>类型</th><th>状态</th><th class="sortable" data-sort="collabCount">合作次数</th><th class="sortable" data-sort="qualityCount">优质次数</th><th class="sortable" data-sort="qualityRate">优质率</th><th>对接人</th><th></th></tr></thead>
       <tbody id="rows"></tbody>
     </table>
   </div>
@@ -111,7 +115,9 @@
 <script>
 let DATA = { stats: {}, items: [], products: [] };
 let product = "all";
+let sortKey = "", sortDir = "desc";
 const F = { source: "all", status: "all", category: "all", region: "all" };
+function sortVal(p, k) { return k === "qualityRate" ? (p.collabCount ? p.qualityCount / p.collabCount : -1) : (p[k] || 0); }
 
 async function api(path, opts) {
   let token = localStorage.getItem("kolToken") || "";
@@ -162,6 +168,7 @@ function render() {
   ].map(([c, n, l]) => `<div class="fseg" style="background:${c}"><div class="n">${n}</div><div class="l">${l}</div></div>`).join("");
 
   const list = DATA.items.filter(matches);
+  if (sortKey) list.sort((a, b) => (sortVal(b, sortKey) - sortVal(a, sortKey)) * (sortDir === "desc" ? 1 : -1));
   document.getElementById("rows").innerHTML = list.map(p => {
     const nameCell = p.handle && p.nickname && p.nickname !== p.handle
       ? `<span class="nm">${esc(p.nickname)}</span> <span class="hd">@${esc(p.handle)}</span>`
@@ -180,6 +187,9 @@ function render() {
       <td>${p.region ? `<span class="reg ${esc(p.region)}">${esc(p.region)}</span>` : "—"}</td>
       <td>${p.category ? `<span class="type">${esc(p.category)}</span>` : "—"}</td>
       <td>${statusTag(p)}</td>
+      <td class="num">${p.collabCount || 0}</td>
+      <td class="num">${p.qualityCount || 0}</td>
+      <td class="num">${p.collabCount ? Math.round((p.qualityCount / p.collabCount) * 100) + "%" : "—"}</td>
       <td class="owner">${esc(ownersText(p.owners)) || "—"}</td>
       <td class="arrow">查看详情 ›</td>
     </tr>`;
@@ -258,6 +268,14 @@ function setupFilters() {
     });
   });
 }
+
+document.querySelectorAll("th.sortable").forEach(th => th.onclick = () => {
+  const k = th.dataset.sort;
+  if (sortKey === k) sortDir = sortDir === "desc" ? "asc" : "desc"; else { sortKey = k; sortDir = "desc"; }
+  document.querySelectorAll("th.sortable").forEach(x => x.dataset.arrow = "");
+  th.dataset.arrow = sortDir === "desc" ? " ↓" : " ↑";
+  render();
+});
 
 async function load() { DATA = await api("/api/roster"); setupFilters(); render(); }
 load();

@@ -303,7 +303,7 @@ function buildRoster() {
       updatedAt: prof.updatedAt || "",
       // 对接：ig账号 + 员工名（防换人/换号；员工名来自插件设置或 team 表，没填则空）
       owners: Object.keys(p.ownerIds).map((id) => ({ account: id, name: team[id] || staffMap[id] || "" })),
-      aliases: [], noId: false,
+      aliases: [], noId: false, collabCount: 0, qualityCount: 0,
       sources: ["群聊"] // 来自当前群聊扫描（实时）
     });
   }
@@ -350,6 +350,7 @@ function appendImport(out) {
       blacklist: r.blacklist === "1", blacklistReason: r.blacklistReason || "",
       price: r.price || "", platforms: plats, usagePeriod: "",
       quality: r.quality === "1",
+      collabCount: r.collabCount || 0, qualityCount: r.qualityCount || 0,
       stage: r.stage || "已完成", summary: "",
       threadId: "", isGroup: true, needsReplyRaw: false, firstUnrepliedAt: "", lastFollowUpAt: "", lastSeenAt: "", updatedAt: "",
       owners: r.owner ? [{ account: "", name: r.owner }] : [],
@@ -405,6 +406,9 @@ function mergePerson(t, p) {
   if (p.region && ((p.sources || []).includes("历史") || !t.region)) t.region = p.region;
   t.quality = t.quality || p.quality;
   t.recommend = t.recommend || p.recommend;
+  // 合作/优质视频数：跨产品累加（有人几个产品都合作/优质）
+  t.collabCount = (t.collabCount || 0) + (p.collabCount || 0);
+  t.qualityCount = (t.qualityCount || 0) + (p.qualityCount || 0);
   if (p.blacklist) { t.blacklist = true; if (!t.blacklistReason) t.blacklistReason = p.blacklistReason || ""; }
   // 实时字段：群聊的更权威
   if (!t.threadId && p.threadId) { t.threadId = p.threadId; t.isGroup = p.isGroup; }
