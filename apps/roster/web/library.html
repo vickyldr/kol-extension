@@ -41,6 +41,8 @@
   .src.both { background: #e8f7ee; color: #0a7d33; }
   .src.live { background: #eaf2ff; color: #1456f0; }
   .src.hist { background: #f3eefe; color: #6b3fd1; }
+  .src.noid { background: #fff3e0; color: #b46a00; }
+  .alias { color: #a6abb3; font-size: 11px; margin-left: 6px; }
   .reg { background: #eef1f4; border-radius: 4px; padding: 2px 7px; font-size: 11px; color: #5e6470; }
   .reg.KR { background: #fbeaef; color: #c0397b; } .reg.JP { background: #eaf7f0; color: #0a7d33; }
   .type { background: #fff3e0; color: #b46a00; border-radius: 4px; padding: 2px 8px; font-size: 11px; }
@@ -126,7 +128,7 @@ function statusTag(p) {
 }
 function matches(p) {
   const q = document.getElementById("q").value.trim().toLowerCase();
-  if (q && !`${p.displayName} ${p.nickname} ${p.handle} ${p.theme}`.toLowerCase().includes(q)) return false;
+  if (q && !`${p.displayName} ${p.nickname} ${p.handle} ${p.theme} ${(p.aliases || []).join(" ")}`.toLowerCase().includes(q)) return false;
   if (product !== "all" && !(p.products || []).includes(product)) return false;
   if (F.source !== "all" && !(p.sources || []).includes(F.source)) return false;
   if (F.status === "quality" && !p.quality) return false;
@@ -166,8 +168,10 @@ function render() {
     const srcTag = sr.includes("群聊") && sr.includes("历史") ? `<span class="src both">💬+📚</span>`
       : sr.includes("群聊") ? `<span class="src live">💬群聊</span>`
         : sr.includes("历史") ? `<span class="src hist">📚历史</span>` : "";
+    const alias = (p.aliases || []).length ? `<span class="alias">aka ${esc(p.aliases.join(" / "))}</span>` : "";
+    const noid = p.noId ? `<span class="src noid">⚠无ID</span>` : "";
     return `<tr class="row" data-k="${esc(p.key)}">
-      <td>${nameCell}${pcodes}${srcTag}</td>
+      <td>${nameCell}${alias}${pcodes}${srcTag}${noid}</td>
       <td>${p.region ? `<span class="reg ${esc(p.region)}">${esc(p.region)}</span>` : "—"}</td>
       <td>${p.category ? `<span class="type">${esc(p.category)}</span>` : "—"}</td>
       <td>${statusTag(p)}</td>
@@ -186,7 +190,7 @@ function openDrawer(p) {
   d.innerHTML = `
     <span class="close" onclick="closeDrawer()">✕</span>
     <h2>${esc(p.nickname || p.displayName)}</h2>
-    <div class="sub">${p.handle ? "@" + esc(p.handle) + " · " : ""}${esc(p.region)} ${esc(p.category)} ${(p.products || []).join(" ")}</div>
+    <div class="sub">${p.handle ? "@" + esc(p.handle) + " · " : ""}${esc(p.region)} ${esc(p.category)} ${(p.products || []).join(" ")}${(p.aliases || []).length ? " · 别名 " + esc(p.aliases.join(" / ")) : ""}${p.noId ? " · ⚠无ID待核对" : ""}</div>
     <button class="qbtn ${p.quality ? "on" : ""}" id="qbtn">${p.quality ? "⭐ 已标优质（点击取消）" : "标为 ⭐ 优质"}</button>
     <div class="grp">📋 合作信息</div>
     ${kv("价格", [p.price, ...(p.platforms || []), p.usagePeriod].filter(Boolean).join(" · "))}

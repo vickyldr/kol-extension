@@ -303,12 +303,13 @@ function buildRoster() {
       updatedAt: prof.updatedAt || "",
       // 对接：ig账号 + 员工名（防换人/换号；员工名来自插件设置或 team 表，没填则空）
       owners: Object.keys(p.ownerIds).map((id) => ({ account: id, name: team[id] || staffMap[id] || "" })),
+      aliases: [], noId: false,
       sources: ["群聊"] // 来自当前群聊扫描（实时）
     });
   }
-  // 折入历史导入表（上线表/进度表），按 handle/外号 交叉比对：对得上→补全+双来源，对不上→单独保留
-  foldImport(out);
-  return out;
+  // 追加历史导入，再统一按 handle 唯一合并（群聊跨产品 + 历史一起）
+  appendImport(out);
+  return mergeByHandle(out);
 }
 
 // 历史导入：读 live 覆盖或仓库种子
@@ -317,51 +318,64 @@ function loadImport() {
   const seed = path.join(__dirname, "seed", "roster-import.json");
   return readJSON(fs.existsSync(live) ? live : seed, []) || [];
 }
-// 把历史导入记录折进现有（群聊）列表：handle 或 外号 归一后匹配
-function foldImport(out) {
-  const imp = loadImport();
-  if (!imp.length) return;
-  const byHandle = {}, byNick = {};
-  for (const p of out) {
-    if (p.handle) byHandle[profileKey(p.handle)] = p;
-    if (p.nickname) byNick[profileKey(p.nickname)] = p;
-    if (p.displayName) byNick[profileKey(p.displayName)] = p;
-  }
-  for (const r of imp) {
-    const hk = profileKey(r.handle || ""), nk = profileKey(r.nickname || "");
-    const hit = (hk && byHandle[hk]) || (nk && byNick[nk]) || null;
+// 把历史导入记录都转成 person 记录追加进列表（不在这里匹配，交给 mergeByHandle 统一按 handle 合并）
+function appendImport(out) {
+  for (const r of loadImport()) {
     const plats = (r.platforms || "").split(" / ").map((s) => s.trim()).filter(Boolean);
-    if (hit) {
-      // 对得上：补全空字段 + 标双来源（历史的优质/黑名单也并入）
-      if (!hit.sources.includes("历史")) hit.sources.push("历史");
-      const fill = (k, v) => { if (v && !hit[k]) hit[k] = v; };
-      if (r.region) hit.region = r.region; // 导入表地区是权威，覆盖群聊名的启发式猜测
-      fill("nickname", r.nickname); fill("category", r.category);
-      fill("theme", r.theme); fill("price", r.price); fill("notes", r.notes);
-      if (r.quality === "1") hit.quality = true;
-      if (r.blacklist === "1") { hit.blacklist = true; hit.blacklistReason = hit.blacklistReason || r.blacklistReason || ""; }
-      if (!hit.platforms.length && plats.length) hit.platforms = plats;
-      if (r.product && !hit.products.includes(r.product)) hit.products.push(r.product);
-      if (r.owner && !hit.owners.some((o) => o.name === r.owner)) hit.owners.push({ account: "", name: r.owner });
-    } else {
-      // 对不上：作为「历史」红人单独加入（不进群聊看板）
-      out.push({
-        key: "import:" + (hk || nk),
-        displayName: r.nickname || r.handle || "", nickname: r.nickname || "", handle: r.handle || "",
-        category: r.category || "", region: r.region || "", products: r.product ? [r.product] : [],
-        appid: "", legalname: "", email: "", payment: "",
-        theme: r.theme || "", notes: r.notes || "",
-        recommend: false, recommendReason: "",
-        blacklist: r.blacklist === "1", blacklistReason: r.blacklistReason || "",
-        price: r.price || "", platforms: plats, usagePeriod: "",
-        quality: r.quality === "1",
-        stage: r.stage || "已完成", summary: "",
-        threadId: "", isGroup: true, needsReplyRaw: false, firstUnrepliedAt: "", lastFollowUpAt: "", lastSeenAt: "", updatedAt: "",
-        owners: r.owner ? [{ account: "", name: r.owner }] : [],
-        sources: ["历史"]
-      });
-    }
+    out.push({
+      key: "import:" + profileKey(r.handle || r.nickname || ""),
+      displayName: r.nickname || r.handle || "", nickname: r.nickname || "", handle: r.handle || "",
+      aliases: r.aliases || [], noId: !!r.noId,
+      category: r.category || "", region: r.region || "", products: r.product ? [r.product] : [],
+      appid: "", legalname: "", email: "", payment: "",
+      theme: r.theme || "", notes: r.notes || "",
+      recommend: false, recommendReason: "",
+      blacklist: r.blacklist === "1", blacklistReason: r.blacklistReason || "",
+      price: r.price || "", platforms: plats, usagePeriod: "",
+      quality: r.quality === "1",
+      stage: r.stage || "已完成", summary: "",
+      threadId: "", isGroup: true, needsReplyRaw: false, firstUnrepliedAt: "", lastFollowUpAt: "", lastSeenAt: "", updatedAt: "",
+      owners: r.owner ? [{ account: "", name: r.owner }] : [],
+      sources: ["历史"]
+    });
   }
+}
+// 唯一身份 = IG handle。同 handle → 合并成一条（不同外号收进 aliases、跨产品/对接人/来源并集）。
+// 没 handle 的不合并（标 noId 待人工核对）。绝不用外号判同一性（避免撞名误并）。
+function mergeByHandle(list) {
+  const byH = {};
+  const out = [];
+  for (const p of list) {
+    const h = profileKey(p.handle || "");
+    if (!h) { out.push(p); continue; }
+    if (!byH[h]) { byH[h] = p; out.push(p); continue; }
+    mergePerson(byH[h], p);
+  }
+  for (const p of out) p.aliases = (p.aliases || []).filter((a) => a && a !== p.nickname);
+  return out;
+}
+function mergePerson(t, p) {
+  t.aliases = t.aliases || [];
+  for (const a of [p.nickname, ...(p.aliases || [])])
+    if (a && a !== t.nickname && !t.aliases.includes(a)) t.aliases.push(a);
+  const fill = (k) => { if (!t[k] && p[k]) t[k] = p[k]; };
+  ["nickname", "displayName", "category", "theme", "price", "usagePeriod", "notes",
+    "appid", "legalname", "email", "payment", "recommendReason", "blacklistReason", "summary", "stage"].forEach(fill);
+  // 地区：历史导入(手填表)是权威，优先用它
+  if (p.region && ((p.sources || []).includes("历史") || !t.region)) t.region = p.region;
+  t.quality = t.quality || p.quality;
+  t.recommend = t.recommend || p.recommend;
+  if (p.blacklist) { t.blacklist = true; if (!t.blacklistReason) t.blacklistReason = p.blacklistReason || ""; }
+  // 实时字段：群聊的更权威
+  if (!t.threadId && p.threadId) { t.threadId = p.threadId; t.isGroup = p.isGroup; }
+  if (p.needsReplyRaw) t.needsReplyRaw = true;
+  if (p.lastFollowUpAt && (!t.lastFollowUpAt || p.lastFollowUpAt > t.lastFollowUpAt)) t.lastFollowUpAt = p.lastFollowUpAt;
+  if (p.firstUnrepliedAt && !t.firstUnrepliedAt) t.firstUnrepliedAt = p.firstUnrepliedAt;
+  t.platforms = [...new Set([...(t.platforms || []), ...(p.platforms || [])])];
+  t.products = [...new Set([...(t.products || []), ...(p.products || [])])];
+  const seen = new Set((t.owners || []).map((o) => o.account + "|" + o.name));
+  for (const o of p.owners || []) { const k = o.account + "|" + o.name; if (!seen.has(k)) { t.owners.push(o); seen.add(k); } }
+  t.sources = [...new Set([...(t.sources || []), ...(p.sources || [])])];
 }
 
 // ---------- 进度看板：从合并结果再算盯人/漏人 ----------
