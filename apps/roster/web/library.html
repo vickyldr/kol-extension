@@ -21,47 +21,22 @@
   .fseg { flex: 1; min-width: 120px; border-radius: 12px; padding: 13px 18px; color: #fff; }
   .fseg .n { font-size: 24px; font-weight: 800; }
   .fseg .l { font-size: 12px; opacity: .95; margin-top: 2px; }
-  /* 分类筛选 */
-  .fgroups { padding: 12px 22px; background: #fff; border-bottom: 1px solid #f0f1f3; }
-  .fgroup { display: flex; align-items: center; gap: 8px; margin: 5px 0; flex-wrap: wrap; }
-  .flabel { color: #8f959e; font-size: 12px; width: 64px; flex: none; }
-  .chip { background: #fff; border: 1px solid #d9dce1; border-radius: 16px; padding: 5px 13px; color: #5e6470; cursor: pointer; font-size: 12px; }
-  .chip.on { background: #1456f0; color: #fff; border-color: #1456f0; }
-  .chip.gold.on { background: #b8860b; border-color: #b8860b; }
-  .chip.black.on { background: #d23; border-color: #d23; }
-  .tablewrap { overflow-x: auto; max-width: 100vw; -webkit-overflow-scrolling: touch; }
-  table { width: 100%; border-collapse: collapse; background: #fff; min-width: 680px; }
-  th { text-align: left; padding: 10px 16px; background: #fafbfc; color: #8f959e; font-weight: 600; font-size: 12px; border-bottom: 1px solid #e7e9ed; white-space: nowrap; }
-  th.sortable { cursor: pointer; user-select: none; }
-  th.sortable:hover { color: #1456f0; }
-  th.sortable::after { content: attr(data-arrow); color: #1456f0; }
-  td.num { font-variant-numeric: tabular-nums; color: #1f2329; }
-  td { padding: 12px 16px; border-bottom: 1px solid #f0f1f3; vertical-align: middle; }
-  tr.row:hover td { background: #fafcff; cursor: pointer; }
   .nm { font-weight: 600; font-size: 14px; }
   .hd { color: #1456f0; font-size: 12px; }
+  .alias { color: #a6abb3; font-size: 11px; margin-left: 6px; }
   .pcode { background: #eef0ff; color: #4b3fd1; border-radius: 4px; padding: 1px 6px; font-size: 10px; margin-left: 5px; }
   .src { border-radius: 4px; padding: 1px 6px; font-size: 10px; margin-left: 5px; }
-  .src.both { background: #e8f7ee; color: #0a7d33; }
-  .src.live { background: #eaf2ff; color: #1456f0; }
-  .src.hist { background: #f3eefe; color: #6b3fd1; }
-  .src.noid { background: #fff3e0; color: #b46a00; }
-  .alias { color: #a6abb3; font-size: 11px; margin-left: 6px; }
+  .src.both { background: #e8f7ee; color: #0a7d33; } .src.live { background: #eaf2ff; color: #1456f0; }
+  .src.hist { background: #f3eefe; color: #6b3fd1; } .src.noid { background: #fff3e0; color: #b46a00; }
   .reg { background: #eef1f4; border-radius: 4px; padding: 2px 7px; font-size: 11px; color: #5e6470; }
   .reg.KR { background: #fbeaef; color: #c0397b; } .reg.JP { background: #eaf7f0; color: #0a7d33; }
   .type { background: #fff3e0; color: #b46a00; border-radius: 4px; padding: 2px 8px; font-size: 11px; }
   .gold { background: #fff6e0; color: #b8860b; border: 1px solid #f3d27a; border-radius: 5px; padding: 3px 9px; font-size: 12px; font-weight: 700; }
   .worth { background: #eaf2ff; color: #1456f0; border-radius: 5px; padding: 3px 9px; font-size: 12px; }
-  .conflict { background: #fff0e0; color: #c2540a; border: 1px solid #f3c08a; border-radius: 5px; padding: 3px 9px; font-size: 12px; font-weight: 600; }
-  .evalrow { padding: 7px 0; border-bottom: 1px solid #f0f1f3; font-size: 13px; }
-  .evalrow .who { color: #6d28d9; font-weight: 600; }
-  .evalrow .ev-y { color: #1456f0; } .evalrow .ev-b { color: #d23; } .evalrow .ev-n { color: #5e6470; }
   .black { background: #fdecec; color: #d23; border-radius: 5px; padding: 3px 9px; font-size: 12px; font-weight: 600; }
+  .conflict { background: #fff0e0; color: #c2540a; border: 1px solid #f3c08a; border-radius: 5px; padding: 3px 9px; font-size: 12px; font-weight: 600; }
   .muted { color: #c2c8cf; }
-  .owner { font-size: 12px; color: #5e6470; }
-  .arrow { color: #c2c8cf; white-space: nowrap; }
-  .empty { padding: 40px; text-align: center; color: #9aa6b2; }
-  .hint { color: #8f959e; font-size: 12px; padding: 14px 22px; }
+  .num { font-variant-numeric: tabular-nums; }
   .mask { position: fixed; inset: 0; background: rgba(0,0,0,.3); display: none; } .mask.on { display: block; }
   .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 420px; max-width: 92vw; background: #fff; box-shadow: -4px 0 24px rgba(0,0,0,.15); padding: 22px; overflow-y: auto; }
   .drawer h2 { font-size: 18px; } .drawer .sub { color: #8f959e; font-size: 12px; margin: 2px 0 14px; }
@@ -69,6 +44,9 @@
   .drawer .kv { display: flex; padding: 6px 0; border-bottom: 1px solid #f0f1f3; font-size: 13px; }
   .drawer .kv .k { width: 92px; color: #8f959e; flex: none; } .drawer .kv .v { flex: 1; white-space: pre-wrap; }
   .drawer .close { float: right; cursor: pointer; color: #8f959e; font-size: 20px; }
+  .evalrow { padding: 7px 0; border-bottom: 1px solid #f0f1f3; font-size: 13px; }
+  .evalrow .who { color: #6d28d9; font-weight: 600; }
+  .evalrow .ev-y { color: #1456f0; } .evalrow .ev-b { color: #d23; } .evalrow .ev-n { color: #5e6470; }
   .qbtn { margin-top: 4px; padding: 7px 14px; border: 1px solid #f3d27a; background: #fff6e0; color: #b8860b; border-radius: 8px; font-weight: 700; cursor: pointer; }
   .qbtn.on { background: #b8860b; color: #fff; }
 </style>
@@ -76,48 +54,18 @@
 <body>
   <div class="topbar">
     <div class="logo">🗂️ 红人资源库</div>
-    <div class="nav">
-      <a class="active" href="/">资源库</a>
-      <a href="/board">📊 跟进看板</a>
-    </div>
-    <div class="search"><input id="q" placeholder="🔍 搜外号 / handle / 主题…"></div>
+    <div class="nav"><a class="active" href="/">资源库</a><a href="/board">📊 跟进看板</a></div>
+    <div class="search"><input id="q" placeholder="🔍 搜外号 / handle / 主题 / 别名…"></div>
   </div>
   <div class="ptabs" id="ptabs"></div>
   <div class="funnel" id="funnel"></div>
-  <div class="fgroups">
-    <div class="fgroup" data-grp="source">
-      <span class="flabel">来源</span>
-      <div class="chip on" data-v="all">全部</div>
-      <div class="chip" data-v="群聊">💬 群聊（实时）</div>
-      <div class="chip" data-v="历史">📚 历史（导入）</div>
-    </div>
-    <div class="fgroup" data-grp="status">
-      <span class="flabel">状态</span>
-      <div class="chip on" data-v="all">全部</div>
-      <div class="chip gold" data-v="quality">⭐ 优质</div>
-      <div class="chip" data-v="recommend">👍 值得合作</div>
-      <div class="chip black" data-v="blacklist">⚠ 黑名单</div>
-    </div>
-    <div class="fgroup" data-grp="category"><span class="flabel">红人类型</span></div>
-    <div class="fgroup" data-grp="region"><span class="flabel">语言地区</span></div>
-  </div>
-  <div class="tablewrap">
-    <table>
-      <thead><tr><th>外号 / 红人</th><th>地区</th><th>类型</th><th>状态</th><th class="sortable" data-sort="collabCount">合作次数</th><th class="sortable" data-sort="qualityCount">优质次数</th><th class="sortable" data-sort="qualityRate">优质率</th><th>对接人</th><th></th></tr></thead>
-      <tbody id="rows"></tbody>
-    </table>
-  </div>
-  <div class="empty" id="empty" style="display:none">没有匹配的红人。数据来自插件备份，实习生填了才会出现。</div>
-  <p class="hint">列表只留 外号/handle/地区/类型/状态/对接人——点行看详情（价格/主题/合同/沟通记录）。「⭐优质」领导可改，其余只读。</p>
-
+  <div id="grid"></div>
   <div class="mask" id="mask"><div class="drawer" id="drawer"></div></div>
 
+<script src="/web/grid.js"></script>
 <script>
-let DATA = { stats: {}, items: [], products: [] };
-let product = "all";
-let sortKey = "", sortDir = "desc";
-const F = { source: "all", status: "all", category: "all", region: "all" };
-function sortVal(p, k) { return k === "qualityRate" ? (p.collabCount ? p.qualityCount / p.collabCount : -1) : (p[k] || 0); }
+let DATA = { items: [], products: [] };
+let product = "all", grid;
 
 async function api(path, opts) {
   let token = localStorage.getItem("kolToken") || "";
@@ -129,7 +77,7 @@ async function api(path, opts) {
 }
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
 function ownersText(arr) { return (arr || []).map(o => o.name ? `${o.name}（${o.account}）` : o.account).join("、"); }
-
+function statusVal(p) { return p.conflict ? "评价分歧" : p.quality ? "优质" : p.blacklist ? "黑名单" : p.recommend ? "值得" : "未标"; }
 function statusTag(p) {
   if (p.conflict) return `<span class="conflict">⚠ 评价分歧</span>`;
   if (p.quality) return `<span class="gold">⭐ 优质</span>`;
@@ -137,73 +85,59 @@ function statusTag(p) {
   if (p.recommend) return `<span class="worth">👍 值得</span>`;
   return `<span class="muted">未标</span>`;
 }
-function matches(p) {
-  const q = document.getElementById("q").value.trim().toLowerCase();
-  if (q && !`${p.displayName} ${p.nickname} ${p.handle} ${p.theme} ${(p.aliases || []).join(" ")}`.toLowerCase().includes(q)) return false;
-  if (product !== "all" && !(p.products || []).includes(product)) return false;
-  if (F.source !== "all" && !(p.sources || []).includes(F.source)) return false;
-  if (F.status === "quality" && !p.quality) return false;
-  if (F.status === "recommend" && !p.recommend) return false;
-  if (F.status === "blacklist" && !p.blacklist) return false;
-  if (F.category !== "all" && p.category !== F.category) return false;
-  if (F.region !== "all" && p.region !== F.region) return false;
-  return true;
+function srcTagHtml(p) {
+  const s = p.sources || [];
+  const t = s.includes("群聊") && s.includes("历史") ? `<span class="src both">💬+📚</span>`
+    : s.includes("群聊") ? `<span class="src live">💬群聊</span>` : s.includes("历史") ? `<span class="src hist">📚历史</span>` : "";
+  return t + (p.noId ? `<span class="src noid">⚠无ID</span>` : "");
 }
+function nameCell(p) {
+  const main = p.handle ? `<span class="nm">${esc(p.nickname || p.displayName)}</span> <span class="hd">@${esc(p.handle)}</span>` : `<span class="nm">${esc(p.displayName)}</span>`;
+  const alias = (p.aliases || []).length ? `<span class="alias">aka ${esc(p.aliases.join(" / "))}</span>` : "";
+  const pcodes = (p.products || []).map(x => `<span class="pcode">${x}</span>`).join("");
+  return main + alias + pcodes + srcTagHtml(p);
+}
+
+const columns = [
+  { key: "name", label: "外号 / 红人", val: p => p.nickname || p.displayName, cell: nameCell, sortable: true },
+  { key: "region", label: "地区", val: p => p.region, cell: p => p.region ? `<span class="reg ${esc(p.region)}">${esc(p.region)}</span>` : "—", groupable: true, filterable: true },
+  { key: "category", label: "类型", val: p => p.category, cell: p => p.category ? `<span class="type">${esc(p.category)}</span>` : "—", groupable: true, filterable: true },
+  { key: "products", label: "产品", val: p => p.products, cell: p => (p.products || []).map(x => `<span class="pcode">${x}</span>`).join("") || "—", groupable: true, filterable: true },
+  { key: "source", label: "来源", val: p => p.sources, cell: srcTagHtml, groupable: true, filterable: true },
+  { key: "status", label: "状态", val: statusVal, cell: statusTag, groupable: true, filterable: true },
+  { key: "collabCount", label: "合作次数", val: p => p.collabCount || 0, cell: p => `<span class="num">${p.collabCount || 0}</span>`, sortable: true },
+  { key: "qualityCount", label: "优质次数", val: p => p.qualityCount || 0, cell: p => `<span class="num">${p.qualityCount || 0}</span>`, sortable: true },
+  { key: "qualityRate", label: "优质率", val: p => p.collabCount ? p.qualityCount / p.collabCount : -1, cell: p => p.collabCount ? Math.round(p.qualityCount / p.collabCount * 100) + "%" : "—", sortable: true },
+  { key: "owner", label: "对接人", val: p => (p.owners || []).map(o => o.name || o.account), cell: p => esc(ownersText(p.owners)) || "—", groupable: true, filterable: true }
+];
 
 function renderTabs() {
   const tabs = ["all", ...(DATA.products || [])];
-  document.getElementById("ptabs").innerHTML = tabs.map(p =>
-    `<div class="ptab ${p === product ? "on" : ""}" data-p="${p}">${p === "all" ? "总表" : p}</div>`).join("");
-  document.querySelectorAll(".ptab").forEach(t => t.onclick = () => { product = t.dataset.p; render(); });
+  document.getElementById("ptabs").innerHTML = tabs.map(p => `<div class="ptab ${p === product ? "on" : ""}" data-p="${p}">${p === "all" ? "总表" : p}</div>`).join("");
+  document.querySelectorAll(".ptab").forEach(t => t.onclick = () => { product = t.dataset.p; apply(); });
 }
-
-function render() {
-  renderTabs();
-  const s = DATA.stats || {};
+function renderFunnel(list) {
+  const s = { total: list.length, quality: list.filter(p => p.quality).length, recommend: list.filter(p => p.recommend && !p.quality).length, blacklist: list.filter(p => p.blacklist).length };
   document.getElementById("funnel").innerHTML = [
-    ["#5e6470", s.total || 0, "红人总数"],
-    ["#b8860b", s.quality || 0, "⭐ 优质（领导标）"],
-    ["#1456f0", s.recommend || 0, "👍 值得合作"],
-    ["#d23", s.blacklist || 0, "⚠ 黑名单"]
+    ["#5e6470", s.total, "红人数（当前视图）"], ["#b8860b", s.quality, "⭐ 优质"], ["#1456f0", s.recommend, "👍 值得合作"], ["#d23", s.blacklist, "⚠ 黑名单"]
   ].map(([c, n, l]) => `<div class="fseg" style="background:${c}"><div class="n">${n}</div><div class="l">${l}</div></div>`).join("");
-
-  const list = DATA.items.filter(matches);
-  if (sortKey) list.sort((a, b) => (sortVal(b, sortKey) - sortVal(a, sortKey)) * (sortDir === "desc" ? 1 : -1));
-  document.getElementById("rows").innerHTML = list.map(p => {
-    const nameCell = p.handle && p.nickname && p.nickname !== p.handle
-      ? `<span class="nm">${esc(p.nickname)}</span> <span class="hd">@${esc(p.handle)}</span>`
-      : p.handle
-        ? `<span class="nm">${esc(p.displayName)}</span> <span class="hd">@${esc(p.handle)}</span>`
-        : `<span class="nm">${esc(p.displayName)}</span>`;
-    const pcodes = (p.products || []).map(x => `<span class="pcode">${x}</span>`).join("");
-    const sr = p.sources || [];
-    const srcTag = sr.includes("群聊") && sr.includes("历史") ? `<span class="src both">💬+📚</span>`
-      : sr.includes("群聊") ? `<span class="src live">💬群聊</span>`
-        : sr.includes("历史") ? `<span class="src hist">📚历史</span>` : "";
-    const alias = (p.aliases || []).length ? `<span class="alias">aka ${esc(p.aliases.join(" / "))}</span>` : "";
-    const noid = p.noId ? `<span class="src noid">⚠无ID</span>` : "";
-    return `<tr class="row" data-k="${esc(p.key)}">
-      <td>${nameCell}${alias}${pcodes}${srcTag}${noid}</td>
-      <td>${p.region ? `<span class="reg ${esc(p.region)}">${esc(p.region)}</span>` : "—"}</td>
-      <td>${p.category ? `<span class="type">${esc(p.category)}</span>` : "—"}</td>
-      <td>${statusTag(p)}</td>
-      <td class="num">${p.collabCount || 0}</td>
-      <td class="num">${p.qualityCount || 0}</td>
-      <td class="num">${p.collabCount ? Math.round((p.qualityCount / p.collabCount) * 100) + "%" : "—"}</td>
-      <td class="owner">${esc(ownersText(p.owners)) || "—"}</td>
-      <td class="arrow">查看详情 ›</td>
-    </tr>`;
-  }).join("");
-  document.getElementById("empty").style.display = list.length ? "none" : "block";
-  document.querySelectorAll("tr.row").forEach(tr =>
-    tr.onclick = () => openDrawer(DATA.items.find(x => x.key === tr.dataset.k)));
+}
+function apply() {
+  renderTabs();
+  const q = document.getElementById("q").value.trim().toLowerCase();
+  const list = DATA.items.filter(p => {
+    if (product !== "all" && !(p.products || []).includes(product)) return false;
+    if (q && !`${p.displayName} ${p.nickname} ${p.handle} ${p.theme} ${(p.aliases || []).join(" ")}`.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  grid.setData(list);
 }
 
 function kv(k, v) { return v ? `<div class="kv"><span class="k">${k}</span><span class="v">${esc(v)}</span></div>` : ""; }
 function evalListHtml(p) {
   const evs = p.evaluations || [];
-  if (!evs.length) return `<div class="evalrow ev-n">暂无评价（实习生还没填值得/黑名单/备注）</div>`;
-  return evs.map((e) => {
+  if (!evs.length) return `<div class="evalrow ev-n">暂无评价</div>`;
+  return evs.map(e => {
     const parts = [];
     if (e.recommend) parts.push(`<span class="ev-y">👍值得${e.recommendReason ? "·" + esc(e.recommendReason) : ""}</span>`);
     if (e.blacklist) parts.push(`<span class="ev-b">⚠拉黑${e.blacklistReason ? "·" + esc(e.blacklistReason) : ""}</span>`);
@@ -213,21 +147,22 @@ function evalListHtml(p) {
   }).join("");
 }
 function openDrawer(p) {
-  const d = document.getElementById("drawer");
-  d.innerHTML = `
+  document.getElementById("drawer").innerHTML = `
     <span class="close" onclick="closeDrawer()">✕</span>
     <h2>${esc(p.nickname || p.displayName)}</h2>
     <div class="sub">${p.handle ? "@" + esc(p.handle) + " · " : ""}${esc(p.region)} ${esc(p.category)} ${(p.products || []).join(" ")}${(p.aliases || []).length ? " · 别名 " + esc(p.aliases.join(" / ")) : ""}${p.noId ? " · ⚠无ID待核对" : ""}</div>
     <button class="qbtn ${p.quality ? "on" : ""}" id="qbtn">${p.quality ? "⭐ 已标优质（点击取消）" : "标为 ⭐ 优质"}</button>
+    <div class="grp">📊 合作统计</div>
+    ${kv("合作次数", String(p.collabCount || 0) + " 个视频")}
+    ${kv("优质次数", String(p.qualityCount || 0))}
+    ${kv("优质率", p.collabCount ? Math.round(p.qualityCount / p.collabCount * 100) + "%" : "—")}
     <div class="grp">📋 合作信息</div>
     ${kv("价格", [p.price, ...(p.platforms || []), p.usagePeriod].filter(Boolean).join(" · "))}
-    ${kv("主题", p.theme)}
-    ${kv("当前阶段", p.stage)}
-    ${kv("最近沟通", p.summary)}
+    ${kv("主题", p.theme)} ${kv("当前阶段", p.stage)} ${kv("最近沟通", p.summary)}
     <div class="grp">👥 各对接人评价${p.conflict ? ' <span class="conflict">⚠ 分歧</span>' : ""}</div>
     ${evalListHtml(p)}
     <div class="grp">📄 合同 / 身份</div>
-    ${kv("App ID", p.appid)} ${kv("法定名称", p.legalname)} ${kv("邮箱", p.email)} ${kv("付款", p.payment)} ${kv("备注", p.notes)}
+    ${kv("App ID", p.appid)} ${kv("法定名称", p.legalname)} ${kv("邮箱", p.email)} ${kv("付款", p.payment)}
     <div class="grp">👥 对接</div>
     ${kv("对接人", ownersText(p.owners))}
   `;
@@ -235,8 +170,7 @@ function openDrawer(p) {
   document.getElementById("qbtn").onclick = async () => {
     const r = await api(`/api/roster/${encodeURIComponent(p.key)}/leader`, {
       method: "POST",
-      headers: Object.assign({ "Content-Type": "application/json" },
-        localStorage.getItem("kolAdmin") ? { "X-KOL-Admin": localStorage.getItem("kolAdmin") } : {}),
+      headers: Object.assign({ "Content-Type": "application/json" }, localStorage.getItem("kolAdmin") ? { "X-KOL-Admin": localStorage.getItem("kolAdmin") } : {}),
       body: JSON.stringify({ quality: !p.quality })
     });
     if (r && r.ok !== false) { p.quality = !p.quality; openDrawer(p); load(); }
@@ -244,40 +178,18 @@ function openDrawer(p) {
 }
 function closeDrawer() { document.getElementById("mask").classList.remove("on"); }
 document.getElementById("mask").onclick = e => { if (e.target.id === "mask") closeDrawer(); };
+document.getElementById("q").oninput = apply;
 
-document.getElementById("q").oninput = render;
-
-function distinctVals(key) {
-  const s = new Set();
-  DATA.items.forEach(p => { const v = p[key]; if (v) s.add(v); });
-  return [...s].sort();
-}
-function setupFilters() {
-  // 动态填「红人类型 / 语言地区」chips（值随数据，Rythmix 是 DE/SP/TR/BR…）
-  for (const grp of ["category", "region"]) {
-    const g = document.querySelector(`.fgroup[data-grp="${grp}"]`);
-    g.querySelectorAll(".chip").forEach(c => c.remove());
-    const all = document.createElement("div"); all.className = "chip on"; all.dataset.v = "all"; all.textContent = "全部"; g.appendChild(all);
-    distinctVals(grp).forEach(v => { const c = document.createElement("div"); c.className = "chip"; c.dataset.v = v; c.textContent = v; g.appendChild(c); });
-  }
-  document.querySelectorAll(".fgroup").forEach(g => {
-    const grp = g.dataset.grp;
-    g.querySelectorAll(".chip").forEach(c => c.onclick = () => {
-      g.querySelectorAll(".chip").forEach(x => x.classList.remove("on"));
-      c.classList.add("on"); F[grp] = c.dataset.v; render();
-    });
+async function load() {
+  DATA = await api("/api/roster");
+  grid = createGrid({
+    mount: document.getElementById("grid"), columns,
+    sortKey: "", sortDir: "desc", rowKey: p => p.key,
+    onVisible: renderFunnel,
+    onRowClick: k => { const p = DATA.items.find(x => x.key === k); if (p) openDrawer(p); }
   });
+  apply();
 }
-
-document.querySelectorAll("th.sortable").forEach(th => th.onclick = () => {
-  const k = th.dataset.sort;
-  if (sortKey === k) sortDir = sortDir === "desc" ? "asc" : "desc"; else { sortKey = k; sortDir = "desc"; }
-  document.querySelectorAll("th.sortable").forEach(x => x.dataset.arrow = "");
-  th.dataset.arrow = sortDir === "desc" ? " ↓" : " ↑";
-  render();
-});
-
-async function load() { DATA = await api("/api/roster"); setupFilters(); render(); }
 load();
 </script>
 </body>
