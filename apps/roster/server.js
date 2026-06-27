@@ -307,9 +307,26 @@ function buildRoster() {
       sources: ["群聊"] // 来自当前群聊扫描（实时）
     });
   }
-  // 追加历史导入，再统一按 handle 唯一合并（群聊跨产品 + 历史一起）
+  // 追加历史导入。注意：这里返回「未合并」的原始记录（每个群聊/每条历史一行）。
+  // 资源库按 handle 合并成一人一行；看板要按群聊粒度，所以合并只在 buildLibrary 做。
   appendImport(out);
-  return mergeByHandle(out);
+  return out;
+}
+
+// handle → 统一外号/别名（给看板每行补外号显示，但不合并行）
+function nickIndex(list) {
+  const idx = {};
+  for (const p of list) {
+    const h = profileKey(p.handle || "");
+    if (!h) continue;
+    const e = idx[h] || (idx[h] = { nickname: "", aliases: [] });
+    for (const a of [p.nickname, ...(p.aliases || [])]) {
+      if (!a) continue;
+      if (!e.nickname) e.nickname = a;
+      else if (a !== e.nickname && !e.aliases.includes(a)) e.aliases.push(a);
+    }
+  }
+  return idx;
 }
 
 // 历史导入：读 live 覆盖或仓库种子
@@ -382,10 +399,13 @@ function mergePerson(t, p) {
 function buildBoard() {
   const all = buildRoster();
   const now = Date.now();
+  const nidx = nickIndex(all); // 借 handle 给每行补统一外号（不合并行）
   // 跟进看板只看「当前群聊」（实时）。历史导入的红人不进看板，只进资源库。
+  // 按群聊粒度：同一人在 2 个群 = 2 行待办（不同产品/对接人各自处理）。
   const active = all.filter((p) => (p.sources || []).includes("群聊"));
 
   const items = active.map((p) => {
+    const ni = nidx[profileKey(p.handle || "")] || {};
     const fu = ts(p.lastFollowUpAt);
     const daysSinceFollow = fu ? Math.floor((now - fu) / DAY) : null;
     // 漏人：红人发了消息、对接人还没回；隔夜 = firstUnrepliedAt 超过 1 天。
@@ -395,7 +415,7 @@ function buildBoard() {
     const overnight = missed && overdueMs > DAY;
     return {
       key: p.key,
-      name: p.nickname || p.displayName,
+      name: ni.nickname || p.nickname || p.displayName,
       handle: p.handle,
       region: p.region,
       category: p.category,
@@ -456,7 +476,8 @@ function productsIn(items) {
 
 // ---------- 资源库统计 ----------
 function buildLibrary() {
-  const all = buildRoster();
+  // 资源库：按 handle 合并成一人一行（看板不合并，见 buildBoard）
+  const all = mergeByHandle(buildRoster());
   const stats = {
     total: all.length,
     quality: all.filter((p) => p.quality).length,
