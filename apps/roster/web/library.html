@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>红人资源库</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f4f5f7; color: #1f2329; font-size: 13px; }
+  .topbar { background: #fff; border-bottom: 1px solid #e7e9ed; padding: 12px 22px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .logo { font-size: 17px; font-weight: 700; }
+  .nav { display: flex; gap: 4px; margin-left: 6px; }
+  .nav a { padding: 5px 12px; border-radius: 7px; color: #5e6470; cursor: pointer; text-decoration: none; }
+  .nav a.active { background: #eaf2ff; color: #1456f0; font-weight: 600; }
+  .search { margin-left: auto; }
+  .search input { width: 280px; padding: 8px 13px; border: 1px solid #d9dce1; border-radius: 9px; font-size: 14px; }
+  .funnel { display: flex; gap: 10px; padding: 18px 22px; background: #fff; border-bottom: 1px solid #e7e9ed; flex-wrap: wrap; }
+  .fseg { flex: 1; min-width: 130px; border-radius: 12px; padding: 14px 18px; color: #fff; }
+  .fseg .n { font-size: 26px; font-weight: 800; }
+  .fseg .l { font-size: 12px; opacity: .95; margin-top: 2px; }
+  .filters { display: flex; gap: 8px; padding: 14px 22px; flex-wrap: wrap; align-items: center; }
+  .who { color: #8f959e; font-size: 12px; margin-right: 4px; }
+  .chip { background: #fff; border: 1px solid #d9dce1; border-radius: 18px; padding: 6px 14px; color: #5e6470; cursor: pointer; font-size: 12px; }
+  .chip.on { background: #1456f0; color: #fff; border-color: #1456f0; }
+  table { width: 100%; border-collapse: collapse; background: #fff; }
+  th { text-align: left; padding: 10px 16px; background: #fafbfc; color: #8f959e; font-weight: 600; font-size: 12px; border-bottom: 1px solid #e7e9ed; }
+  td { padding: 13px 16px; border-bottom: 1px solid #f0f1f3; vertical-align: middle; }
+  tr.row:hover td { background: #fafcff; cursor: pointer; }
+  .nm { font-weight: 600; font-size: 14px; }
+  .hd { color: #a6abb3; font-size: 11px; margin-left: 6px; }
+  .reg { background: #eef1f4; border-radius: 4px; padding: 2px 7px; font-size: 11px; color: #5e6470; }
+  .reg.KR { background: #fbeaef; color: #c0397b; }
+  .type { background: #fff3e0; color: #b46a00; border-radius: 4px; padding: 2px 8px; font-size: 11px; }
+  .gold { background: #fff6e0; color: #b8860b; border: 1px solid #f3d27a; border-radius: 5px; padding: 3px 9px; font-size: 12px; font-weight: 700; }
+  .worth { background: #eaf2ff; color: #1456f0; border-radius: 5px; padding: 3px 9px; font-size: 12px; }
+  .black { background: #fdecec; color: #d23; border-radius: 5px; padding: 3px 9px; font-size: 12px; font-weight: 600; }
+  .muted { color: #c2c8cf; }
+  .owner { font-size: 12px; color: #5e6470; }
+  .empty { padding: 40px; text-align: center; color: #9aa6b2; }
+  /* 详情抽屉 */
+  .mask { position: fixed; inset: 0; background: rgba(0,0,0,.3); display: none; }
+  .mask.on { display: block; }
+  .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 420px; max-width: 92vw; background: #fff; box-shadow: -4px 0 24px rgba(0,0,0,.15); padding: 22px; overflow-y: auto; }
+  .drawer h2 { font-size: 18px; margin-bottom: 2px; }
+  .drawer .sub { color: #8f959e; font-size: 12px; margin-bottom: 14px; }
+  .drawer .grp { margin: 16px 0 6px; font-size: 12px; font-weight: 700; color: #6d28d9; }
+  .drawer .kv { display: flex; padding: 6px 0; border-bottom: 1px solid #f0f1f3; font-size: 13px; }
+  .drawer .kv .k { width: 92px; color: #8f959e; flex: none; }
+  .drawer .kv .v { flex: 1; white-space: pre-wrap; }
+  .drawer .close { float: right; cursor: pointer; color: #8f959e; font-size: 20px; }
+  .qbtn { margin-top: 4px; padding: 7px 14px; border: 1px solid #f3d27a; background: #fff6e0; color: #b8860b; border-radius: 8px; font-weight: 700; cursor: pointer; }
+  .qbtn.on { background: #b8860b; color: #fff; }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="logo">🗂️ 红人资源库</div>
+    <div class="nav">
+      <a class="active" href="/">资源库</a>
+      <a href="/board">📊 跟进看板</a>
+    </div>
+    <div class="search"><input id="q" placeholder="🔍 搜外号 / 红人 / 主题…"></div>
+  </div>
+
+  <div class="funnel" id="funnel"></div>
+  <div class="filters" id="filters">
+    <span class="who">筛选：</span>
+    <div class="chip on" data-f="all">全部</div>
+    <div class="chip" data-f="quality">⭐ 仅优质</div>
+    <div class="chip" data-f="recommend">👍 值得合作</div>
+    <div class="chip" data-f="blacklist">⚠ 黑名单</div>
+    <div class="chip" data-f="cat:口播">口播</div>
+    <div class="chip" data-f="cat:宝妈">宝妈</div>
+    <div class="chip" data-f="cat:街采">街采</div>
+    <div class="chip" data-f="reg:TW">TW</div>
+    <div class="chip" data-f="reg:KR">KR</div>
+  </div>
+
+  <table>
+    <thead><tr><th>外号 / 红人</th><th>地区</th><th>类型</th><th>状态</th><th>对接人</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+  <div class="empty" id="empty" style="display:none">没有匹配的红人。数据来自插件备份，实习生填了才会出现。</div>
+
+  <div class="mask" id="mask"><div class="drawer" id="drawer"></div></div>
+
+<script>
+let DATA = { stats: {}, items: [] };
+let filter = "all";
+
+async function api(path, opts) {
+  let token = localStorage.getItem("kolToken") || "";
+  const headers = Object.assign({}, opts && opts.headers, token ? { "X-KOL-Token": token } : {});
+  const r = await fetch(path, Object.assign({}, opts, { headers }));
+  if (r.status === 401) {
+    const t = prompt("请输入团队口令");
+    if (t) { localStorage.setItem("kolToken", t); return api(path, opts); }
+  }
+  if (r.status === 403) {
+    const t = prompt("此操作需要管理员口令");
+    if (t) { localStorage.setItem("kolAdmin", t); return api(path, opts); }
+  }
+  return r.json();
+}
+
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+function statusTag(p) {
+  if (p.blacklist) return `<span class="black">⚠ ${esc(p.blacklistReason || "黑名单")}</span>`;
+  if (p.quality) return `<span class="gold">⭐ 优质</span>`;
+  if (p.recommend) return `<span class="worth">👍 值得</span>`;
+  return `<span class="muted">未标</span>`;
+}
+
+function matches(p) {
+  const q = document.getElementById("q").value.trim().toLowerCase();
+  if (q) {
+    const hay = `${p.displayName} ${p.nickname} ${p.handle} ${p.theme} ${p.script}`.toLowerCase();
+    if (!hay.includes(q)) return false;
+  }
+  if (filter === "quality") return p.quality;
+  if (filter === "recommend") return p.recommend;
+  if (filter === "blacklist") return p.blacklist;
+  if (filter.startsWith("cat:")) return p.category === filter.slice(4);
+  if (filter.startsWith("reg:")) return p.region === filter.slice(4);
+  return true;
+}
+
+function render() {
+  const s = DATA.stats || {};
+  document.getElementById("funnel").innerHTML = [
+    ["#5e6470", s.total || 0, "红人总数"],
+    ["#b8860b", s.quality || 0, "⭐ 优质（领导标）"],
+    ["#1456f0", s.recommend || 0, "👍 值得合作"],
+    ["#d23", s.blacklist || 0, "⚠ 黑名单"]
+  ].map(([c, n, l]) => `<div class="fseg" style="background:${c}"><div class="n">${n}</div><div class="l">${l}</div></div>`).join("");
+
+  const list = DATA.items.filter(matches);
+  document.getElementById("rows").innerHTML = list.map((p, i) => `
+    <tr class="row" data-i="${DATA.items.indexOf(p)}">
+      <td><span class="nm">${esc(p.nickname || p.displayName)}</span>${p.handle ? `<span class="hd">@${esc(p.handle)}</span>` : ""}</td>
+      <td>${p.region ? `<span class="reg ${esc(p.region)}">${esc(p.region)}</span>` : "—"}</td>
+      <td>${p.category ? `<span class="type">${esc(p.category)}</span>` : "—"}</td>
+      <td>${statusTag(p)}</td>
+      <td class="owner">${esc((p.owners || []).join("、") || "—")}</td>
+    </tr>`).join("");
+  document.getElementById("empty").style.display = list.length ? "none" : "block";
+
+  document.querySelectorAll("tr.row").forEach(tr =>
+    tr.onclick = () => openDrawer(DATA.items[+tr.dataset.i]));
+}
+
+function kv(k, v) { return v ? `<div class="kv"><span class="k">${k}</span><span class="v">${esc(v)}</span></div>` : ""; }
+
+function openDrawer(p) {
+  const isAdmin = !!localStorage.getItem("kolAdmin");
+  const d = document.getElementById("drawer");
+  d.innerHTML = `
+    <span class="close" onclick="closeDrawer()">✕</span>
+    <h2>${esc(p.nickname || p.displayName)}</h2>
+    <div class="sub">${p.handle ? "@" + esc(p.handle) + " · " : ""}${esc(p.region)} ${esc(p.category)}</div>
+    <button class="qbtn ${p.quality ? "on" : ""}" id="qbtn">${p.quality ? "⭐ 已标优质（点击取消）" : "标为 ⭐ 优质"}</button>
+    <div class="grp">📋 合作信息</div>
+    ${kv("价格", [p.price, ...(p.platforms || []), p.usagePeriod].filter(Boolean).join(" · "))}
+    ${kv("主题", p.theme)}
+    ${kv("脚本", p.script)}
+    ${kv("值得合作", p.recommend ? "✓ " + (p.recommendReason || "") : "")}
+    ${kv("黑名单", p.blacklist ? "⚠ " + (p.blacklistReason || "") : "")}
+    ${kv("性格", p.temperament)}
+    ${kv("当前阶段", p.stage)}
+    ${kv("最近沟通", p.summary)}
+    <div class="grp">📄 合同 / 身份</div>
+    ${kv("App ID", p.appid)}
+    ${kv("法定名称", p.legalname)}
+    ${kv("邮箱", p.email)}
+    ${kv("付款", p.payment)}
+    ${kv("备注", p.notes)}
+    <div class="grp">👥 对接</div>
+    ${kv("对接人", (p.owners || []).join("、"))}
+  `;
+  document.getElementById("mask").classList.add("on");
+  document.getElementById("qbtn").onclick = async () => {
+    const r = await api(`/api/roster/${encodeURIComponent(p.key)}/leader`, {
+      method: "POST",
+      headers: Object.assign({ "Content-Type": "application/json" },
+        localStorage.getItem("kolAdmin") ? { "X-KOL-Admin": localStorage.getItem("kolAdmin") } : {}),
+      body: JSON.stringify({ quality: !p.quality })
+    });
+    if (r && r.ok !== false) { p.quality = !p.quality; openDrawer(p); load(); }
+  };
+}
+function closeDrawer() { document.getElementById("mask").classList.remove("on"); }
+document.getElementById("mask").onclick = e => { if (e.target.id === "mask") closeDrawer(); };
+
+document.getElementById("q").oninput = render;
+document.querySelectorAll("#filters .chip").forEach(c =>
+  c.onclick = () => {
+    document.querySelectorAll("#filters .chip").forEach(x => x.classList.remove("on"));
+    c.classList.add("on"); filter = c.dataset.f; render();
+  });
+
+async function load() { DATA = await api("/api/roster"); render(); }
+load();
+</script>
+</body>
+</html>

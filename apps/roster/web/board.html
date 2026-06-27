@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>红人进度 / 跟进看板</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f4f5f7; color: #1f2329; font-size: 13px; }
+  .topbar { background: #fff; border-bottom: 1px solid #e7e9ed; padding: 12px 22px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .logo { font-size: 17px; font-weight: 700; }
+  .nav { display: flex; gap: 4px; margin-left: 6px; }
+  .nav a { padding: 5px 12px; border-radius: 7px; color: #5e6470; cursor: pointer; text-decoration: none; }
+  .nav a.active { background: #eaf2ff; color: #1456f0; font-weight: 600; }
+  .strip { display: flex; gap: 12px; padding: 14px 22px; background: #fff; border-bottom: 1px solid #e7e9ed; align-items: stretch; flex-wrap: wrap; }
+  .funnel { display: flex; gap: 6px; flex: 1.4; min-width: 320px; flex-wrap: wrap; }
+  .fstep { flex: 1; min-width: 90px; border-radius: 9px; padding: 9px 12px; color: #fff; background: #1456f0; }
+  .fstep .n { font-size: 19px; font-weight: 700; }
+  .fstep .l { font-size: 11px; opacity: .92; }
+  .alert { flex: 1; min-width: 200px; background: #fff6f5; border: 1px solid #f7d4cf; border-radius: 10px; padding: 10px 14px; }
+  .alert .h { color: #d23; font-weight: 700; font-size: 13px; }
+  .alert .sub { color: #8f5b56; font-size: 11px; margin-top: 3px; line-height: 1.6; }
+  .followup { flex: 1; min-width: 200px; background: #f7f8fa; border: 1px solid #e7e9ed; border-radius: 10px; padding: 10px 14px; }
+  .followup .h { font-weight: 700; font-size: 12px; color: #5e6470; margin-bottom: 5px; }
+  .frow { display: flex; align-items: center; gap: 6px; font-size: 12px; margin: 2px 0; }
+  .frow .who { width: 50px; }
+  .badge { font-size: 11px; border-radius: 4px; padding: 1px 6px; }
+  .ok { background: #eafbf0; color: #0a7d33; }
+  .warn { background: #fff3e0; color: #b46a00; }
+  .bad { background: #fdecec; color: #d23; }
+  .toolbar { display: flex; align-items: center; gap: 14px; padding: 9px 22px; color: #5e6470; font-size: 12px; background: #fff; border-bottom: 1px solid #f0f1f3; }
+  table { width: 100%; border-collapse: collapse; background: #fff; }
+  th { text-align: left; padding: 9px 14px; background: #fafbfc; color: #8f959e; font-weight: 600; font-size: 12px; border-bottom: 1px solid #e7e9ed; white-space: nowrap; }
+  td { padding: 11px 14px; border-bottom: 1px solid #f0f1f3; vertical-align: middle; }
+  .nm { font-weight: 600; }
+  .hd { color: #a6abb3; font-size: 11px; margin-left: 5px; }
+  .reg { background: #eef1f4; border-radius: 4px; padding: 2px 7px; font-size: 11px; color: #5e6470; }
+  .reg.KR { background: #fbeaef; color: #c0397b; }
+  .type { background: #fff3e0; color: #b46a00; border-radius: 4px; padding: 2px 8px; font-size: 11px; }
+  .stage { font-size: 11px; border-radius: 5px; padding: 2px 8px; font-weight: 600; background: #efeaff; color: #6b3fd1; }
+  .upd { white-space: nowrap; font-weight: 700; }
+  .udot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+  .fresh { color: #0a7d33; } .fresh .udot { background: #0a7d33; }
+  .mid { color: #b46a00; } .mid .udot { background: #f5a623; }
+  .stale { color: #d23; } .stale .udot { background: #d23; }
+  .sum { color: #5e6470; max-width: 280px; }
+  .chase { background: #d23; color: #fff; border: none; border-radius: 6px; padding: 4px 10px; font-size: 11px; cursor: pointer; text-decoration: none; }
+  .empty { padding: 40px; text-align: center; color: #9aa6b2; }
+  .hint { color: #8f959e; font-size: 12px; padding: 12px 22px; }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="logo">📊 红人进度</div>
+    <div class="nav">
+      <a href="/">🗂️ 资源库</a>
+      <a class="active" href="/board">跟进看板</a>
+    </div>
+  </div>
+
+  <div class="strip" id="strip"></div>
+  <div class="toolbar">↕ 排序：<b style="color:#d23">最近跟进（越久没回越靠上 = 越该催）</b></div>
+
+  <table>
+    <thead><tr><th>外号 / 红人</th><th>地区</th><th>类型</th><th>价格 / 平台</th><th>主题</th><th>当前阶段</th><th>最近跟进</th><th>对接人</th><th>当前在聊什么</th><th></th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+  <div class="empty" id="empty" style="display:none">当前没有在聊的红人。AI 扫到对话、或实习生开始跟进后才会出现。</div>
+  <p class="hint"><b>阶段</b>＝AI 看最新聊天的当前状态，不记历史。<b>最近跟进</b>＝实习生上次回复的时间，越久越红。<b>盯人</b>＝红人发了消息没回的「漏人」数，隔夜＝失责（红人自己不回不算）。</p>
+
+<script>
+async function api(path) {
+  let token = localStorage.getItem("kolToken") || "";
+  const r = await fetch(path, { headers: token ? { "X-KOL-Token": token } : {} });
+  if (r.status === 401) {
+    const t = prompt("请输入团队口令");
+    if (t) { localStorage.setItem("kolToken", t); return api(path); }
+  }
+  return r.json();
+}
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+function rel(days) {
+  if (days == null) return { cls: "mid", t: "未跟进过" };
+  if (days <= 1) return { cls: "fresh", t: days <= 0 ? "今天" : "1 天" };
+  if (days <= 3) return { cls: "mid", t: days + " 天" };
+  return { cls: "stale", t: days + " 天" };
+}
+const STAGE_COLORS = { "洽谈中": "#1456f0", "已报价": "#f5a623", "制作中": "#8b7cf6", "终止": "#d23" };
+
+function render(d) {
+  // 顶部三块
+  const buckets = d.stageBuckets || {};
+  const funnel = Object.entries(buckets).map(([s, n]) =>
+    `<div class="fstep" style="background:${STAGE_COLORS[s] || "#5e6470"}"><div class="n">${n}</div><div class="l">${esc(s)}</div></div>`).join("");
+  const over = d.overnight || [];
+  const alert = over.length
+    ? `<div class="h">🔴 ${over.length} 个待回复隔夜没回</div><div class="sub">${over.slice(0, 6).map(o => esc(o.name) + (o.days != null ? `(${o.days}天)` : "")).join(" · ")}<br>红人发了消息、对接人隔夜没回 = 漏人失责</div>`
+    : `<div class="h" style="color:#0a7d33">✅ 没有隔夜漏的待回复</div><div class="sub">今天待回复都跟上了</div>`;
+  const owners = (d.owners || []).map(o => {
+    const cls = o.overnight ? "bad" : o.missed ? "warn" : "ok";
+    const txt = o.overnight ? `在聊${o.total} · 漏${o.missed}（${o.overnight}隔夜）` : o.missed ? `在聊${o.total} · 漏${o.missed}（今天内）` : `在聊${o.total} · 漏 0 ✅`;
+    return `<div class="frow"><span class="who">${esc(o.owner)}</span><span class="badge ${cls}">${txt}</span></div>`;
+  }).join("");
+  document.getElementById("strip").innerHTML = `
+    <div class="funnel">${funnel || '<div class="fstep" style="background:#9aa6b2"><div class="n">0</div><div class="l">暂无</div></div>'}</div>
+    <div class="alert">${alert}</div>
+    <div class="followup"><div class="h">今日盯人（谁漏了待回复）</div>${owners || '<div class="frow">暂无对接数据</div>'}</div>`;
+
+  const items = d.items || [];
+  document.getElementById("rows").innerHTML = items.map(it => {
+    const r = rel(it.daysSinceFollow);
+    const deal = [it.price, ...(it.platforms || [])].filter(Boolean).join(" / ");
+    const link = it.threadId ? `https://www.instagram.com/direct/t/${esc(it.threadId)}/` : "https://www.instagram.com/direct/inbox/";
+    return `<tr>
+      <td><span class="nm">${esc(it.name)}</span>${it.handle ? `<span class="hd">@${esc(it.handle)}</span>` : ""}</td>
+      <td>${it.region ? `<span class="reg ${esc(it.region)}">${esc(it.region)}</span>` : "—"}</td>
+      <td>${it.category ? `<span class="type">${esc(it.category)}</span>` : "—"}</td>
+      <td>${esc(deal) || "—"}</td>
+      <td>${esc(it.theme) || "—"}</td>
+      <td>${it.stage ? `<span class="stage" style="background:${(STAGE_COLORS[it.stage] || "#8b7cf6")}22;color:${STAGE_COLORS[it.stage] || "#6b3fd1"}">${esc(it.stage)}</span>` : "—"}</td>
+      <td class="upd ${r.cls}"><span class="udot"></span>${r.t}${it.overnight ? " ⚠" : ""}</td>
+      <td>${esc((it.owners || []).join("、")) || "—"}</td>
+      <td class="sum">${esc(it.summary) || "—"}</td>
+      <td>${it.missed ? `<a class="chase" href="${link}" target="_blank">去催</a>` : ""}</td>
+    </tr>`;
+  }).join("");
+  document.getElementById("empty").style.display = items.length ? "none" : "block";
+}
+
+async function load() { render(await api("/api/board")); }
+load();
+</script>
+</body>
+</html>
