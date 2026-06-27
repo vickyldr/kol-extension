@@ -360,16 +360,39 @@ function appendImport(out) {
 // 唯一身份 = IG handle。同 handle → 合并成一条（不同外号收进 aliases、跨产品/对接人/来源并集）。
 // 没 handle 的不合并（标 noId 待人工核对）。绝不用外号判同一性（避免撞名误并）。
 function mergeByHandle(list) {
-  const byH = {};
+  const groups = {};
   const out = [];
   for (const p of list) {
     const h = profileKey(p.handle || "");
-    if (!h) { out.push(p); continue; }
-    if (!byH[h]) { byH[h] = p; out.push(p); continue; }
-    mergePerson(byH[h], p);
+    if (!h) { out.push(buildMergedPerson([p])); continue; } // 无 handle 各自一行
+    (groups[h] = groups[h] || []).push(p);
   }
-  for (const p of out) p.aliases = (p.aliases || []).filter((a) => a && a !== p.nickname);
+  for (const recs of Object.values(groups)) out.push(buildMergedPerson(recs));
   return out;
+}
+// 把同一 handle 的多条记录合成一人，但「主观评价」（值得/黑名单/备注）按来源分别保留进 evaluations，
+// 不抹平——同一人在不同对接人/产品手里表现可能不同。
+function buildMergedPerson(recs) {
+  const t = recs[0];
+  t.aliases = t.aliases || [];
+  t.evaluations = [];
+  const pushEval = (r) => {
+    const has = r.recommend || r.blacklist || (r.recommendReason || "").trim() || (r.blacklistReason || "").trim() || (r.notes || "").trim();
+    if (!has) return;
+    t.evaluations.push({
+      by: (r.owners || []).map((o) => o.name || o.account).filter(Boolean).join("、") || (r.sources || []).join("/"),
+      products: r.products || [],
+      recommend: !!r.recommend, recommendReason: r.recommendReason || "",
+      blacklist: !!r.blacklist, blacklistReason: r.blacklistReason || "",
+      notes: (r.notes || "").trim()
+    });
+  };
+  pushEval(recs[0]);
+  for (let i = 1; i < recs.length; i++) { mergePerson(t, recs[i]); pushEval(recs[i]); }
+  t.aliases = t.aliases.filter((a) => a && a !== t.nickname);
+  // 评价分歧：既有人说值得、又有人拉黑
+  t.conflict = t.evaluations.some((e) => e.recommend) && t.evaluations.some((e) => e.blacklist);
+  return t;
 }
 function mergePerson(t, p) {
   t.aliases = t.aliases || [];

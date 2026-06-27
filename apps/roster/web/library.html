@@ -48,6 +48,10 @@
   .type { background: #fff3e0; color: #b46a00; border-radius: 4px; padding: 2px 8px; font-size: 11px; }
   .gold { background: #fff6e0; color: #b8860b; border: 1px solid #f3d27a; border-radius: 5px; padding: 3px 9px; font-size: 12px; font-weight: 700; }
   .worth { background: #eaf2ff; color: #1456f0; border-radius: 5px; padding: 3px 9px; font-size: 12px; }
+  .conflict { background: #fff0e0; color: #c2540a; border: 1px solid #f3c08a; border-radius: 5px; padding: 3px 9px; font-size: 12px; font-weight: 600; }
+  .evalrow { padding: 7px 0; border-bottom: 1px solid #f0f1f3; font-size: 13px; }
+  .evalrow .who { color: #6d28d9; font-weight: 600; }
+  .evalrow .ev-y { color: #1456f0; } .evalrow .ev-b { color: #d23; } .evalrow .ev-n { color: #5e6470; }
   .black { background: #fdecec; color: #d23; border-radius: 5px; padding: 3px 9px; font-size: 12px; font-weight: 600; }
   .muted { color: #c2c8cf; }
   .owner { font-size: 12px; color: #5e6470; }
@@ -121,8 +125,9 @@ function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "
 function ownersText(arr) { return (arr || []).map(o => o.name ? `${o.name}（${o.account}）` : o.account).join("、"); }
 
 function statusTag(p) {
-  if (p.blacklist) return `<span class="black">⚠ ${esc(p.blacklistReason || "黑名单")}</span>`;
+  if (p.conflict) return `<span class="conflict">⚠ 评价分歧</span>`;
   if (p.quality) return `<span class="gold">⭐ 优质</span>`;
+  if (p.blacklist) return `<span class="black">⚠ ${esc(p.blacklistReason || "黑名单")}</span>`;
   if (p.recommend) return `<span class="worth">👍 值得</span>`;
   return `<span class="muted">未标</span>`;
 }
@@ -185,6 +190,18 @@ function render() {
 }
 
 function kv(k, v) { return v ? `<div class="kv"><span class="k">${k}</span><span class="v">${esc(v)}</span></div>` : ""; }
+function evalListHtml(p) {
+  const evs = p.evaluations || [];
+  if (!evs.length) return `<div class="evalrow ev-n">暂无评价（实习生还没填值得/黑名单/备注）</div>`;
+  return evs.map((e) => {
+    const parts = [];
+    if (e.recommend) parts.push(`<span class="ev-y">👍值得${e.recommendReason ? "·" + esc(e.recommendReason) : ""}</span>`);
+    if (e.blacklist) parts.push(`<span class="ev-b">⚠拉黑${e.blacklistReason ? "·" + esc(e.blacklistReason) : ""}</span>`);
+    if (e.notes) parts.push(`<span class="ev-n">${esc(e.notes)}</span>`);
+    const tag = (e.products || []).join("/");
+    return `<div class="evalrow"><span class="who">${esc(e.by || "?")}${tag ? "（" + esc(tag) + "）" : ""}</span>：${parts.join(" · ") || "—"}</div>`;
+  }).join("");
+}
 function openDrawer(p) {
   const d = document.getElementById("drawer");
   d.innerHTML = `
@@ -195,10 +212,10 @@ function openDrawer(p) {
     <div class="grp">📋 合作信息</div>
     ${kv("价格", [p.price, ...(p.platforms || []), p.usagePeriod].filter(Boolean).join(" · "))}
     ${kv("主题", p.theme)}
-    ${kv("值得合作", p.recommend ? "✓ " + (p.recommendReason || "") : "")}
-    ${kv("黑名单", p.blacklist ? "⚠ " + (p.blacklistReason || "") : "")}
     ${kv("当前阶段", p.stage)}
     ${kv("最近沟通", p.summary)}
+    <div class="grp">👥 各对接人评价${p.conflict ? ' <span class="conflict">⚠ 分歧</span>' : ""}</div>
+    ${evalListHtml(p)}
     <div class="grp">📄 合同 / 身份</div>
     ${kv("App ID", p.appid)} ${kv("法定名称", p.legalname)} ${kv("邮箱", p.email)} ${kv("付款", p.payment)} ${kv("备注", p.notes)}
     <div class="grp">👥 对接</div>
