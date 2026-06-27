@@ -273,6 +273,17 @@ dialog::backdrop { background: rgba(20,24,36,.4); }
 .reminder-smart { margin-bottom: 6px; }
 .reminder-smart #todo-smart { flex: 1 1 100%; }
 .todo-manual > summary { cursor: pointer; font-size: 12px; color: #8b90a0; padding: 2px 0 6px; }
+/* 待办关联红人引导（智能加待办没绑上对话时出现） */
+.todo-link-hint { display: flex; flex-direction: column; gap: 6px; margin: 4px 0 8px; padding: 8px 10px; background: #f6f8ff; border: 1px dashed #c6d0f0; border-radius: 10px; }
+.todo-link-hint.hidden { display: none; }
+.todo-link-hint .tlh-tip { font-size: 12px; color: #5e6470; }
+.todo-link-hint .tlh-row { display: flex; gap: 6px; }
+.todo-link-hint .tlh-input { flex: 1 1 auto; padding: 6px 8px; border: 1px solid #d8dced; border-radius: 8px; font-size: 13px; }
+.todo-link-hint .tlh-link { flex: 0 0 auto; padding: 6px 12px; border: 0; border-radius: 8px; background: #1456f0; color: #fff; font-size: 13px; cursor: pointer; }
+.todo-link-hint .tlh-link:disabled { opacity: .6; cursor: default; }
+.todo-link-hint .tlh-msg { font-size: 12px; color: #8b90a0; min-height: 0; }
+.todo-link-hint .tlh-msg.ok { color: #1a8a4a; }
+.todo-link-hint .tlh-msg.warn { color: #c0791a; }
 .rewrite-card #rewrite-box-pro { width: 100%; box-sizing: border-box; }
 /* 合作情况总结卡 */
 .coop-card { margin-bottom: 10px; border: 1px solid #e0d6f5; border-radius: 12px; background: #faf8ff; padding: 4px 12px 12px; }

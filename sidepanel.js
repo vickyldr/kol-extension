@@ -2487,6 +2487,78 @@ initGuide();
     await setLocal({ kolTodos: next });
   }
 
+  // 名字归一化：跟采集层 kol-reminder.js 的 titleKey 完全一致，这样和 kolThreads 的 key 对得上。
+  function titleKeyOf(s) {
+    return String(s || "")
+      .replace(/[…\.]+$/g, "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .replace(/^[^\p{L}\p{N}]+/u, "")
+      .slice(0, 22)
+      .trim()
+      .toLowerCase();
+  }
+  // 拿一句红人名字 → 在 kolThreads 里反查对话(threadId)。先精确命中归一化 key，再模糊(key/群名互相包含)。
+  // 只返回带 threadId 的，找不到返回 null（宁可不绑，也不给打不开的按钮）。
+  async function matchThreadByName(name) {
+    const q = titleKeyOf(name);
+    if (!q) return null;
+    const threads = (await chrome.storage.local.get("kolThreads")).kolThreads || {};
+    const rec0 = threads[q];
+    if (rec0 && rec0.threadId) return { threadId: rec0.threadId, title: rec0.title || name };
+    const qns = q.replace(/\s+/g, ""); // 去空格版，容忍中文名里多打的空格（"小 美"↔"小美"）
+    for (const [k, rec] of Object.entries(threads)) {
+      if (!rec || !rec.threadId) continue;
+      const cands = [k, titleKeyOf(rec.title || "")].filter((s) => s && s.length >= 2);
+      const hit = cands.some((s) => {
+        const sns = s.replace(/\s+/g, "");
+        return s.includes(q) || (q.length >= 2 && q.includes(s)) ||
+               sns.includes(qns) || (qns.length >= 2 && qns.includes(sns));
+      });
+      if (hit) return { threadId: rec.threadId, title: rec.title || k };
+    }
+    return null;
+  }
+  // 把某条待办补绑到一个对话
+  async function linkTodoThread(todoId, threadId) {
+    const store = await getLocal("kolTodos");
+    const todos = (store.kolTodos || []).map((t) => (t.id === todoId ? { ...t, threadId } : t));
+    await setLocal({ kolTodos: todos });
+  }
+  // 没自动绑上红人时，引导填名字关联（选填，不填就是普通待办，不显示打不开的按钮）
+  function showTodoLinkHint(todoId) {
+    const box = document.getElementById("todo-link-hint");
+    if (!box) return;
+    box.classList.remove("hidden");
+    box.innerHTML = `<span class="tlh-tip">💡 想让这条待办能「一键打开对话」？填红人名字关联（选填）：</span>
+      <span class="tlh-row"><input class="tlh-input" type="text" placeholder="红人名字 / 群聊名" />
+      <button class="tlh-link" type="button">🔗 关联</button></span>
+      <span class="tlh-msg"></span>`;
+    const inp = box.querySelector(".tlh-input");
+    const lk = box.querySelector(".tlh-link");
+    const msg = box.querySelector(".tlh-msg");
+    inp.focus();
+    const doLink = async () => {
+      const v = inp.value.trim();
+      if (!v) { inp.focus(); return; }
+      lk.disabled = true; msg.textContent = "查找中…";
+      const m = await matchThreadByName(v);
+      if (m) {
+        await linkTodoThread(todoId, m.threadId);
+        msg.textContent = `已关联「${m.title}」✓ 待办清单里就能一键打开对话了`;
+        msg.className = "tlh-msg ok";
+        inp.disabled = true; lk.style.display = "none";
+        setTimeout(() => { box.classList.add("hidden"); box.innerHTML = ""; }, 2600);
+      } else {
+        msg.textContent = `没找到叫「${v}」的对话——可能还没在插件里聊过/采集过，先去 IG 打开一次再试`;
+        msg.className = "tlh-msg warn";
+        lk.disabled = false;
+      }
+    };
+    lk.addEventListener("click", doLink);
+    inp.addEventListener("keydown", (e) => { if (e.key === "Enter") doLink(); });
+  }
+
   // —— 加待办 ——
   document.getElementById("add-todo").addEventListener("click", async () => {
     const text = document.getElementById("todo-text").value.trim();
@@ -2525,13 +2597,23 @@ initGuide();
         const d = new Date(`${body.date}T${(body.time || "10:00")}:00`);
         if (!isNaN(d)) dueAt = d.toISOString();
       }
+      // 当前正开着某个红人对话 → 把它的 threadId 顺手绑上，这条待办之后就能「一键打开对话」。
+      let threadId = "", linkedName = "";
+      try {
+        const conv = await getActiveConversation();
+        if (conv && conv.tid) { threadId = conv.tid; linkedName = conv.name || ""; }
+      } catch { /* 取不到当前对话就不绑 */ }
+      const todoId = "t" + Date.now();
       const store = await getLocal("kolTodos");
       const todos = store.kolTodos || [];
-      todos.push({ id: "t" + Date.now(), text: body.text || sentence, dueAt, done: false, dismissed: false });
+      todos.push({ id: todoId, text: body.text || sentence, dueAt, threadId, done: false, dismissed: false });
       await setLocal({ kolTodos: todos });
       input.value = "";
-      btn.textContent = "已加 ✓";
-      setTimeout(() => { btn.textContent = orig; }, 1200);
+      btn.textContent = linkedName ? `已加 ✓ 关联${linkedName}` : "已加 ✓";
+      setTimeout(() => { btn.textContent = orig; }, 1400);
+      const hint = document.getElementById("todo-link-hint");
+      if (threadId) { if (hint) { hint.classList.add("hidden"); hint.innerHTML = ""; } }
+      else showTodoLinkHint(todoId); // 没绑上 → 引导填名字关联（不误导，不填就是普通待办）
     } catch (e) {
       btn.textContent = "解析失败,改手动";
       setTimeout(() => { btn.textContent = orig; }, 1800);
