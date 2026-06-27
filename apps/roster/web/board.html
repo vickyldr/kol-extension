@@ -6,7 +6,7 @@
 <title>红人进度 / 跟进看板</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f4f5f7; color: #1f2329; font-size: 13px; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f4f5f7; color: #1f2329; font-size: 13px; overflow-x: hidden; }
   .topbar { background: #fff; border-bottom: 1px solid #e7e9ed; padding: 12px 22px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
   .logo { font-size: 17px; font-weight: 700; }
   .nav { display: flex; gap: 4px; margin-left: 6px; }
@@ -35,16 +35,16 @@
   .warn { background: #fff3e0; color: #b46a00; }
   .bad { background: #fdecec; color: #d23; }
   .toolbar { padding: 9px 22px; color: #5e6470; font-size: 12px; background: #fff; border-bottom: 1px solid #f0f1f3; }
-  /* 表格：横向可滚，小屏不撑爆 */
-  .tablewrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; background: #fff; min-width: 880px; }
+  /* 表格：横向可滚，小屏不撑爆。tablewrap 限宽到视口、滚动条落在它身上 */
+  .tablewrap { overflow-x: auto; max-width: 100vw; -webkit-overflow-scrolling: touch; }
+  table { width: 100%; border-collapse: collapse; background: #fff; min-width: 820px; }
   th { text-align: left; padding: 9px 14px; background: #fafbfc; color: #8f959e; font-weight: 600; font-size: 12px; border-bottom: 1px solid #e7e9ed; white-space: nowrap; }
   td { padding: 11px 14px; border-bottom: 1px solid #f0f1f3; vertical-align: top; }
   .grp td { background: #f2f6ff; font-weight: 700; padding: 7px 14px; color: #1f2329; cursor: pointer; }
   .grp .caret { display: inline-block; width: 12px; color: #8f959e; }
   .grp .dot { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 7px; vertical-align: middle; }
   .grp .cnt { color: #8f959e; font-weight: 500; margin-left: 6px; }
-  .sug { color: #8f959e; font-size: 12px; white-space: nowrap; }
+  .cold { color: #b46a00; font-size: 12px; white-space: nowrap; }
   .nm { font-weight: 600; }
   .hd { color: #1456f0; font-size: 11px; }
   .reg { background: #eef1f4; border-radius: 4px; padding: 2px 7px; font-size: 11px; color: #5e6470; }
@@ -105,8 +105,14 @@ async function api(path) {
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
 function rel(d) { if (d == null) return { c: "none", t: "未跟进" }; if (d <= 1) return { c: "fresh", t: d <= 0 ? "今天" : "1天" }; if (d <= 3) return { c: "mid", t: d + "天" }; return { c: "stale", t: d + "天" }; }
 function ownersText(arr) { return (arr || []).map(o => o.name ? `${o.name}（${o.account}）` : o.account).join("、"); }
-// 非「待催」时按当前阶段给一句建议
-const SUGGEST = { "洽谈中": "💬 推进报价", "已报价": "⏳ 等对方确认", "制作中": "🎬 盯制作进度", "已完成": "🔁 可跟进续约", "终止": "" };
+// 只标紧急：① 红人发了没回(隔夜)→ 去催；② 很久没动、再不催要鸽 → 提醒。其余不显示。
+function actionCell(it) {
+  const link = it.threadId ? `https://www.instagram.com/direct/t/${it.threadId}/` : "https://www.instagram.com/direct/inbox/";
+  if (it.overnight) return `<a class="chase" href="${link}" target="_blank">去催</a>`;
+  if (it.daysSinceFollow != null && it.daysSinceFollow >= 7 && it.stage !== "终止" && it.stage !== "已完成")
+    return `<span class="cold">⚠ 快鸽了</span>`;
+  return "";
+}
 
 function visible() {
   const q = (document.getElementById("q").value || "").trim().toLowerCase();
@@ -152,7 +158,6 @@ function renderStrip(items) {
 function rowHtml(it) {
   const r = rel(it.daysSinceFollow);
   const deal = [it.price, ...(it.platforms || [])].filter(Boolean).join(" / ");
-  const link = it.threadId ? `https://www.instagram.com/direct/t/${esc(it.threadId)}/` : "https://www.instagram.com/direct/inbox/";
   const nameCell = it.handle && it.name !== it.handle
     ? `<span class="nm">${esc(it.name)}</span> <span class="hd">@${esc(it.handle)}</span>`
     : `<span class="nm">${esc(it.name)}</span>`;
@@ -170,7 +175,7 @@ function rowHtml(it) {
     <td class="upd ${r.c}"><span class="udot"></span>${r.t}${it.overnight ? " ⚠" : ""}</td>
     <td>${esc(ownersText(it.owners)) || "—"}</td>
     <td>${sumCell}</td>
-    <td>${it.missed ? `<a class="chase" href="${link}" target="_blank">去催</a>` : (SUGGEST[it.stage] ? `<span class="sug">${SUGGEST[it.stage]}</span>` : "")}</td>
+    <td>${actionCell(it)}</td>
   </tr>`;
 }
 

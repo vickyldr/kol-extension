@@ -6,7 +6,7 @@
 <title>红人资源库</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f4f5f7; color: #1f2329; font-size: 13px; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f4f5f7; color: #1f2329; font-size: 13px; overflow-x: hidden; }
   .topbar { background: #fff; border-bottom: 1px solid #e7e9ed; padding: 12px 22px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
   .logo { font-size: 17px; font-weight: 700; }
   .nav { display: flex; gap: 4px; margin-left: 6px; }
@@ -29,8 +29,8 @@
   .chip.on { background: #1456f0; color: #fff; border-color: #1456f0; }
   .chip.gold.on { background: #b8860b; border-color: #b8860b; }
   .chip.black.on { background: #d23; border-color: #d23; }
-  .tablewrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; background: #fff; min-width: 720px; }
+  .tablewrap { overflow-x: auto; max-width: 100vw; -webkit-overflow-scrolling: touch; }
+  table { width: 100%; border-collapse: collapse; background: #fff; min-width: 680px; }
   th { text-align: left; padding: 10px 16px; background: #fafbfc; color: #8f959e; font-weight: 600; font-size: 12px; border-bottom: 1px solid #e7e9ed; white-space: nowrap; }
   td { padding: 12px 16px; border-bottom: 1px solid #f0f1f3; vertical-align: middle; }
   tr.row:hover td { background: #fafcff; cursor: pointer; }
