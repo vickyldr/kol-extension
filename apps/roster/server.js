@@ -335,7 +335,8 @@ function foldImport(out) {
       // 对得上：补全空字段 + 标双来源（历史的优质/黑名单也并入）
       if (!hit.sources.includes("历史")) hit.sources.push("历史");
       const fill = (k, v) => { if (v && !hit[k]) hit[k] = v; };
-      fill("nickname", r.nickname); fill("region", r.region); fill("category", r.category);
+      if (r.region) hit.region = r.region; // 导入表地区是权威，覆盖群聊名的启发式猜测
+      fill("nickname", r.nickname); fill("category", r.category);
       fill("theme", r.theme); fill("price", r.price); fill("notes", r.notes);
       if (r.quality === "1") hit.quality = true;
       if (r.blacklist === "1") { hit.blacklist = true; hit.blacklistReason = hit.blacklistReason || r.blacklistReason || ""; }
