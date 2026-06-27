@@ -61,9 +61,9 @@ const PLAT_MAP = [
 function parseDeal(title) {
   const out = { price: "", platforms: [], usagePeriod: "" };
   if (!title) return out;
-  // 价格：一串数字 + 币种/量词（刀/USD/$/美金/台币/韩元/w/万/k/元）
+  // 价格：数字 + 币种/量词（必须带币种，否则 "8earts" 的 8 会被当价格）
   const pm = title.match(
-    /(\d[\d,\.]*)\s*(刀|usd|\$|美金|美元|台币|韩元|万|w|k|元)?/i
+    /(\d[\d,\.]*)\s*(刀|usd|\$|美金|美元|台币|韩元|万|w|k|元)/i
   );
   if (pm && /\d/.test(pm[1])) out.price = (pm[1] + (pm[2] || "")).trim();
   // 平台：扫关键词去重
@@ -122,16 +122,27 @@ function stripProductPrefix(name) {
 // IG handle：群名清洗 + 去产品前缀；私聊用 creatorName
 function pickHandle(th) {
   if (!th) return "";
-  if (th.isGroup && th.title) return stripProductPrefix(cleanGroupName(th.title));
+  if (th.title && isCollab(th)) return stripProductPrefix(cleanGroupName(th.title));
   return th.creatorName || "";
 }
 // 显示名优先级：档案外号 > 私聊档案名 > IG handle（清洗群名）> 兜底
 function pickDisplayName(prof, th, key) {
   if (prof.nickname) return prof.nickname;
-  if (prof.displayName && !th.isGroup) return prof.displayName;
+  if (prof.displayName && !isCollab(th)) return prof.displayName;
   const h = pickHandle(th);
   if (h) return h;
   return prof.displayName || th.title || key;
+}
+// 是不是「合作群」（要进资源库/看板）。不靠插件 isGroup（它把"你+红人"两人群误判成私聊），
+// 改看更靠谱的信号：插件标了群 / 有产品前缀(AC RM…) / 群名解析出价格。纯人名 DM、便签、时间戳丢掉。
+function isCollab(th) {
+  if (!th) return false;
+  if (th.isGroup) return true;
+  const t = (th.title || "").trim();
+  if (!t) return false;
+  if (parseDeal(t).price) return true;
+  if (PRODUCT_CODES.some((c) => new RegExp("^" + c + "[\\s_]", "i").test(t))) return true;
+  return false;
 }
 // 阶段：优先用插件 AI 真阶段(kolUnderstanding)，没有就按关键词启发式推断。
 const STAGES = ["洽谈中", "已报价", "制作中", "已完成", "终止"];
@@ -255,12 +266,10 @@ function buildRoster() {
   for (const p of Object.values(map)) {
     const prof = p.profile || {};
     const th = p.thread || {};
-    // 只要「群聊」= 真实合作的红人。私聊/便签/动态/UI 文字一律不进表
-    // （私聊只进插件提醒，催运营自己去回复砍价）。
-    if (!th.isGroup) continue;
+    // 只要「合作群」= 真实合作的红人（有产品前缀/价格/被标群）。纯人名私聊/便签/动态不进表。
+    if (!isCollab(th)) continue;
     const ov = overrides[p.key] || {};
-    const dealSrc = th.isGroup ? th.title : "";
-    const deal = parseDeal(dealSrc);
+    const deal = parseDeal(th.title || "");
     const region = detectRegion(
       `${th.title || ""} ${th.lastMsgPreview || ""} ${p.summary || ""}`
     );
