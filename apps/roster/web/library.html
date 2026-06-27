@@ -118,6 +118,7 @@ async function api(path, opts) {
   return r.json();
 }
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+function ownersText(arr) { return (arr || []).map(o => o.name ? `${o.name}（${o.account}）` : o.account).join("、"); }
 
 function statusTag(p) {
   if (p.blacklist) return `<span class="black">⚠ ${esc(p.blacklistReason || "黑名单")}</span>`;
@@ -167,7 +168,7 @@ function render() {
       <td>${p.region ? `<span class="reg ${esc(p.region)}">${esc(p.region)}</span>` : "—"}</td>
       <td>${p.category ? `<span class="type">${esc(p.category)}</span>` : "—"}</td>
       <td>${statusTag(p)}</td>
-      <td class="owner">${esc((p.owners || []).join("、") || "—")}</td>
+      <td class="owner">${esc(ownersText(p.owners)) || "—"}</td>
       <td class="arrow">查看详情 ›</td>
     </tr>`;
   }).join("");
@@ -194,7 +195,7 @@ function openDrawer(p) {
     <div class="grp">📄 合同 / 身份</div>
     ${kv("App ID", p.appid)} ${kv("法定名称", p.legalname)} ${kv("邮箱", p.email)} ${kv("付款", p.payment)} ${kv("备注", p.notes)}
     <div class="grp">👥 对接</div>
-    ${kv("对接人", (p.owners || []).join("、"))}
+    ${kv("对接人", ownersText(p.owners))}
   `;
   document.getElementById("mask").classList.add("on");
   document.getElementById("qbtn").onclick = async () => {

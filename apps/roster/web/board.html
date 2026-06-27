@@ -40,9 +40,11 @@
   table { width: 100%; border-collapse: collapse; background: #fff; min-width: 880px; }
   th { text-align: left; padding: 9px 14px; background: #fafbfc; color: #8f959e; font-weight: 600; font-size: 12px; border-bottom: 1px solid #e7e9ed; white-space: nowrap; }
   td { padding: 11px 14px; border-bottom: 1px solid #f0f1f3; vertical-align: top; }
-  .grp td { background: #f2f6ff; font-weight: 700; padding: 7px 14px; color: #1f2329; position: sticky; left: 0; }
+  .grp td { background: #f2f6ff; font-weight: 700; padding: 7px 14px; color: #1f2329; cursor: pointer; }
+  .grp .caret { display: inline-block; width: 12px; color: #8f959e; }
   .grp .dot { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 7px; vertical-align: middle; }
   .grp .cnt { color: #8f959e; font-weight: 500; margin-left: 6px; }
+  .sug { color: #8f959e; font-size: 12px; white-space: nowrap; }
   .nm { font-weight: 600; }
   .hd { color: #1456f0; font-size: 11px; }
   .reg { background: #eef1f4; border-radius: 4px; padding: 2px 7px; font-size: 11px; color: #5e6470; }
@@ -102,6 +104,9 @@ async function api(path) {
 }
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
 function rel(d) { if (d == null) return { c: "none", t: "未跟进" }; if (d <= 1) return { c: "fresh", t: d <= 0 ? "今天" : "1天" }; if (d <= 3) return { c: "mid", t: d + "天" }; return { c: "stale", t: d + "天" }; }
+function ownersText(arr) { return (arr || []).map(o => o.name ? `${o.name}（${o.account}）` : o.account).join("、"); }
+// 非「待催」时按当前阶段给一句建议
+const SUGGEST = { "洽谈中": "💬 推进报价", "已报价": "⏳ 等对方确认", "制作中": "🎬 盯制作进度", "已完成": "🔁 可跟进续约", "终止": "" };
 
 function visible() {
   const q = (document.getElementById("q").value || "").trim().toLowerCase();
@@ -129,9 +134,9 @@ function renderStrip(items) {
     ? `<div class="h">🔴 ${over.length} 个待回复隔夜没回</div><div class="sub">${over.slice(0, 6).map(o => esc(o.name) + (o.daysSinceFollow != null ? `(${o.daysSinceFollow}天)` : "")).join(" · ")}<br>红人发了消息、对接人隔夜没回 = 漏人失责</div>`
     : `<div class="h" style="color:#0a7d33">✅ 没有隔夜漏的待回复</div><div class="sub">今天待回复都跟上了</div>`;
   const byOwner = {};
-  items.forEach(i => (i.owners.length ? i.owners : ["未分配"]).forEach(o => {
-    byOwner[o] = byOwner[o] || { o, total: 0, missed: 0, overnight: 0 };
-    byOwner[o].total++; if (i.missed) byOwner[o].missed++; if (i.overnight) byOwner[o].overnight++;
+  items.forEach(i => (i.owners.length ? i.owners : [{ account: "未分配", name: "" }]).forEach(ow => {
+    const k = ow.account; byOwner[k] = byOwner[k] || { o: ow.name || ow.account, total: 0, missed: 0, overnight: 0 };
+    byOwner[k].total++; if (i.missed) byOwner[k].missed++; if (i.overnight) byOwner[k].overnight++;
   }));
   const owners = Object.values(byOwner).sort((a, b) => b.overnight - a.overnight).slice(0, 8).map(o => {
     const cls = o.overnight ? "bad" : o.missed ? "warn" : "ok";
@@ -156,16 +161,16 @@ function rowHtml(it) {
   const sumCell = sum
     ? `<div class="sumcell"><div class="sumline" onclick="this.parentNode.classList.toggle('open')"><span class="tg">▸</span><span class="tx">${esc(sum)}</span></div><div class="sumfull">${esc(sum)}</div></div>`
     : `<span class="none">—</span>`;
-  return `<tr>
+  return `<tr data-st="${esc(it.stage || "未判断")}">
     <td>${nameCell}${pcodes}</td>
     <td>${it.region ? `<span class="reg ${esc(it.region)}">${esc(it.region)}</span>` : "—"}</td>
     <td>${it.category ? `<span class="type">${esc(it.category)}</span>` : "—"}</td>
     <td>${esc(deal) || "—"}</td>
     <td>${esc(it.theme) || "—"}</td>
     <td class="upd ${r.c}"><span class="udot"></span>${r.t}${it.overnight ? " ⚠" : ""}</td>
-    <td>${esc((it.owners || []).join("、")) || "—"}</td>
+    <td>${esc(ownersText(it.owners)) || "—"}</td>
     <td>${sumCell}</td>
-    <td>${it.missed ? `<a class="chase" href="${link}" target="_blank">去催</a>` : ""}</td>
+    <td>${it.missed ? `<a class="chase" href="${link}" target="_blank">去催</a>` : (SUGGEST[it.stage] ? `<span class="sug">${SUGGEST[it.stage]}</span>` : "")}</td>
   </tr>`;
 }
 
@@ -180,11 +185,23 @@ function render() {
   for (const s of STAGES) {
     const list = (groups[s] || []).sort((a, b) => (b.daysSinceFollow || 0) - (a.daysSinceFollow || 0));
     if (!list.length) continue;
-    html += `<tr class="grp"><td colspan="9"><span class="dot" style="background:${SCOLOR[s]}"></span>${s}<span class="cnt">${list.length}</span></td></tr>`;
+    html += `<tr class="grp" data-s="${esc(s)}"><td colspan="9"><span class="caret">▼</span><span class="dot" style="background:${SCOLOR[s]}"></span>${s}<span class="cnt">${list.length}</span></td></tr>`;
     html += list.map(rowHtml).join("");
   }
   document.getElementById("rows").innerHTML = html;
   document.getElementById("empty").style.display = items.length ? "none" : "block";
+  document.querySelectorAll(".grp").forEach(h => h.onclick = () => {
+    const s = h.dataset.s; collapsed.has(s) ? collapsed.delete(s) : collapsed.add(s); applyCollapsed();
+  });
+  applyCollapsed();
+}
+const collapsed = new Set();
+function applyCollapsed() {
+  document.querySelectorAll(".grp").forEach(h => {
+    const s = h.dataset.s, c = collapsed.has(s);
+    h.querySelector(".caret").textContent = c ? "▶" : "▼";
+    document.querySelectorAll(`tr[data-st="${s}"]`).forEach(r => r.style.display = c ? "none" : "");
+  });
 }
 
 document.getElementById("q").oninput = () => DATA && render();

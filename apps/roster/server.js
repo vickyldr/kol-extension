@@ -176,7 +176,13 @@ function buildRoster() {
   const team = loadTeamMap();
   const overrides = loadOverrides();
   const backups = loadBackups();
-  const ownerName = (insid) => team[insid] || insid;
+  // 员工名：优先 roster-team.json 手填，其次各备份里插件设置的「员工名字」(myStaffName)
+  const staffMap = {};
+  for (const { insid, data } of backups) {
+    const rs = data.kolReminderSettings || {};
+    if (rs.myStaffName) staffMap[insid] = rs.myStaffName;
+  }
+  const ownerName = (insid) => team[insid] || staffMap[insid] || "";
 
   const map = {}; // personKey -> person
   function ensure(key) {
@@ -248,6 +254,9 @@ function buildRoster() {
   for (const p of Object.values(map)) {
     const prof = p.profile || {};
     const th = p.thread || {};
+    // 只要「群聊」= 真实合作的红人。私聊/便签/动态/UI 文字一律不进表
+    // （私聊只进插件提醒，催运营自己去回复砍价）。
+    if (!th.isGroup) continue;
     const ov = overrides[p.key] || {};
     const dealSrc = th.isGroup ? th.title : "";
     const deal = parseDeal(dealSrc);
@@ -291,7 +300,8 @@ function buildRoster() {
       lastFollowUpAt: th.lastFollowUpAt || "",
       lastSeenAt: th.lastSeenAt || "",
       updatedAt: prof.updatedAt || "",
-      owners: Object.keys(p.owners)
+      // 对接：ig账号 + 员工名（防换人/换号；员工名来自插件设置或 team 表，没填则空）
+      owners: Object.keys(p.ownerIds).map((id) => ({ account: id, name: team[id] || staffMap[id] || "" }))
     });
   }
   return out;
@@ -342,14 +352,16 @@ function buildBoard() {
     stageBuckets[s] = (stageBuckets[s] || 0) + 1;
   }
 
-  // 今日盯人：按对接人聚合
+  // 今日盯人：按对接人(账号)聚合
   const byOwner = {};
   for (const it of items) {
-    for (const o of it.owners.length ? it.owners : ["未分配"]) {
-      byOwner[o] = byOwner[o] || { owner: o, total: 0, missed: 0, overnight: 0 };
-      byOwner[o].total++;
-      if (it.missed) byOwner[o].missed++;
-      if (it.overnight) byOwner[o].overnight++;
+    const list = it.owners.length ? it.owners : [{ account: "未分配", name: "" }];
+    for (const o of list) {
+      const k = o.account;
+      byOwner[k] = byOwner[k] || { owner: o.name || o.account, total: 0, missed: 0, overnight: 0 };
+      byOwner[k].total++;
+      if (it.missed) byOwner[k].missed++;
+      if (it.overnight) byOwner[k].overnight++;
     }
   }
 

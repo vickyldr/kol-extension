@@ -3,6 +3,7 @@ let API_TOKEN = "";
 let API_ADMIN = "";
 let API_INSID = ""; // 用户 ins id：云端自动备份的身份钥匙 + 提醒认人
 let API_PRODUCT = ""; // 用户负责的产品：现在统一存在服务器设置里
+let API_STAFF = ""; // 用户姓名（员工名）：随备份上云，管理后台显示「谁对接的」
 
 // 给受保护的接口附带团队口令。
 function authHeaders(base = {}) {
@@ -28,6 +29,7 @@ async function loadConfig() {
       API_ADMIN = stored.kolConfig.adminToken || "";
       API_INSID = stored.kolConfig.insId || "";
       API_PRODUCT = stored.kolConfig.product || "";
+      API_STAFF = stored.kolConfig.staffName || "";
     }
   } catch {
     // 读取失败时沿用默认本机地址。
@@ -2268,6 +2270,7 @@ const serverAddressInput = document.getElementById("server-address");
 const serverTokenInput = document.getElementById("server-token");
 const serverAdminInput = document.getElementById("server-admin");
 const serverInsIdInput = document.getElementById("server-insid");
+const serverStaffInput = document.getElementById("server-staffname");
 const saveServerButton = document.getElementById("save-server");
 const serverSettingsStatus = document.getElementById("server-settings-status");
 
@@ -2276,6 +2279,7 @@ function fillServerSettings() {
   if (serverTokenInput) serverTokenInput.value = API_TOKEN;
   if (serverAdminInput) serverAdminInput.value = API_ADMIN;
   if (serverInsIdInput) serverInsIdInput.value = API_INSID;
+  if (serverStaffInput) serverStaffInput.value = API_STAFF;
 }
 
 if (saveServerButton) {
@@ -2284,6 +2288,7 @@ if (saveServerButton) {
     const token = serverTokenInput.value.trim();
     const adminToken = serverAdminInput ? serverAdminInput.value.trim() : "";
     const insId = serverInsIdInput ? serverInsIdInput.value.trim() : "";
+    const staffName = serverStaffInput ? serverStaffInput.value.trim() : "";
     if (!apiBase) {
       serverAddressInput.focus();
       return;
@@ -2295,8 +2300,9 @@ if (saveServerButton) {
     API_ADMIN = adminToken;
     API_INSID = insId;
     API_PRODUCT = product;
+    API_STAFF = staffName;
     await chrome.storage.local.set({
-      kolConfig: { apiBase, token, adminToken, insId, product }
+      kolConfig: { apiBase, token, adminToken, insId, product, staffName }
     });
     // ins id 同时是提醒里「我自己的号」、产品同时是「我负责的产品」——写进提醒身份。
     await syncReminderIdentity();
@@ -2322,6 +2328,7 @@ async function syncReminderIdentity() {
     const next = { ...cur };
     if (API_INSID) next.myHandle = API_INSID.replace(/^@/, "");
     if (API_PRODUCT && API_PRODUCT !== "generic") next.myProduct = API_PRODUCT;
+    if (API_STAFF) next.myStaffName = API_STAFF;
     if (next.enabled === undefined) next.enabled = true;
     await chrome.storage.local.set({ kolReminderSettings: next });
   } catch (_) {}
