@@ -107,7 +107,7 @@ const PRODUCTS = [
   ["vivacut", "VC"], ["recco", "RC"], ["wisemeal", "WM"],
   ["rymo", "RY"], ["inspo", "IN"]
 ];
-const PRODUCT_CODES = PRODUCTS.map(([, c]) => c);
+const PRODUCT_CODES = [...new Set(PRODUCTS.map(([, c]) => c))]; // 去重（aicatch/aictach 都→AC）
 // 从 ins id 认产品（aicatch_vip2 → AC）
 function productOf(insid) {
   const s = (insid || "").toLowerCase();
