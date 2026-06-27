@@ -103,10 +103,15 @@ function loadBackups() {
   } catch {
     files = [];
   }
-  return files.map((f) => ({
-    insid: f.replace(/\.json$/, ""),
-    data: readJSON(path.join(BACKUP_DIR, f), {}) || {}
-  }));
+  return files.map((f) => {
+    // 备份文件是包了一层的：{ userId, data:{kolProfiles,...}, updatedAt }。
+    // 真实 BACKUP_KEYS 在 .data 里；兼容万一没包的情况，回退顶层。
+    const raw = readJSON(path.join(BACKUP_DIR, f), {}) || {};
+    return {
+      insid: f.replace(/\.json$/, ""),
+      data: raw && typeof raw.data === "object" && raw.data ? raw.data : raw
+    };
+  });
 }
 
 // 把所有人备份合并成 { personKey: mergedPerson }

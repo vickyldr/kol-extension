@@ -12,6 +12,8 @@
   .nav { display: flex; gap: 4px; margin-left: 6px; }
   .nav a { padding: 5px 12px; border-radius: 7px; color: #5e6470; cursor: pointer; text-decoration: none; }
   .nav a.active { background: #eaf2ff; color: #1456f0; font-weight: 600; }
+  .search { margin-left: auto; }
+  .search input { width: 260px; padding: 8px 13px; border: 1px solid #d9dce1; border-radius: 9px; font-size: 14px; }
   .strip { display: flex; gap: 12px; padding: 14px 22px; background: #fff; border-bottom: 1px solid #e7e9ed; align-items: stretch; flex-wrap: wrap; }
   .funnel { display: flex; gap: 6px; flex: 1.4; min-width: 320px; flex-wrap: wrap; }
   .fstep { flex: 1; min-width: 90px; border-radius: 9px; padding: 9px 12px; color: #fff; background: #1456f0; }
@@ -56,6 +58,7 @@
       <a href="/">🗂️ 资源库</a>
       <a class="active" href="/board">跟进看板</a>
     </div>
+    <div class="search"><input id="q" placeholder="🔍 搜外号 / 红人 / 主题…"></div>
   </div>
 
   <div class="strip" id="strip"></div>
@@ -106,7 +109,9 @@ function render(d) {
     <div class="alert">${alert}</div>
     <div class="followup"><div class="h">今日盯人（谁漏了待回复）</div>${owners || '<div class="frow">暂无对接数据</div>'}</div>`;
 
-  const items = d.items || [];
+  const q = (document.getElementById("q").value || "").trim().toLowerCase();
+  const items = (d.items || []).filter(it =>
+    !q || `${it.name} ${it.handle} ${it.theme} ${it.summary}`.toLowerCase().includes(q));
   document.getElementById("rows").innerHTML = items.map(it => {
     const r = rel(it.daysSinceFollow);
     const deal = [it.price, ...(it.platforms || [])].filter(Boolean).join(" / ");
@@ -127,7 +132,10 @@ function render(d) {
   document.getElementById("empty").style.display = items.length ? "none" : "block";
 }
 
-async function load() { render(await api("/api/board")); }
+let DATA = null;
+function render2(d) { DATA = d; render(d); }
+document.getElementById("q").oninput = () => { if (DATA) render(DATA); };
+async function load() { render2(await api("/api/board")); }
 load();
 </script>
 </body>
