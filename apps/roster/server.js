@@ -114,6 +114,11 @@ function productOf(insid) {
   for (const [name, code] of PRODUCTS) if (s.includes(name)) return code;
   return "";
 }
+// 从缩写前缀认产品（rm_xiaomei / va.01 / rc-3 → RM/VA/RC）。给没填全名身份的人兜底。
+function prefixCode(s) {
+  const m = (s || "").toLowerCase().match(/^(va|ac|rm|vc|rc|wm|ry|in)([_.\-\s\d]|$)/);
+  return m ? m[1].toUpperCase() : "";
+}
 // 砍掉群名开头的产品代码前缀（"AC 8earts" → "8earts"），得到更像 ig handle 的部分
 function stripProductPrefix(name) {
   const re = new RegExp(`^(${PRODUCT_CODES.join("|")})\\s+`, "i");
@@ -192,13 +197,19 @@ function buildRoster() {
   const team = loadTeamMap();
   const overrides = loadOverrides();
   const backups = loadBackups();
-  // 员工名：优先 roster-team.json 手填，其次各备份里插件设置的「员工名字」(myStaffName)
-  const staffMap = {};
+  // 各 insid 的身份信息：员工名 / 插件自动认出的产品 / 我方号（都在备份的 kolReminderSettings 里）
+  const insidInfo = {};
   for (const { insid, data } of backups) {
     const rs = data.kolReminderSettings || {};
-    if (rs.myStaffName) staffMap[insid] = rs.myStaffName;
+    insidInfo[insid] = { staff: rs.myStaffName || "", product: rs.myProduct || "", handle: rs.myHandle || "" };
   }
-  const ownerName = (insid) => team[insid] || staffMap[insid] || "";
+  // 对接人：手填 team > 员工名 > 我方号 > insid 文件名（兜底也比空好）
+  const ownerName = (insid) => team[insid] || (insidInfo[insid] && (insidInfo[insid].staff || insidInfo[insid].handle)) || insid;
+  // 产品兜底：insid文件名 > 插件 myProduct > 我方号 > 缩写前缀(rm/rc/va/ac…) 逐级认
+  const prodOfInsid = (insid) => {
+    const i = insidInfo[insid] || {};
+    return productOf(insid) || productOf(i.product) || productOf(i.handle) || prefixCode(insid) || prefixCode(i.handle) || "";
+  };
 
   const map = {}; // personKey -> person
   function ensure(key) {
@@ -277,7 +288,7 @@ function buildRoster() {
     const region = detectRegion(
       `${th.title || ""} ${th.lastMsgPreview || ""} ${p.summary || ""}`
     );
-    const products = [...new Set(Object.keys(p.ownerIds).map(productOf).filter(Boolean))];
+    const products = [...new Set(Object.keys(p.ownerIds).map(prodOfInsid).filter(Boolean))];
     out.push({
       key: p.key,
       displayName: pickDisplayName(prof, th, p.key),
@@ -315,7 +326,7 @@ function buildRoster() {
       lastSeenAt: th.lastSeenAt || "",
       updatedAt: prof.updatedAt || "",
       // 对接：ig账号 + 员工名（防换人/换号；员工名来自插件设置或 team 表，没填则空）
-      owners: Object.keys(p.ownerIds).map((id) => ({ account: id, name: team[id] || staffMap[id] || "" })),
+      owners: Object.keys(p.ownerIds).map((id) => ({ account: id, name: ownerName(id) === id ? "" : ownerName(id) })),
       aliases: [], noId: false, collabCount: 0, qualityCount: 0,
       sources: ["群聊"] // 来自当前群聊扫描（实时）
     });
