@@ -103,7 +103,7 @@ function cleanGroupName(title) {
 // 产品缩写（写进代码文档，方便从 ins id 认产品）：
 //   vivavideo=VA  aicatch=AC  rythmix=RM  vivacut=VC  recco=RC  wisemeal=WM  rymo=RY  inspo=IN
 const PRODUCTS = [
-  ["vivavideo", "VA"], ["aicatch", "AC"], ["rythmix", "RM"],
+  ["vivavideo", "VA"], ["aicatch", "AC"], ["aictach", "AC"], ["rythmix", "RM"],
   ["vivacut", "VC"], ["recco", "RC"], ["wisemeal", "WM"],
   ["rymo", "RY"], ["inspo", "IN"]
 ];
@@ -140,8 +140,12 @@ function isCollab(th) {
   if (th.isGroup) return true;
   const t = (th.title || "").trim();
   if (!t) return false;
-  if (parseDeal(t).price) return true;
+  // 产品前缀（AC/RM…）
   if (PRODUCT_CODES.some((c) => new RegExp("^" + c + "[\\s_]", "i").test(t))) return true;
+  // 有价格（带币种）
+  if (parseDeal(t).price) return true;
+  // 平台 / 合作条款关键词（ig/tt/yt/igtt/reels/2条/2videos/Nd/Nmon/link/review/$）
+  if (/(\$|\big\b|\btt\b|\byt\b|igtt|reels?|tiktok|youtube|\d+\s*(条|videos?|days?|\bd\b|mon|month|周)|\blink\b|\breview\b)/i.test(t)) return true;
   return false;
 }
 // 阶段：优先用插件 AI 真阶段(kolUnderstanding)，没有就按关键词启发式推断。
