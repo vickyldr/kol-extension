@@ -81,29 +81,66 @@ function parseDeal(title) {
 // 语言地区粗判（AI 可增强）：含韩文→KR，含日文假名→JP，否则 TW
 function detectRegion(text) {
   if (!text) return "";
-  if (/[가-힣]/.test(text) || /\b(kr|韩|韓|韩国|韓國)\b/i.test(text)) return "KR";
-  if (/[぀-ヿ]/.test(text) || /\b(jp|日本|日语)\b/i.test(text)) return "JP";
-  return "TW";
+  const t = text.toLowerCase();
+  if (/[가-힣]/.test(text) || /韩|韓|krw/.test(t) || /\bkr\b/.test(t)) return "KR";
+  if (/[぀-ヿ]/.test(text) || /日本|日[语語]|jpy/.test(t) || /\bjp\b/.test(t)) return "JP";
+  return "TW"; // 台币/USD/默认
 }
 
 // 群名清洗：砍掉「价格/条款」那串（从第一个 价格 token 起），只留前面像名字的部分。
 // 例 "AC 8earts 5wJPY(2d;link;review)ig" → "AC 8earts"
 function cleanGroupName(title) {
   if (!title) return "";
+  // deal 起点：① 数字+币种/量词，或 ② 独立的币种/地区词（没数字时也能砍）
   const m = title.match(
-    /\d[\d,\.]*\s*(刀|usd|\$|美金|美元|twd|jpy|krw|台币|韩元|万|w|k)/i
+    /\d[\d,\.]*\s*(?:刀|usd|\$|美金|美元|twd|jpy|krw|台币|韩元|万|w|k)|(?:^|\s)(?:韩元|韓元|krw|jpy|twd|台币|美金)/i
   );
   let t = m && m.index > 0 ? title.slice(0, m.index) : title;
   // 去掉开头的 emoji/乱码（保留字母数字/中日韩/@）和结尾的分隔符
   t = t.replace(/^[^\w一-龥가-힣぀-ヿ@]+/, "").replace(/[\s\-_·|+]+$/, "").trim();
   return t || title;
 }
-// 显示名优先级：档案外号 > 私聊档案名 > 清洗后的群名 > 兜底
+// 产品缩写（写进代码文档，方便从 ins id 认产品）：
+//   vivavideo=VA  aicatch=AC  rythmix=RM  vivacut=VC  recco=RC  wisemeal=WM
+const PRODUCTS = [
+  ["vivavideo", "VA"], ["aicatch", "AC"], ["rythmix", "RM"],
+  ["vivacut", "VC"], ["recco", "RC"], ["wisemeal", "WM"]
+];
+const PRODUCT_CODES = PRODUCTS.map(([, c]) => c);
+// 从 ins id 认产品（aicatch_vip2 → AC）
+function productOf(insid) {
+  const s = (insid || "").toLowerCase();
+  for (const [name, code] of PRODUCTS) if (s.includes(name)) return code;
+  return "";
+}
+// 砍掉群名开头的产品代码前缀（"AC 8earts" → "8earts"），得到更像 ig handle 的部分
+function stripProductPrefix(name) {
+  const re = new RegExp(`^(${PRODUCT_CODES.join("|")})\\s+`, "i");
+  return (name || "").replace(re, "").trim();
+}
+// IG handle：群名清洗 + 去产品前缀；私聊用 creatorName
+function pickHandle(th) {
+  if (!th) return "";
+  if (th.isGroup && th.title) return stripProductPrefix(cleanGroupName(th.title));
+  return th.creatorName || "";
+}
+// 显示名优先级：档案外号 > 私聊档案名 > IG handle（清洗群名）> 兜底
 function pickDisplayName(prof, th, key) {
   if (prof.nickname) return prof.nickname;
   if (prof.displayName && !th.isGroup) return prof.displayName;
-  if (th.isGroup && th.title) return cleanGroupName(th.title);
-  return prof.displayName || th.title || th.creatorName || key;
+  const h = pickHandle(th);
+  if (h) return h;
+  return prof.displayName || th.title || key;
+}
+// 阶段：优先用插件 AI 真阶段(kolUnderstanding)，没有就按关键词启发式推断。
+const STAGES = ["洽谈中", "已报价", "制作中", "已完成", "终止"];
+function computeStage(prof, th, summary, price) {
+  const text = `${summary || ""} ${(th && th.lastMsgPreview) || ""} ${prof.notes || ""}`;
+  if (prof.blacklist || /鸽|不回复|拉黑|放弃|终止/.test(text)) return "终止";
+  if (/已发布|已发|上线|结案|完成/.test(text)) return "已完成";
+  if (/脚本|拍摄|制作|初稿|修改稿|审核|brief/i.test(text)) return "制作中";
+  if (/报价|报了|价格|quote|usd|twd|jpy|krw/i.test(text) || price) return "已报价";
+  return "洽谈中";
 }
 
 // ---------- 合并所有备份 ----------
@@ -143,7 +180,7 @@ function buildRoster() {
 
   const map = {}; // personKey -> person
   function ensure(key) {
-    if (!map[key]) map[key] = { key, owners: {}, _profileAt: 0, _threadAt: 0, _sumAt: 0 };
+    if (!map[key]) map[key] = { key, owners: {}, ownerIds: {}, _profileAt: 0, _threadAt: 0, _sumAt: 0 };
     return map[key];
   }
 
@@ -159,6 +196,7 @@ function buildRoster() {
       const key = profileKey(prof.displayName || pk);
       const p = ensure(key);
       p.owners[ownerName(insid)] = true;
+      p.ownerIds[insid] = true;
       const at = ts(prof.updatedAt);
       if (at >= p._profileAt || !p.profile) {
         p._profileAt = at;
@@ -175,6 +213,7 @@ function buildRoster() {
       const key = profileKey(tk);
       const p = ensure(key);
       p.owners[ownerName(insid)] = true;
+      p.ownerIds[insid] = true;
       const at = ts(th.lastSeenAt);
       if (at >= p._threadAt || !p.thread) {
         p._threadAt = at;
@@ -215,22 +254,22 @@ function buildRoster() {
     const region = detectRegion(
       `${th.title || ""} ${th.lastMsgPreview || ""} ${p.summary || ""}`
     );
+    const products = [...new Set(Object.keys(p.ownerIds).map(productOf).filter(Boolean))];
     out.push({
       key: p.key,
       displayName: pickDisplayName(prof, th, p.key),
       nickname: prof.nickname || "",
-      handle: th.title && th.isGroup ? "" : th.creatorName || "",
+      handle: pickHandle(th),
       category: prof.category || "",
       region,
+      products,
       // 合同/身份
       appid: prof.appid || "",
       legalname: prof.legalname || "",
       email: prof.email || "",
       payment: prof.payment || "",
       // 合作信息
-      script: prof.script || "",
       theme: prof.theme || "",
-      temperament: prof.temperament || "",
       notes: prof.notes || "",
       recommend: !!prof.recommend,
       recommendReason: prof.recommendReason || "",
@@ -242,8 +281,8 @@ function buildRoster() {
       usagePeriod: deal.usagePeriod,
       // 领导标记
       quality: !!ov.quality,
-      // 进度/跟进
-      stage: p.stageReal || "",
+      // 进度/跟进（真阶段优先，没有就启发式推断）
+      stage: p.stageReal || computeStage(prof, th, p.summary, deal.price),
       summary: p.summary || "",
       threadId: th.threadId || "",
       isGroup: !!th.isGroup,
@@ -281,6 +320,7 @@ function buildBoard() {
       handle: p.handle,
       region: p.region,
       category: p.category,
+      products: p.products,
       price: p.price,
       platforms: p.platforms,
       theme: p.theme,
@@ -319,11 +359,18 @@ function buildBoard() {
 
   return {
     total: items.length,
+    products: productsIn(items),
     stageBuckets,
     overnight: overnightList.map((i) => ({ name: i.name, days: i.daysSinceFollow })),
     owners: Object.values(byOwner).sort((a, b) => b.overnight - a.overnight),
     items: items.sort((a, b) => (b.daysSinceFollow || 0) - (a.daysSinceFollow || 0))
   };
+}
+
+// 收集出现过的产品（按 PRODUCT_CODES 固定顺序）
+function productsIn(items) {
+  const set = new Set(items.flatMap((i) => i.products || []));
+  return PRODUCT_CODES.filter((c) => set.has(c));
 }
 
 // ---------- 资源库统计 ----------
@@ -335,7 +382,7 @@ function buildLibrary() {
     recommend: all.filter((p) => p.recommend && !p.quality).length,
     blacklist: all.filter((p) => p.blacklist).length
   };
-  return { stats, items: all };
+  return { stats, products: productsIn(all), items: all };
 }
 
 // ---------- HTTP ----------

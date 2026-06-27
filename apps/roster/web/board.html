@@ -13,10 +13,14 @@
   .nav a { padding: 5px 12px; border-radius: 7px; color: #5e6470; cursor: pointer; text-decoration: none; }
   .nav a.active { background: #eaf2ff; color: #1456f0; font-weight: 600; }
   .search { margin-left: auto; }
-  .search input { width: 260px; padding: 8px 13px; border: 1px solid #d9dce1; border-radius: 9px; font-size: 14px; }
+  .search input { width: 240px; max-width: 50vw; padding: 8px 13px; border: 1px solid #d9dce1; border-radius: 9px; font-size: 14px; }
+  /* 产品 tab */
+  .ptabs { display: flex; gap: 4px; padding: 8px 22px; background: #fff; border-bottom: 1px solid #e7e9ed; flex-wrap: wrap; }
+  .ptab { padding: 5px 14px; border-radius: 7px; color: #5e6470; cursor: pointer; font-size: 13px; font-weight: 600; }
+  .ptab.on { background: #1f2329; color: #fff; }
   .strip { display: flex; gap: 12px; padding: 14px 22px; background: #fff; border-bottom: 1px solid #e7e9ed; align-items: stretch; flex-wrap: wrap; }
-  .funnel { display: flex; gap: 6px; flex: 1.4; min-width: 320px; flex-wrap: wrap; }
-  .fstep { flex: 1; min-width: 90px; border-radius: 9px; padding: 9px 12px; color: #fff; background: #1456f0; }
+  .funnel { display: flex; gap: 6px; flex: 1.4; min-width: 300px; flex-wrap: wrap; }
+  .fstep { flex: 1; min-width: 84px; border-radius: 9px; padding: 9px 12px; color: #fff; background: #8b7cf6; }
   .fstep .n { font-size: 19px; font-weight: 700; }
   .fstep .l { font-size: 11px; opacity: .92; }
   .alert { flex: 1; min-width: 200px; background: #fff6f5; border: 1px solid #f7d4cf; border-radius: 10px; padding: 10px 14px; }
@@ -25,28 +29,41 @@
   .followup { flex: 1; min-width: 200px; background: #f7f8fa; border: 1px solid #e7e9ed; border-radius: 10px; padding: 10px 14px; }
   .followup .h { font-weight: 700; font-size: 12px; color: #5e6470; margin-bottom: 5px; }
   .frow { display: flex; align-items: center; gap: 6px; font-size: 12px; margin: 2px 0; }
-  .frow .who { width: 50px; }
-  .badge { font-size: 11px; border-radius: 4px; padding: 1px 6px; }
+  .frow .who { width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .badge { font-size: 11px; border-radius: 4px; padding: 1px 6px; white-space: nowrap; }
   .ok { background: #eafbf0; color: #0a7d33; }
   .warn { background: #fff3e0; color: #b46a00; }
   .bad { background: #fdecec; color: #d23; }
-  .toolbar { display: flex; align-items: center; gap: 14px; padding: 9px 22px; color: #5e6470; font-size: 12px; background: #fff; border-bottom: 1px solid #f0f1f3; }
-  table { width: 100%; border-collapse: collapse; background: #fff; }
+  .toolbar { padding: 9px 22px; color: #5e6470; font-size: 12px; background: #fff; border-bottom: 1px solid #f0f1f3; }
+  /* 表格：横向可滚，小屏不撑爆 */
+  .tablewrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; background: #fff; min-width: 880px; }
   th { text-align: left; padding: 9px 14px; background: #fafbfc; color: #8f959e; font-weight: 600; font-size: 12px; border-bottom: 1px solid #e7e9ed; white-space: nowrap; }
-  td { padding: 11px 14px; border-bottom: 1px solid #f0f1f3; vertical-align: middle; }
+  td { padding: 11px 14px; border-bottom: 1px solid #f0f1f3; vertical-align: top; }
+  .grp td { background: #f2f6ff; font-weight: 700; padding: 7px 14px; color: #1f2329; position: sticky; left: 0; }
+  .grp .dot { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 7px; vertical-align: middle; }
+  .grp .cnt { color: #8f959e; font-weight: 500; margin-left: 6px; }
   .nm { font-weight: 600; }
-  .hd { color: #a6abb3; font-size: 11px; margin-left: 5px; }
+  .hd { color: #1456f0; font-size: 11px; }
   .reg { background: #eef1f4; border-radius: 4px; padding: 2px 7px; font-size: 11px; color: #5e6470; }
-  .reg.KR { background: #fbeaef; color: #c0397b; }
+  .reg.KR { background: #fbeaef; color: #c0397b; } .reg.JP { background: #eaf7f0; color: #0a7d33; }
   .type { background: #fff3e0; color: #b46a00; border-radius: 4px; padding: 2px 8px; font-size: 11px; }
-  .stage { font-size: 11px; border-radius: 5px; padding: 2px 8px; font-weight: 600; background: #efeaff; color: #6b3fd1; }
+  .pcode { background: #eef0ff; color: #4b3fd1; border-radius: 4px; padding: 1px 6px; font-size: 10px; margin-left: 4px; }
   .upd { white-space: nowrap; font-weight: 700; }
   .udot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
   .fresh { color: #0a7d33; } .fresh .udot { background: #0a7d33; }
   .mid { color: #b46a00; } .mid .udot { background: #f5a623; }
   .stale { color: #d23; } .stale .udot { background: #d23; }
-  .sum { color: #5e6470; max-width: 320px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .chase { background: #d23; color: #fff; border: none; border-radius: 6px; padding: 4px 10px; font-size: 11px; cursor: pointer; text-decoration: none; }
+  .none { color: #b6bcc4; }
+  /* 折叠的「当前在聊什么」 */
+  .sumcell { max-width: 360px; }
+  .sumline { color: #5e6470; cursor: pointer; display: flex; gap: 6px; align-items: baseline; }
+  .sumline .tx { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sumline .tg { color: #1456f0; flex: none; font-size: 11px; }
+  .sumfull { display: none; color: #3a4250; white-space: pre-wrap; line-height: 1.7; margin-top: 4px; }
+  .sumcell.open .sumfull { display: block; }
+  .sumcell.open .sumline .tx { white-space: normal; }
+  .chase { background: #d23; color: #fff; border: none; border-radius: 6px; padding: 4px 10px; font-size: 11px; cursor: pointer; text-decoration: none; white-space: nowrap; }
   .empty { padding: 40px; text-align: center; color: #9aa6b2; }
   .hint { color: #8f959e; font-size: 12px; padding: 12px 22px; }
 </style>
@@ -58,84 +75,120 @@
       <a href="/">🗂️ 资源库</a>
       <a class="active" href="/board">跟进看板</a>
     </div>
-    <div class="search"><input id="q" placeholder="🔍 搜外号 / 红人 / 主题…"></div>
+    <div class="search"><input id="q" placeholder="🔍 搜外号 / handle / 主题…"></div>
   </div>
-
+  <div class="ptabs" id="ptabs"></div>
   <div class="strip" id="strip"></div>
-  <div class="toolbar">↕ 排序：<b style="color:#d23">最近跟进（越久没回越靠上 = 越该催）</b></div>
-
-  <table>
-    <thead><tr><th>外号 / 红人</th><th>地区</th><th>类型</th><th>价格 / 平台</th><th>主题</th><th>当前阶段</th><th>最近跟进</th><th>对接人</th><th>当前在聊什么</th><th></th></tr></thead>
-    <tbody id="rows"></tbody>
-  </table>
-  <div class="empty" id="empty" style="display:none">当前没有在聊的红人。AI 扫到对话、或实习生开始跟进后才会出现。</div>
-  <p class="hint"><b>阶段</b>＝AI 看最新聊天的当前状态，不记历史。<b>最近跟进</b>＝实习生上次回复的时间，越久越红。<b>盯人</b>＝红人发了消息没回的「漏人」数，隔夜＝失责（红人自己不回不算）。</p>
+  <div class="toolbar">按<b>当前阶段</b>分组（阶段=AI 看最新聊天判断，没真阶段时按关键词推断）；组内按<b style="color:#d23">最近跟进</b>排序，越久没回越靠前。</div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>外号 / 红人</th><th>地区</th><th>类型</th><th>价格 / 平台</th><th>主题</th><th>最近跟进</th><th>对接人</th><th>当前在聊什么</th><th></th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <div class="empty" id="empty" style="display:none">没有匹配的红人。</div>
+  <p class="hint"><b>盯人</b>＝红人发了消息没回的「漏人」数，隔夜＝失责（红人自己不回不算）。点「当前在聊什么」可展开全文。</p>
 
 <script>
+const STAGES = ["洽谈中", "已报价", "制作中", "已完成", "终止", "未判断"];
+const SCOLOR = { "洽谈中": "#1456f0", "已报价": "#f5a623", "制作中": "#8b7cf6", "已完成": "#0a7d33", "终止": "#d23", "未判断": "#9aa6b2" };
+let DATA = null, product = "all", DAY = 86400000;
+
 async function api(path) {
   let token = localStorage.getItem("kolToken") || "";
   const r = await fetch(path, { headers: token ? { "X-KOL-Token": token } : {} });
-  if (r.status === 401) {
-    const t = prompt("请输入团队口令");
-    if (t) { localStorage.setItem("kolToken", t); return api(path); }
-  }
+  if (r.status === 401) { const t = prompt("请输入团队口令"); if (t) { localStorage.setItem("kolToken", t); return api(path); } }
   return r.json();
 }
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
-function rel(days) {
-  if (days == null) return { cls: "mid", t: "未跟进过" };
-  if (days <= 1) return { cls: "fresh", t: days <= 0 ? "今天" : "1 天" };
-  if (days <= 3) return { cls: "mid", t: days + " 天" };
-  return { cls: "stale", t: days + " 天" };
-}
-const STAGE_COLORS = { "洽谈中": "#1456f0", "已报价": "#f5a623", "制作中": "#8b7cf6", "终止": "#d23" };
+function rel(d) { if (d == null) return { c: "none", t: "未跟进" }; if (d <= 1) return { c: "fresh", t: d <= 0 ? "今天" : "1天" }; if (d <= 3) return { c: "mid", t: d + "天" }; return { c: "stale", t: d + "天" }; }
 
-function render(d) {
-  // 顶部三块
-  const buckets = d.stageBuckets || {};
-  const funnel = Object.entries(buckets).map(([s, n]) =>
-    `<div class="fstep" style="background:${STAGE_COLORS[s] || "#5e6470"}"><div class="n">${n}</div><div class="l">${esc(s)}</div></div>`).join("");
-  const over = d.overnight || [];
+function visible() {
+  const q = (document.getElementById("q").value || "").trim().toLowerCase();
+  return (DATA.items || []).filter(it => {
+    if (product !== "all" && !(it.products || []).includes(product)) return false;
+    if (q && !`${it.name} ${it.handle} ${it.theme} ${it.summary}`.toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+
+function renderTabs() {
+  const tabs = ["all", ...(DATA.products || [])];
+  document.getElementById("ptabs").innerHTML = tabs.map(p =>
+    `<div class="ptab ${p === product ? "on" : ""}" data-p="${p}">${p === "all" ? "总表" : p}</div>`).join("");
+  document.querySelectorAll(".ptab").forEach(t => t.onclick = () => { product = t.dataset.p; render(); });
+}
+
+function renderStrip(items) {
+  const buckets = {};
+  items.forEach(i => { const s = i.stage || "未判断"; buckets[s] = (buckets[s] || 0) + 1; });
+  const funnel = STAGES.filter(s => buckets[s]).map(s =>
+    `<div class="fstep" style="background:${SCOLOR[s]}"><div class="n">${buckets[s]}</div><div class="l">${s}</div></div>`).join("");
+  const over = items.filter(i => i.overnight).sort((a, b) => (b.daysSinceFollow || 0) - (a.daysSinceFollow || 0));
   const alert = over.length
-    ? `<div class="h">🔴 ${over.length} 个待回复隔夜没回</div><div class="sub">${over.slice(0, 6).map(o => esc(o.name) + (o.days != null ? `(${o.days}天)` : "")).join(" · ")}<br>红人发了消息、对接人隔夜没回 = 漏人失责</div>`
+    ? `<div class="h">🔴 ${over.length} 个待回复隔夜没回</div><div class="sub">${over.slice(0, 6).map(o => esc(o.name) + (o.daysSinceFollow != null ? `(${o.daysSinceFollow}天)` : "")).join(" · ")}<br>红人发了消息、对接人隔夜没回 = 漏人失责</div>`
     : `<div class="h" style="color:#0a7d33">✅ 没有隔夜漏的待回复</div><div class="sub">今天待回复都跟上了</div>`;
-  const owners = (d.owners || []).map(o => {
+  const byOwner = {};
+  items.forEach(i => (i.owners.length ? i.owners : ["未分配"]).forEach(o => {
+    byOwner[o] = byOwner[o] || { o, total: 0, missed: 0, overnight: 0 };
+    byOwner[o].total++; if (i.missed) byOwner[o].missed++; if (i.overnight) byOwner[o].overnight++;
+  }));
+  const owners = Object.values(byOwner).sort((a, b) => b.overnight - a.overnight).slice(0, 8).map(o => {
     const cls = o.overnight ? "bad" : o.missed ? "warn" : "ok";
-    const txt = o.overnight ? `在聊${o.total} · 漏${o.missed}（${o.overnight}隔夜）` : o.missed ? `在聊${o.total} · 漏${o.missed}（今天内）` : `在聊${o.total} · 漏 0 ✅`;
-    return `<div class="frow"><span class="who">${esc(o.owner)}</span><span class="badge ${cls}">${txt}</span></div>`;
+    const txt = o.overnight ? `${o.total}人·漏${o.missed}（${o.overnight}隔夜）` : o.missed ? `${o.total}人·漏${o.missed}（今天内）` : `${o.total}人·漏0 ✅`;
+    return `<div class="frow"><span class="who" title="${esc(o.o)}">${esc(o.o)}</span><span class="badge ${cls}">${txt}</span></div>`;
   }).join("");
   document.getElementById("strip").innerHTML = `
     <div class="funnel">${funnel || '<div class="fstep" style="background:#9aa6b2"><div class="n">0</div><div class="l">暂无</div></div>'}</div>
     <div class="alert">${alert}</div>
-    <div class="followup"><div class="h">今日盯人（谁漏了待回复）</div>${owners || '<div class="frow">暂无对接数据</div>'}</div>`;
+    <div class="followup"><div class="h">今日盯人（谁漏了待回复）</div>${owners || '<div class="frow">暂无</div>'}</div>`;
+}
 
-  const q = (document.getElementById("q").value || "").trim().toLowerCase();
-  const items = (d.items || []).filter(it =>
-    !q || `${it.name} ${it.handle} ${it.theme} ${it.summary}`.toLowerCase().includes(q));
-  document.getElementById("rows").innerHTML = items.map(it => {
-    const r = rel(it.daysSinceFollow);
-    const deal = [it.price, ...(it.platforms || [])].filter(Boolean).join(" / ");
-    const link = it.threadId ? `https://www.instagram.com/direct/t/${esc(it.threadId)}/` : "https://www.instagram.com/direct/inbox/";
-    return `<tr>
-      <td><span class="nm">${esc(it.name)}</span>${it.handle ? `<span class="hd">@${esc(it.handle)}</span>` : ""}</td>
-      <td>${it.region ? `<span class="reg ${esc(it.region)}">${esc(it.region)}</span>` : "—"}</td>
-      <td>${it.category ? `<span class="type">${esc(it.category)}</span>` : "—"}</td>
-      <td>${esc(deal) || "—"}</td>
-      <td>${esc(it.theme) || "—"}</td>
-      <td>${it.stage ? `<span class="stage" style="background:${(STAGE_COLORS[it.stage] || "#8b7cf6")}22;color:${STAGE_COLORS[it.stage] || "#6b3fd1"}">${esc(it.stage)}</span>` : "—"}</td>
-      <td class="upd ${r.cls}"><span class="udot"></span>${r.t}${it.overnight ? " ⚠" : ""}</td>
-      <td>${esc((it.owners || []).join("、")) || "—"}</td>
-      <td class="sum">${esc(it.summary) || "—"}</td>
-      <td>${it.missed ? `<a class="chase" href="${link}" target="_blank">去催</a>` : ""}</td>
-    </tr>`;
-  }).join("");
+function rowHtml(it) {
+  const r = rel(it.daysSinceFollow);
+  const deal = [it.price, ...(it.platforms || [])].filter(Boolean).join(" / ");
+  const link = it.threadId ? `https://www.instagram.com/direct/t/${esc(it.threadId)}/` : "https://www.instagram.com/direct/inbox/";
+  const nameCell = it.handle && it.name !== it.handle
+    ? `<span class="nm">${esc(it.name)}</span> <span class="hd">@${esc(it.handle)}</span>`
+    : `<span class="nm">${esc(it.name)}</span>`;
+  const pcodes = (it.products || []).map(p => `<span class="pcode">${p}</span>`).join("");
+  const sum = (it.summary || "").trim();
+  const sumCell = sum
+    ? `<div class="sumcell"><div class="sumline" onclick="this.parentNode.classList.toggle('open')"><span class="tg">▸</span><span class="tx">${esc(sum)}</span></div><div class="sumfull">${esc(sum)}</div></div>`
+    : `<span class="none">—</span>`;
+  return `<tr>
+    <td>${nameCell}${pcodes}</td>
+    <td>${it.region ? `<span class="reg ${esc(it.region)}">${esc(it.region)}</span>` : "—"}</td>
+    <td>${it.category ? `<span class="type">${esc(it.category)}</span>` : "—"}</td>
+    <td>${esc(deal) || "—"}</td>
+    <td>${esc(it.theme) || "—"}</td>
+    <td class="upd ${r.c}"><span class="udot"></span>${r.t}${it.overnight ? " ⚠" : ""}</td>
+    <td>${esc((it.owners || []).join("、")) || "—"}</td>
+    <td>${sumCell}</td>
+    <td>${it.missed ? `<a class="chase" href="${link}" target="_blank">去催</a>` : ""}</td>
+  </tr>`;
+}
+
+function render() {
+  renderTabs();
+  const items = visible();
+  renderStrip(items);
+  // 按阶段分组
+  const groups = {};
+  items.forEach(i => { const s = i.stage || "未判断"; (groups[s] = groups[s] || []).push(i); });
+  let html = "";
+  for (const s of STAGES) {
+    const list = (groups[s] || []).sort((a, b) => (b.daysSinceFollow || 0) - (a.daysSinceFollow || 0));
+    if (!list.length) continue;
+    html += `<tr class="grp"><td colspan="9"><span class="dot" style="background:${SCOLOR[s]}"></span>${s}<span class="cnt">${list.length}</span></td></tr>`;
+    html += list.map(rowHtml).join("");
+  }
+  document.getElementById("rows").innerHTML = html;
   document.getElementById("empty").style.display = items.length ? "none" : "block";
 }
 
-let DATA = null;
-function render2(d) { DATA = d; render(d); }
-document.getElementById("q").oninput = () => { if (DATA) render(DATA); };
-async function load() { render2(await api("/api/board")); }
+document.getElementById("q").oninput = () => DATA && render();
+async function load() { DATA = await api("/api/board"); render(); }
 load();
 </script>
 </body>

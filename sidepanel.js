@@ -2872,9 +2872,7 @@ initGuide();
     legalname: document.getElementById("kp-legalname"),
     email: document.getElementById("kp-email"),
     payment: document.getElementById("kp-payment"),
-    script: document.getElementById("kp-script"),
     theme: document.getElementById("kp-theme"),
-    temperament: document.getElementById("kp-temperament"),
     recommendReason: document.getElementById("kp-recommend-reason"),
     blacklistReason: document.getElementById("kp-blacklist-reason"),
     notes: document.getElementById("kp-notes")
