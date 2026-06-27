@@ -37,6 +37,10 @@
   .nm { font-weight: 600; font-size: 14px; }
   .hd { color: #1456f0; font-size: 12px; }
   .pcode { background: #eef0ff; color: #4b3fd1; border-radius: 4px; padding: 1px 6px; font-size: 10px; margin-left: 5px; }
+  .src { border-radius: 4px; padding: 1px 6px; font-size: 10px; margin-left: 5px; }
+  .src.both { background: #e8f7ee; color: #0a7d33; }
+  .src.live { background: #eaf2ff; color: #1456f0; }
+  .src.hist { background: #f3eefe; color: #6b3fd1; }
   .reg { background: #eef1f4; border-radius: 4px; padding: 2px 7px; font-size: 11px; color: #5e6470; }
   .reg.KR { background: #fbeaef; color: #c0397b; } .reg.JP { background: #eaf7f0; color: #0a7d33; }
   .type { background: #fff3e0; color: #b46a00; border-radius: 4px; padding: 2px 8px; font-size: 11px; }
@@ -71,6 +75,12 @@
   <div class="ptabs" id="ptabs"></div>
   <div class="funnel" id="funnel"></div>
   <div class="fgroups">
+    <div class="fgroup" data-grp="source">
+      <span class="flabel">来源</span>
+      <div class="chip on" data-v="all">全部</div>
+      <div class="chip" data-v="群聊">💬 群聊（实时）</div>
+      <div class="chip" data-v="历史">📚 历史（导入）</div>
+    </div>
     <div class="fgroup" data-grp="status">
       <span class="flabel">状态</span>
       <div class="chip on" data-v="all">全部</div>
@@ -78,20 +88,8 @@
       <div class="chip" data-v="recommend">👍 值得合作</div>
       <div class="chip black" data-v="blacklist">⚠ 黑名单</div>
     </div>
-    <div class="fgroup" data-grp="category">
-      <span class="flabel">红人类型</span>
-      <div class="chip on" data-v="all">全部</div>
-      <div class="chip" data-v="口播">口播</div>
-      <div class="chip" data-v="宝妈">宝妈</div>
-      <div class="chip" data-v="街采">街采</div>
-    </div>
-    <div class="fgroup" data-grp="region">
-      <span class="flabel">语言地区</span>
-      <div class="chip on" data-v="all">全部</div>
-      <div class="chip" data-v="TW">TW</div>
-      <div class="chip" data-v="KR">KR</div>
-      <div class="chip" data-v="JP">JP</div>
-    </div>
+    <div class="fgroup" data-grp="category"><span class="flabel">红人类型</span></div>
+    <div class="fgroup" data-grp="region"><span class="flabel">语言地区</span></div>
   </div>
   <div class="tablewrap">
     <table>
@@ -107,7 +105,7 @@
 <script>
 let DATA = { stats: {}, items: [], products: [] };
 let product = "all";
-const F = { status: "all", category: "all", region: "all" };
+const F = { source: "all", status: "all", category: "all", region: "all" };
 
 async function api(path, opts) {
   let token = localStorage.getItem("kolToken") || "";
@@ -130,6 +128,7 @@ function matches(p) {
   const q = document.getElementById("q").value.trim().toLowerCase();
   if (q && !`${p.displayName} ${p.nickname} ${p.handle} ${p.theme}`.toLowerCase().includes(q)) return false;
   if (product !== "all" && !(p.products || []).includes(product)) return false;
+  if (F.source !== "all" && !(p.sources || []).includes(F.source)) return false;
   if (F.status === "quality" && !p.quality) return false;
   if (F.status === "recommend" && !p.recommend) return false;
   if (F.status === "blacklist" && !p.blacklist) return false;
@@ -163,8 +162,12 @@ function render() {
         ? `<span class="nm">${esc(p.displayName)}</span> <span class="hd">@${esc(p.handle)}</span>`
         : `<span class="nm">${esc(p.displayName)}</span>`;
     const pcodes = (p.products || []).map(x => `<span class="pcode">${x}</span>`).join("");
+    const sr = p.sources || [];
+    const srcTag = sr.includes("群聊") && sr.includes("历史") ? `<span class="src both">💬+📚</span>`
+      : sr.includes("群聊") ? `<span class="src live">💬群聊</span>`
+        : sr.includes("历史") ? `<span class="src hist">📚历史</span>` : "";
     return `<tr class="row" data-k="${esc(p.key)}">
-      <td>${nameCell}${pcodes}</td>
+      <td>${nameCell}${pcodes}${srcTag}</td>
       <td>${p.region ? `<span class="reg ${esc(p.region)}">${esc(p.region)}</span>` : "—"}</td>
       <td>${p.category ? `<span class="type">${esc(p.category)}</span>` : "—"}</td>
       <td>${statusTag(p)}</td>
@@ -212,15 +215,30 @@ function closeDrawer() { document.getElementById("mask").classList.remove("on");
 document.getElementById("mask").onclick = e => { if (e.target.id === "mask") closeDrawer(); };
 
 document.getElementById("q").oninput = render;
-document.querySelectorAll(".fgroup").forEach(g => {
-  const grp = g.dataset.grp;
-  g.querySelectorAll(".chip").forEach(c => c.onclick = () => {
-    g.querySelectorAll(".chip").forEach(x => x.classList.remove("on"));
-    c.classList.add("on"); F[grp] = c.dataset.v; render();
-  });
-});
 
-async function load() { DATA = await api("/api/roster"); render(); }
+function distinctVals(key) {
+  const s = new Set();
+  DATA.items.forEach(p => { const v = p[key]; if (v) s.add(v); });
+  return [...s].sort();
+}
+function setupFilters() {
+  // 动态填「红人类型 / 语言地区」chips（值随数据，Rythmix 是 DE/SP/TR/BR…）
+  for (const grp of ["category", "region"]) {
+    const g = document.querySelector(`.fgroup[data-grp="${grp}"]`);
+    g.querySelectorAll(".chip").forEach(c => c.remove());
+    const all = document.createElement("div"); all.className = "chip on"; all.dataset.v = "all"; all.textContent = "全部"; g.appendChild(all);
+    distinctVals(grp).forEach(v => { const c = document.createElement("div"); c.className = "chip"; c.dataset.v = v; c.textContent = v; g.appendChild(c); });
+  }
+  document.querySelectorAll(".fgroup").forEach(g => {
+    const grp = g.dataset.grp;
+    g.querySelectorAll(".chip").forEach(c => c.onclick = () => {
+      g.querySelectorAll(".chip").forEach(x => x.classList.remove("on"));
+      c.classList.add("on"); F[grp] = c.dataset.v; render();
+    });
+  });
+}
+
+async function load() { DATA = await api("/api/roster"); setupFilters(); render(); }
 load();
 </script>
 </body>

@@ -302,20 +302,73 @@ function buildRoster() {
       lastSeenAt: th.lastSeenAt || "",
       updatedAt: prof.updatedAt || "",
       // 对接：ig账号 + 员工名（防换人/换号；员工名来自插件设置或 team 表，没填则空）
-      owners: Object.keys(p.ownerIds).map((id) => ({ account: id, name: team[id] || staffMap[id] || "" }))
+      owners: Object.keys(p.ownerIds).map((id) => ({ account: id, name: team[id] || staffMap[id] || "" })),
+      sources: ["群聊"] // 来自当前群聊扫描（实时）
     });
   }
+  // 折入历史导入表（上线表/进度表），按 handle/外号 交叉比对：对得上→补全+双来源，对不上→单独保留
+  foldImport(out);
   return out;
+}
+
+// 历史导入：读 live 覆盖或仓库种子
+function loadImport() {
+  const live = path.join(DATA_DIR, "roster-import.json");
+  const seed = path.join(__dirname, "seed", "roster-import.json");
+  return readJSON(fs.existsSync(live) ? live : seed, []) || [];
+}
+// 把历史导入记录折进现有（群聊）列表：handle 或 外号 归一后匹配
+function foldImport(out) {
+  const imp = loadImport();
+  if (!imp.length) return;
+  const byHandle = {}, byNick = {};
+  for (const p of out) {
+    if (p.handle) byHandle[profileKey(p.handle)] = p;
+    if (p.nickname) byNick[profileKey(p.nickname)] = p;
+    if (p.displayName) byNick[profileKey(p.displayName)] = p;
+  }
+  for (const r of imp) {
+    const hk = profileKey(r.handle || ""), nk = profileKey(r.nickname || "");
+    const hit = (hk && byHandle[hk]) || (nk && byNick[nk]) || null;
+    const plats = (r.platforms || "").split(" / ").map((s) => s.trim()).filter(Boolean);
+    if (hit) {
+      // 对得上：补全空字段 + 标双来源（历史的优质/黑名单也并入）
+      if (!hit.sources.includes("历史")) hit.sources.push("历史");
+      const fill = (k, v) => { if (v && !hit[k]) hit[k] = v; };
+      fill("nickname", r.nickname); fill("region", r.region); fill("category", r.category);
+      fill("theme", r.theme); fill("price", r.price); fill("notes", r.notes);
+      if (r.quality === "1") hit.quality = true;
+      if (r.blacklist === "1") { hit.blacklist = true; hit.blacklistReason = hit.blacklistReason || r.blacklistReason || ""; }
+      if (!hit.platforms.length && plats.length) hit.platforms = plats;
+      if (r.product && !hit.products.includes(r.product)) hit.products.push(r.product);
+      if (r.owner && !hit.owners.some((o) => o.name === r.owner)) hit.owners.push({ account: "", name: r.owner });
+    } else {
+      // 对不上：作为「历史」红人单独加入（不进群聊看板）
+      out.push({
+        key: "import:" + (hk || nk),
+        displayName: r.nickname || r.handle || "", nickname: r.nickname || "", handle: r.handle || "",
+        category: r.category || "", region: r.region || "", products: r.product ? [r.product] : [],
+        appid: "", legalname: "", email: "", payment: "",
+        theme: r.theme || "", notes: r.notes || "",
+        recommend: false, recommendReason: "",
+        blacklist: r.blacklist === "1", blacklistReason: r.blacklistReason || "",
+        price: r.price || "", platforms: plats, usagePeriod: "",
+        quality: r.quality === "1",
+        stage: r.stage || "已完成", summary: "",
+        threadId: "", isGroup: true, needsReplyRaw: false, firstUnrepliedAt: "", lastFollowUpAt: "", lastSeenAt: "", updatedAt: "",
+        owners: r.owner ? [{ account: "", name: r.owner }] : [],
+        sources: ["历史"]
+      });
+    }
+  }
 }
 
 // ---------- 进度看板：从合并结果再算盯人/漏人 ----------
 function buildBoard() {
   const all = buildRoster();
   const now = Date.now();
-  // 只看「当前在聊」：有会话且近期 seen（30 天内），且不在黑名单
-  const active = all.filter(
-    (p) => p.thread !== undefined || p.threadId || p.stage || p.needsReplyRaw || p.lastFollowUpAt
-  );
+  // 跟进看板只看「当前群聊」（实时）。历史导入的红人不进看板，只进资源库。
+  const active = all.filter((p) => (p.sources || []).includes("群聊"));
 
   const items = active.map((p) => {
     const fu = ts(p.lastFollowUpAt);
