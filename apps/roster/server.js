@@ -86,6 +86,26 @@ function detectRegion(text) {
   return "TW";
 }
 
+// 群名清洗：砍掉「价格/条款」那串（从第一个 价格 token 起），只留前面像名字的部分。
+// 例 "AC 8earts 5wJPY(2d;link;review)ig" → "AC 8earts"
+function cleanGroupName(title) {
+  if (!title) return "";
+  const m = title.match(
+    /\d[\d,\.]*\s*(刀|usd|\$|美金|美元|twd|jpy|krw|台币|韩元|万|w|k)/i
+  );
+  let t = m && m.index > 0 ? title.slice(0, m.index) : title;
+  // 去掉开头的 emoji/乱码（保留字母数字/中日韩/@）和结尾的分隔符
+  t = t.replace(/^[^\w一-龥가-힣぀-ヿ@]+/, "").replace(/[\s\-_·|+]+$/, "").trim();
+  return t || title;
+}
+// 显示名优先级：档案外号 > 私聊档案名 > 清洗后的群名 > 兜底
+function pickDisplayName(prof, th, key) {
+  if (prof.nickname) return prof.nickname;
+  if (prof.displayName && !th.isGroup) return prof.displayName;
+  if (th.isGroup && th.title) return cleanGroupName(th.title);
+  return prof.displayName || th.title || th.creatorName || key;
+}
+
 // ---------- 合并所有备份 ----------
 function loadTeamMap() {
   // { insid: 实习生名 }
@@ -197,7 +217,7 @@ function buildRoster() {
     );
     out.push({
       key: p.key,
-      displayName: p.displayName || p.key,
+      displayName: pickDisplayName(prof, th, p.key),
       nickname: prof.nickname || "",
       handle: th.title && th.isGroup ? "" : th.creatorName || "",
       category: prof.category || "",
