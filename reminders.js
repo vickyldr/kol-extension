@@ -68,6 +68,27 @@ function endOfToday() {
   return d.getTime();
 }
 
+// 调后端生成「跟进话术」（读 kolConfig 拿地址/口令）。话术只生成，发不发同学自己定。
+async function genFollowupText(item) {
+  const cfg = (await chrome.storage.local.get("kolConfig")).kolConfig || {};
+  const base = (cfg.apiBase || "").replace(/\/+$/, "");
+  if (!base) throw new Error("没填服务器地址");
+  const headers = { "Content-Type": "application/json" };
+  if (cfg.token) headers["X-KOL-Token"] = cfg.token;
+  const resp = await fetch(`${base}/api/followup`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      level: item.level,
+      message: item.lastMsgPreview || "",
+      context: item.summary || ""
+    }),
+    signal: AbortSignal.timeout(60000)
+  });
+  if (!resp.ok) throw new Error("生成失败（" + resp.status + "）");
+  return resp.json();
+}
+
 function computeItems(threads, todos, summaries) {
   const items = [];
   const looksLikeId = (x) => /^\d{6,}$/.test(String(x || ""));
@@ -104,6 +125,24 @@ function computeItems(threads, todos, summaries) {
         meta: `${unreadTag} ${elapsedStr}${rec.isOnline ? " · 🟢 在线" : ""}`,
         elapsedMs
       });
+    }
+
+    // 📤 该催对方：我方已发、红人不回 → 逐级升级跟进（满 1 天提醒下一级）。
+    // 升级只在「同学真发了上一级」后推进（followUpLevel 由采集层数我方主动跟进次数）。
+    if (!rec.needsReplyRaw && rec.lastFollowUpAt && j.is_pleasantry !== true) {
+      const days = daysSince(rec.lastFollowUpAt);
+      const lvl = Math.min((rec.followUpLevel || 0) + 1, 4);
+      if (days >= 1 && rec.followDismissedLevel !== lvl) {
+        const LABELS = { 1: "二次跟进", 2: "再跟进", 3: "最后通牒", 4: "建议终止" };
+        items.push({
+          kind: "followup", level: lvl, levelLabel: LABELS[lvl],
+          key: recKey, threadId: rec.threadId, isGroup: rec.isGroup, title,
+          avatar: rec.avatarUrl || "", summary,
+          lastMsgPreview: rec.lastMsgPreview || "", // 红人最后一句，给 AI 认语言
+          meta: `已等 ${days} 天没回 · 该${LABELS[lvl]}`,
+          elapsedMs: Date.now() - (Date.parse(rec.lastFollowUpAt) || Date.now())
+        });
+      }
     }
   });
   // 待办：今天到点（含已过期）→🟠今天跟进；未来日期→📅以后
@@ -173,7 +212,7 @@ function card(it) {
   const isTodo = it.kind === "today" || it.kind === "future";
   const t = document.createElement("div");
   t.className = "rc-title";
-  t.textContent = (isTodo ? "📝 " : "") + (it.title || "");
+  t.textContent = (isTodo ? "📝 " : it.kind === "followup" ? "📤 " : "") + (it.title || "");
   head.appendChild(t);
   el.appendChild(head);
   // 一行总结（每条必有）：红人说到哪了 + 该干嘛。待办没有总结。
@@ -197,6 +236,29 @@ function card(it) {
   }
   if (it.kind === "reply") {
     actions.appendChild(btn("不用提醒了", async () => { await dismissThread(it.key, "reply"); render(); }));
+  } else if (it.kind === "followup") {
+    if (it.level < 4) {
+      actions.appendChild(btn(`✍️ 生成${it.levelLabel}话术`, async (e) => {
+        const b = e.currentTarget; b.textContent = "生成中…"; b.disabled = true;
+        try {
+          const r = await genFollowupText(it);
+          el.querySelector(".rc-followup-draft")?.remove();
+          const box = document.createElement("div");
+          box.className = "rc-followup-draft";
+          const tgt = document.createElement("div"); tgt.className = "fd-target";
+          tgt.textContent = r.reply_target || "（没生成出来，重试一下）";
+          const cn = document.createElement("div"); cn.className = "fd-cn";
+          cn.textContent = r.reply_chinese || "";
+          box.appendChild(tgt); box.appendChild(cn);
+          box.appendChild(btn("📋 复制话术", () => navigator.clipboard.writeText(r.reply_target || "")));
+          el.appendChild(box);
+          b.textContent = "重新生成";
+        } catch (err) {
+          b.textContent = "生成失败，点重试";
+        } finally { b.disabled = false; }
+      }));
+    }
+    actions.appendChild(btn("这级不用提醒", async () => { await patchThread(it.key, { followDismissedLevel: it.level }); render(); }));
   } else if (isTodo) {
     actions.appendChild(btn("完成", async () => { await patchTodo(it.todoId, { done: true }); render(); }));
     actions.appendChild(btn("删除", async () => { await patchTodo(it.todoId, { dismissed: true }); render(); }));
@@ -222,6 +284,7 @@ async function render() {
   }
   const groups = [
     ["reply", "🔴 立即回复（含未读 + 已读不回）"],
+    ["followup", "📤 该催对方（红人不回 · 逐级跟进）"],
     ["today", "🟠 今天跟进"],
     ["future", "📅 以后"]
   ];

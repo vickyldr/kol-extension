@@ -497,11 +497,29 @@
       rec.firstUnrepliedAt = null;
     }
 
-    // 「最近跟进」锚点：从「待回复」翻转成「已回复」= 实习生刚回了 → 盖戳。
-    // 给红人资源库/进度看板算「多久没跟进 / 有没有漏人」用。
-    // 注意：只加这个字段，绝不改 needsReplyRaw 判定本身（见 CLAUDE.md §9.14）。
-    if ("needsReplyRaw" in patch && prev.needsReplyRaw && !patch.needsReplyRaw) {
-      rec.lastFollowUpAt = nowIso();
+    // 「主动跟进」升级状态机：我方已发、红人不回时，逐级升级
+    //   followUpLevel = 我方已主动跟进的次数（不含首次回复）：0→还没催，1→二次跟进过，2→再跟进过，3→通牒过
+    //   lastFollowUpAt = 上次触达对方的时间（回复或主动跟进都算）；给看板「最近跟进」+ 提醒升级计时用。
+    // 只加字段，绝不改 needsReplyRaw 判定本身（见 CLAUDE.md §9.14）。
+    if (patch.needsReplyRaw) {
+      // 红人发了新消息、轮到我回 → 跟进链清零（这不是我在等对方）
+      rec.followUpLevel = 0;
+    } else if ("needsReplyRaw" in patch) {
+      if (prev.needsReplyRaw) {
+        // 刚从「该我回」翻成「我回了」= 回复了对方 → level 0，开始等对方，盖触达时间
+        rec.followUpLevel = 0;
+        rec.lastFollowUpAt = nowIso();
+      } else if (
+        prev.lastMsgPreview &&
+        patch.lastMsgFrom === "me" &&
+        patch.lastMsgPreview &&
+        patch.lastMsgPreview !== prev.lastMsgPreview
+      ) {
+        // 已经在等对方时，我方又发了一条 = 一次主动跟进 → 升级 + 盖触达时间
+        rec.followUpLevel = (prev.followUpLevel || 0) + 1;
+        rec.lastFollowUpAt = nowIso();
+      }
+      // 否则保持 prev（rec 已从 prev 复制）
     }
 
     // 精确计时：记录「最新一条红人消息」的到达时间，用于5分钟提醒倒计时。

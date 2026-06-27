@@ -616,6 +616,47 @@ ${replyStyleFor(payload.replyLanguage || "", payload.message)}
   };
 }
 
+// 主动跟进话术分级生成：红人久不回时，逐级升级；日语走「見送り」文化框架而非威胁。
+const FOLLOWUP_GUIDE = {
+  1: "二次跟进（轻催）：礼貌问候 + 跟进上次的事，问问对方近况、有没有什么顾虑，语气轻松不催逼。",
+  2: "再跟进（稍直接）：先为多次打扰致歉，再直接确认上次事情的进展，主动问是否有不清楚的地方。",
+  3: "最后跟进（礼貌收尾）：礼貌但明确——如果近期不方便，我们这次先暂停 / 把排期释放给其他合作；得体不指责、给对方台阶。"
+};
+const FOLLOWUP_GUIDE_JA = {
+  1: "二次跟进：柔らかく状況を伺う。「お世話になっております。先日の件、その後いかがでしょうか。お手すきの際にご確認いただけますと幸いです。」のトーン。",
+  2: "再跟进：度々の連絡を詫びてから確認。「度々のご連絡失礼いたします。○○の件、ご検討状況はいかがでしょうか。ご不明点があればお気軽に。」のトーン。",
+  3: "最後（婉拒・見送り、絶対に威圧しない）：「もし今回はタイミングが合わないようでしたら、一旦今回のお話は見送らせていただければと存じます。ご縁がありましたら、またの機会にぜひ。」——『見送り』『またの機会に』で体面よく締める。"
+};
+async function followupReply(payload) {
+  const level = Math.min(Math.max(Number(payload.level) || 1, 1), 3);
+  const ja = isJapaneseTarget(payload.replyLanguage, payload.message || payload.context || "");
+  const guide = (ja ? FOLLOWUP_GUIDE_JA : FOLLOWUP_GUIDE)[level];
+  const systemPrompt = `你是中国 KOL 运营的双语跟进助手。红人在我方发消息后一直没回，现在要主动发一条「跟进」消息（红人所用语言）+ 中文对照。只出跟进话术，不做分析、不写内部建议。
+本次跟进级别要求：${guide}
+语言规则：用红人原消息/对话所用语言（detected_language）；红人没用英语就别用英语。${ja ? "日语：绝不用『威胁/通牒』式表达，按上面『見送り・またの機会に』文化框架收尾。" : ""}
+不要编造价格、日期、授权、平台、付款、链接等必须由人确认的信息。
+${replyStyleFor(payload.replyLanguage || "", payload.message || "")}
+只返回 JSON：{"detected_language":"语言","reply_target":"外语跟进话术","reply_chinese":"中文对照"}。`;
+  const result = await callQwen({
+    system: systemPrompt,
+    user: JSON.stringify({
+      conversation_context: payload.context || "",
+      last_creator_message: payload.message || "",
+      follow_up_level: level,
+      reply_language: payload.replyLanguage || ""
+    }),
+    maxTokens: 600,
+    temperature: 0.3,
+    model: MODEL_FAST
+  });
+  return {
+    level,
+    detected_language: String(result.detected_language || "").trim(),
+    reply_target: String(result.reply_target || "").trim(),
+    reply_chinese: String(result.reply_chinese || "").trim()
+  };
+}
+
 async function translateFaithfully(text) {
   const cacheKey = hashKey("translate:" + text);
   const cached = translateCache.get(cacheKey);
@@ -1682,6 +1723,11 @@ const server = http.createServer(async (req, res) => {
         return json(res, 400, { error: "请先提供红人的消息或你的回复意图。" });
       }
       return json(res, 200, await quickReply(payload));
+    }
+
+    if (req.method === "POST" && req.url === "/api/followup") {
+      const payload = await readBody(req);
+      return json(res, 200, await followupReply(payload));
     }
 
     if (req.method === "POST" && req.url === "/api/judge") {
