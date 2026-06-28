@@ -15,12 +15,14 @@
 
 ---
 
-## 0b. ⭐ 大改版进行中（开发分支 `claude/sleepy-fermat-eqatjn`，尚未发布上线）
+## 0b. ⭐ 整体 UI 重构（已完成并发布到 `main` · 当前版本 0.29.2）
 
-> **新窗口先读这节**：当前 `main`（线上）还是旧界面，开发分支做了一次**整体 UI 重构**。
+> **新窗口先读这节**：那次「整体 UI 重构」**已经合进 `main` 并发布上线**（不再是"进行中"）。当前线上就是下面描述的新界面。
+> 当前开发分支：`claude/influencer-resource-library-nsogsq`；`main` = 发布 + VPS 部署分支。
 > 施工图全文在 **`按钮逻辑清单.md`**（每个按钮：在哪/点了干嘛/数据哪来/调不调 AI/结果显示哪）+ 界面草图 `docs/界面草图.png`。**改这块前先读那两份。**
+> 重构之后又陆续加了：跟进升级、我方号/产品自动识别、智能加待办关联红人、红人资源库+进度看板（见 §0c）。
 
-**这次改版做了什么（已实现、已推开发分支、未合 main）：**
+**这次重构做了什么（已实现、已发布上线）：**
 
 1. **回复页砍成一条线、删掉三 tab。** 旧的顶部三 tab（红人来消息／我主动发／问 AI）+ 整块「我主动发」(`panel-proactive`)、「问 AI」(`panel-chat`) 及其全部 JS **已删**。回复页现在从上到下固定 7 块：
    `🗂️红人档案(折叠)` → `🧠AI理解` → `⚡快捷回复` → `红人原文[这是什么意思/这怎么办]` → `我想回复(中文)[忠实翻译/润色生成]` → `✅双语回复(A·可发)` → `✍️AI改写`。
@@ -45,6 +47,31 @@
 - `/api/summary` 的 `mode:"preview"` prompt 里保留「不编造金额/日期/承诺」约束（红线2）。
 
 > **改版相关疑问优先查 `按钮逻辑清单.md`；那份是逐按钮的权威施工图。**
+
+---
+
+## 0c. ⭐ 重构之后新增的功能（都已上线，新窗口也要知道）
+
+1. **跟进升级（提醒「📤 该催对方」桶）**：我方已发、红人不回时，按 `lastFollowUpAt` 满 1 天升一级：**二次跟进 → 再跟进 → 最后通牒 → 建议终止**（`reminders.js computeItems` 的 `followup` 分支；`followUpLevel` 由采集层数我方主动跟进次数，**只在同学真发了上一级后才推进**）。点「✍️ 生成话术」调 `/api/followup` 出催场话术，**日语用 `見送り`（委婉退出）框架、不威胁**（`server.js` `FOLLOWUP_GUIDE` / `FOLLOWUP_GUIDE_JA`）。话术只生成，**发不发同学自己定**。
+2. **我方号 / 产品自动识别（`kol-reminder.js maybeAutodetectHandle`）**：从左侧导航栏「我的头像链接」自动抠登录 IG handle，用全名 + 两字代码（`va/ac/rm/vc/rc/wm/ry/in`，带分隔符锚定，只作用于自己的号防误伤红人名）认产品，**每轮 scan 重试**直到认出，存进 `kolReminderSettings` 随备份上云。`DEFAULT_PREFIXES` 含 8 个产品全名。
+3. **智能加待办自动关联红人对话（0.29.2）**：加待办时若正开着某红人对话，自动绑该对话 `threadId`（清单里就能「打开对话」）；没绑上**不显示打不开的按钮**（不误导），改引导填红人名字 → `matchThreadByName` 在本地 `kolThreads` 反查（`titleKey` 归一化 + 群名/key 互含 + 去空格容错）。
+4. **产品扩到 9 个**：`generic` + `recco` `rythmix` `aicatch` `vivavideo` `wisemeal` `vivacut` `rymo` `inspo`（`data/products.json`）。
+5. **红人资源库 + 进度看板**：见 §0d。
+
+---
+
+## 0d. ⭐ 红人资源库 + 进度看板（`apps/roster/` · 独立网页工具）
+
+> 两个**管理端只读网页**（给领导/管理看，不是给运营在插件里用），喂的是运营插件的云备份数据，**不是飞书**。
+
+- **在哪跑**：`apps/roster/server.js`，独立 Node 服务 **`kol-roster`（端口 3220，systemd）**，和主后端 `kol-assistant`（3210）分开。同样零依赖、同样 `seedOrLive`、同读 `~/kol-data/`。
+- **数据从哪来**：读各人插件的云备份 `~/kol-data/backups/<insid>.json`（`kolProfiles`/`kolThreads`/`kolSummaries`/`kolUnderstanding`…），按 **handle（IG 号）= 唯一身份** 合并。
+- **资源库（`/`，`buildLibrary`）**：同一红人按 handle 合并，每条带：多对接人各自的评价（值得/黑名单/备注，带冲突标记 `conflict`）、**合作次数**（以上线视频计，同一视频多平台**算 1 次**）、优质次数、优质率、区域、产品。可导入历史飞书 Excel 交叉匹配（`roster-import.json`）。
+- **进度看板（`/board`，`buildBoard`）**：按群聊（每个合作）展开，看阶段 / 最近跟进 / 该催 / 盯人；不合并到人。
+- **「是不是合作」靠 `isCollab()` 内容判断**（不靠插件 `isGroup`——它把"你+红人"两人群误判成私聊）：产品前缀 / 价格 / 平台关键词。
+- **对接人 / 产品兜底**：没在「服务器设置」填身份的同学，用 insid 文件名前缀 + 插件存的 `myProduct`/`myHandle` 逐级兜底（`ownerName` / `prodOfInsid` / `prefixCode`），产品列和对接人不留空。
+- **飞书式 grid**（`web/grid.js`）：两表任意字段筛选 / 分组 / 排序。
+- **部署**：`apps/roster/部署.md`（`git pull origin main && sudo systemctl restart kol-roster`，health 3220）。设计文档 `apps/roster/设计.md`。
 
 ---
 
@@ -176,6 +203,7 @@ curl -s localhost:3399/health
 
 ### 后端（server.js / 数据）
 - 改 `server.js`：VPS 上 `git pull origin main` + `sudo systemctl restart kol-assistant`（**不是手动 nohup**，见下方 systemd 说明）。成员无感、实时生效（含日语 prompt 这类纯后端改动）。
+- 改 `apps/roster/server.js`（红人资源库/进度看板）：同样 `git pull origin main` + `sudo systemctl restart kol-roster`，health 看 `localhost:3220/health`。详见 `apps/roster/部署.md`。
 - 改话术/知识库：用插件「📥 上传话术」上传 Word，或直接改 VPS `~/kol-data/`。成员无感（实时取）。
 
 #### VPS 实际目录和操作（2026-06 迁移后）
@@ -219,13 +247,15 @@ reminders.html/js      独立提醒清单弹窗（消息预览 + 合作进展 + 
 knowledge.js           内置场景库 + 语言识别 + 关键词匹配（前端兜底）
 docx-import.js         ⭐ 团队库 Word 导入：浏览器端零依赖解析 .docx（解压+XML），拆表格成话术+抽图；单元格按段落保留换行
 server.js              ⭐ 后端全部逻辑：AI 代理、话术/物料存取、/api/* 路由
+apps/roster/           ⭐ 红人资源库 + 进度看板（独立 kol-roster 服务，见 §0d）：server.js + web/（grid.js/library.html/board.html）+ seed/ + 设计.md/部署.md
 data/*.json            出厂种子（见 §3）
 build-store-zip.sh     打商店 zip（FILES 白名单！）
 功能说明书.md           逐功能说明（实时维护，给人看）
 团队使用说明-大白话.md   给非技术成员的使用说明
 ```
 
-主要后端接口：`/api/reply` `/api/analyze` `/api/translate` `/api/rewrite` `/api/ask` `/api/judge` `/api/summary` `/api/parse-todo` `/api/assets` `/api/archive` `/api/playbook` `/api/knowledge`（GET：取团队库，供话术库前端合并搜索）`/api/knowledge/import`（团队库 Word 导入，仅管理员）`/api/backup`（GET 按 ins id 取 / POST 存：各人浏览器数据的云端备份）。
+主要后端接口（`kol-assistant` 3210）：`/api/reply` `/api/analyze` `/api/translate` `/api/rewrite` `/api/ask` `/api/judge` `/api/summary` `/api/parse-todo` `/api/followup`（跟进升级催场话术，日语 見送り 框架）`/api/assets` `/api/archive` `/api/playbook` `/api/knowledge`（GET：取团队库，供话术库前端合并搜索）`/api/knowledge/import`（团队库 Word 导入，仅管理员）`/api/backup`（GET 按 ins id 取 / POST 存：各人浏览器数据的云端备份）。
+资源库/看板接口（`kol-roster` 3220）：`/api/roster`（资源库合并数据）`/api/board`（看板）`/api/roster/:key/leader`（领导标记优质）`/api/team` `/health`。
 
 ---
 
@@ -248,9 +278,10 @@ build-store-zip.sh     打商店 zip（FILES 白名单！）
 7. **manifest.json 不能带 `key` 字段上传商店**，会报"key 字段值与当前内容不符"。`key` 只在本地开发时用，打商店包前确认已删除。
 8. **VPS GitHub 认证用 SSH**（`~/.ssh/id_ed25519`），不用 token，`git remote` 地址必须是 `git@github.com:...` 格式，不能是 `https://` 格式。
 9. **提醒「打开对话」要靠 threadId 深链**：IG 收件箱列表行这版**不一定是链接**，从列表扫出的提醒可能拿不到对话数字 ID，`threadId` 为空时「打开对话」只能退回收件箱首页（看着像打不开）。`kol-reminder.js` 的 `scanInbox()` 会尽量从行内 `<a href="/direct/t/xxx/">` 抓 ID；抓不到就退回首页。改提醒相关逻辑时注意保留这个兜底。
-10. **VPS 后端是 systemd 服务 `kol-assistant`，不是手动 nohup！** 部署只用 `git pull origin main && sudo systemctl restart kol-assistant`。手动 `nohup node server.js` 会和 systemd 进程抢 3210 端口（`EADDRINUSE`）、还会用错数据目录。详见 §5。
+10. **VPS 后端是 systemd 服务，不是手动 nohup！** 主后端 = `kol-assistant`（3210）；资源库/看板 = `kol-roster`（3220）。部署只用 `git pull origin main && sudo systemctl restart <服务名>`。手动 `nohup node server.js` 会和 systemd 进程抢端口（`EADDRINUSE`）、还会用错数据目录。详见 §5 和 `apps/roster/部署.md`。
 11. **白屏（React 卸载）**：IG/Gmail 是 React，往它管理的 DOM 插节点会让 React `removeChild/insertBefore` 抛 `NotFoundError` 整页白屏。靠 `react-guard.js`（world=MAIN，document_start）兜底 + `content.js` 不观察 characterData + 插入前 `isConnected` 检查。**别删 react-guard、别恢复 characterData 观察、别把它从 build 白名单漏掉。** 见 §2 红线7。
 12. **docx 导入换行**：Word 表格单元格里 1/2/3 分点是独立 `<w:p>` 段落。`collectCellText()` 按段落用 `\n` 连接、`cleanMultiline()` 保留换行（只压每行内空格）；表头/场景名才用单行 `clean()`。改导入逻辑别又把换行压扁。修复只对**之后的导入**生效，旧的压扁话术要重新「上传话术」一次（按 stable_id 幂等覆盖）。
 13. **回复风格分层**：日语走礼貌敬语层、其他走极简层，靠 `replyStyleFor()` 二选一注入，别把语气写死进 `REPLY_STYLE_CORE`。见 §2 红线6。
 14. **别用收件箱列表 `lastFromMe` 压精读的待回复判定**：列表预览有延迟，红人刚发新消息时会漏提醒。精读路径只信 `lastIsMine`/`reacted`/`myReplyAfter`。见 §3d。
-15. **分支/发布**：开发在 `claude/sleepy-fermat-eqatjn`，**`main` 是发布 + VPS 部署分支**。合并到 main 走快进（push HEAD:main），VPS `git pull origin main`。前端发版改任何前端文件都要 `manifest.json` version +1。
+15. **分支/发布**：当前开发分支 `claude/influencer-resource-library-nsogsq`（旧的 `claude/sleepy-fermat-eqatjn` 重构已合并发布），**`main` 是发布 + VPS 部署分支**。合并到 main 走快进（push HEAD:main），VPS `git pull origin main`。前端发版改任何前端文件都要 `manifest.json` version +1（当前 0.29.2）。
+16. **两个后端服务别混**：主插件后端 `server.js` → `kol-assistant`（3210）；红人资源库/进度看板 `apps/roster/server.js` → `kol-roster`（3220）。改哪个就 restart 哪个，health 看对应端口。见 §0d、§5、`apps/roster/部署.md`。
