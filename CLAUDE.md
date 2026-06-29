@@ -277,7 +277,7 @@ build-store-zip.sh     打商店 zip（FILES 白名单！）
 6. **VPS git pull 要在 `/home/ubuntu/kol-repo/` 下运行**，不是 `bilingual-extension/`（那个目录是旧结构残留，已空）。
 7. **manifest.json 不能带 `key` 字段上传商店**，会报"key 字段值与当前内容不符"。`key` 只在本地开发时用，打商店包前确认已删除。
 8. **VPS GitHub 认证用 SSH**（`~/.ssh/id_ed25519`），不用 token，`git remote` 地址必须是 `git@github.com:...` 格式，不能是 `https://` 格式。
-9. **提醒「打开对话」要靠 threadId 深链**：IG 收件箱列表行这版**不一定是链接**，从列表扫出的提醒可能拿不到对话数字 ID，`threadId` 为空时「打开对话」只能退回收件箱首页（看着像打不开）。`kol-reminder.js` 的 `scanInbox()` 会尽量从行内 `<a href="/direct/t/xxx/">` 抓 ID；抓不到就退回首页。改提醒相关逻辑时注意保留这个兜底。
+9. **提醒「打开对话」要靠 threadId 深链 + 多账号挑对标签**：IG 收件箱列表行这版**不一定是链接**，从列表扫出的提醒可能拿不到对话数字 ID，`threadId` 为空时退回按名字点开/收件箱首页。`scanInbox()` 会尽量从行内 `<a href="/direct/t/xxx/">` 抓 ID。**多账号坑（0.29.3 修）**：同浏览器登多个号时，深链开到「另一个账号的标签」会显示空白收件箱——所以每条对话记 `account`(我方 handle)，`reminders.js openConversation` 先 `pickTabByAccount`（给每个 IG 标签发 `KOL_GET_MY_HANDLE`）挑到登录该号的标签再开。前提是那个账号有标签开着；都没有才退回首个标签。改提醒/打开逻辑时保留这些兜底。
 10. **VPS 后端是 systemd 服务，不是手动 nohup！** 主后端 = `kol-assistant`（3210）；资源库/看板 = `kol-roster`（3220）。部署只用 `git pull origin main && sudo systemctl restart <服务名>`。手动 `nohup node server.js` 会和 systemd 进程抢端口（`EADDRINUSE`）、还会用错数据目录。详见 §5 和 `apps/roster/部署.md`。
 11. **白屏（React 卸载）**：IG/Gmail 是 React，往它管理的 DOM 插节点会让 React `removeChild/insertBefore` 抛 `NotFoundError` 整页白屏。靠 `react-guard.js`（world=MAIN，document_start）兜底 + `content.js` 不观察 characterData + 插入前 `isConnected` 检查。**别删 react-guard、别恢复 characterData 观察、别把它从 build 白名单漏掉。** 见 §2 红线7。
 12. **docx 导入换行**：Word 表格单元格里 1/2/3 分点是独立 `<w:p>` 段落。`collectCellText()` 按段落用 `\n` 连接、`cleanMultiline()` 保留换行（只压每行内空格）；表头/场景名才用单行 `clean()`。改导入逻辑别又把换行压扁。修复只对**之后的导入**生效，旧的压扁话术要重新「上传话术」一次（按 stable_id 幂等覆盖）。

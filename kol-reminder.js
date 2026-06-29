@@ -536,7 +536,7 @@
     const prev = map[id] || {};
     // id 是"归一化名字 key"；threadId 要保留 patch 传来的数字对话 ID（openTid），
     // 别用名字 key 覆盖它——否则"打开对话"深链失效、按数字 threadId 找真总结也对不上。
-    const rec = { ...prev, ...patch, threadId: patch.threadId || prev.threadId || "", lastSeenAt: nowIso() };
+    const rec = { ...prev, ...patch, threadId: patch.threadId || prev.threadId || "", account: (settings.myHandle || prev.account || "").replace(/^@/, ""), lastSeenAt: nowIso() };
     // 头像没新值时别让 undefined 把旧头像冲掉
     if (rec.avatarUrl === undefined) rec.avatarUrl = prev.avatarUrl || "";
 
@@ -826,6 +826,9 @@
             unread: myLastMsg ? false : row.unread,
             isOnline: row.isOnline || false,
             avatarUrl: row.avatarUrl || prev.avatarUrl || "",
+            // 记下这条对话属于哪个登录号（我方 handle）。多账号时「打开对话」据此挑对应账号的标签页，
+            // 否则深链开到另一个账号的标签上会显示空白收件箱。
+            account: (settings.myHandle || prev.account || "").replace(/^@/, ""),
             needsReplyRaw: inboxNeedsReply,
             needsReplyReason: inboxNeedsReply ? "未读 · 对方发了新消息" : "",
             lastSeenAt: nowIso()
@@ -1027,6 +1030,11 @@
           sendResponse({ ok: false });
         }
       })();
+      return true;
+    }
+    // 这个标签页当前登录的是哪个号（供提醒窗口多账号时挑对的标签开对话）
+    if (message?.type === "KOL_GET_MY_HANDLE") {
+      sendResponse({ handle: String(settings.myHandle || "").replace(/^@/, "").toLowerCase() });
       return true;
     }
     if (message?.type !== "KOL_GET_CONVERSATION") return;

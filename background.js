@@ -442,7 +442,9 @@ async function refreshReminders() {
       // 通知正文：主标签 + 红人最新消息原文 + 合作进展摘要（都是真实内容，不让 AI 编）
       const summaries = allSummaries || {};
       const sumRec = summaries[head.recKey] || (headRec?.threadId ? summaries[headRec.threadId] : null);
-      const sumText = (sumRec?.text || "").trim().slice(0, 80);
+      // 和提醒卡片一行总结同口径：① 真总结(kolSummaries) ② 没点进去过的待回复→autoSummary
+      // (AI 把收件箱预览归纳成的中文)。之前只读①，未读对话没真总结→通知就没总结那行。
+      const sumText = ((sumRec?.text || "").trim() || (headRec?.autoSummary || "").trim()).slice(0, 80);
       const msgParts = [head.label || head.title];
       if (sumText) msgParts.push(`📋 ${sumText}`);
       if (fresh.length > 1) msgParts.push(`…等共 ${fresh.length} 条待处理`);

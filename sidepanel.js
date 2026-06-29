@@ -1909,7 +1909,11 @@ function pickReplyLanguage() {
 // 注意：「回复语言」下拉必须始终保持「跟随红人语言」，不用作兜底。
 // 返回语言名字符串；返回 null 表示弹窗里用户取消了，调用方应中止生成。
 async function resolveReplyLanguage(redText) {
-  if (redText) return "";
+  // 用户在「回复语言」下拉里明确选了语言 → 最高优先，永远照此（自动=空才走识别）。
+  // 之前漏了这一步：没原文时直接去识别/弹窗，把用户选的"西班牙语"忽略成了英语。
+  const explicit = (replyLanguageSelect && replyLanguageSelect.value || "").trim();
+  if (explicit) return explicit;
+  if (redText) return ""; // 自动 + 有红人原文 → 交服务端从原文识别（跟随红人语言）
   const detected = await detectConversationLanguage();
   if (detected) return detected;
   return await pickReplyLanguage(); // 语言名 或 null（取消）
