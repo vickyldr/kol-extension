@@ -117,7 +117,8 @@ function computeItems(threads, todos, summaries) {
   const items = [];
   const looksLikeId = (x) => /^\d{6,}$/.test(String(x || ""));
   Object.entries(threads || {}).forEach(([recKey, rec]) => {
-    if (!rec || rec.muted) return;
+   try {
+    if (!rec || typeof rec !== "object" || rec.muted) return;
     const j = rec.judge || {};
     let title = rec.title || rec.creatorName || recKey || "";
     if (looksLikeId(title)) title = "";
@@ -168,6 +169,7 @@ function computeItems(threads, todos, summaries) {
         });
       }
     }
+   } catch (e) { /* 单条记录坏了就跳过它，绝不让整个清单白屏（之前一条异常→render 静默失败→全空） */ }
   });
   // 待办关联红人时，按 threadId 反查它属于哪个登录号（多账号开对话用）
   const acctByThreadId = {};
@@ -301,6 +303,7 @@ function card(it) {
 }
 
 async function render() {
+ try {
   const store = await chrome.storage.local.get(["kolThreads", "kolTodos", "kolSummaries"]);
   const items = computeItems(store.kolThreads || {}, store.kolTodos || [], store.kolSummaries || {});
   listEl.replaceChildren();
@@ -325,8 +328,18 @@ async function render() {
     h.className = "reminder-group-title";
     h.textContent = `${name} · ${sub.length}`;
     listEl.appendChild(h);
-    sub.forEach((it) => listEl.appendChild(card(it)));
+    sub.forEach((it) => { try { listEl.appendChild(card(it)); } catch (e) {} });
   });
+ } catch (e) {
+  // 兜底：万一渲染抛错，给个提示而不是整窗空白（之前 async render 抛错=静默失败=全空）。
+  try {
+    listEl.replaceChildren();
+    const p = document.createElement("p");
+    p.className = "twl-empty";
+    p.textContent = "提醒清单加载出错，点右上角「刷新」重试。";
+    listEl.appendChild(p);
+  } catch (_) {}
+ }
 }
 
 document.getElementById("todo-window-refresh").addEventListener("click", render);

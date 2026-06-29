@@ -43,16 +43,18 @@
 }
 
 .kol-translation-row {
-  display: block;
+  display: flex !important;
   flex: 0 0 100% !important;
   width: 100% !important;
   margin: 1px 0 6px !important;
-  padding-left: var(--kol-translation-indent, 0) !important;
+  /* 译文贴气泡同侧：我方=flex-end(靠右)，对方=flex-start(靠左) */
+  justify-content: var(--kol-translation-justify, flex-start) !important;
 }
 
 .kol-translation-row > .kol-inline-translation {
   width: var(--kol-translation-width, auto);
   max-width: min(520px, 68vw);
+  box-sizing: border-box;
 }
 
 .kol-message-row {

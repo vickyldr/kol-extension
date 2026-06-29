@@ -159,19 +159,18 @@ async function addTranslation(element) {
   // 失败就安静放弃这一条，绝不让异常冒泡连累整页（白屏的根源之一）。
   try {
     row.classList.add("kol-message-row");
-    // 用「真正的文字气泡」自身的位置来缩进译文，把译文钉在原文气泡的正下方：
-    // 对方消息靠左 → 译文靠左；我方消息靠右 → 译文也靠右。
-    // （之前用外层容器算，我方那行容器是满宽、左边在最左，算出缩进≈0，译文就跑到左边去了。）
+    // 把译文钉在原文气泡的正下方、贴同一侧：对方消息靠左 → 译文靠左；我方消息靠右 → 译文靠右。
+    // 用 flex 的 justify 控制左右（比之前算像素缩进稳——之前我方那条常算出缩进≈0、译文跑到最左）。
+    // 判断哪一侧：气泡左边空白 > 右边空白 → 气泡偏右 = 我方。
     const bubbleRect = element.getBoundingClientRect();
     const rowRect = row.getBoundingClientRect();
-    const indent = Math.max(
-      0,
-      Math.min(bubbleRect.left - rowRect.left, Math.max(0, rowRect.width - 80))
-    );
-    wrapper.style.setProperty("--kol-translation-indent", `${Math.round(indent)}px`);
+    const leftGap = bubbleRect.left - rowRect.left;
+    const rightGap = rowRect.right - bubbleRect.right;
+    const isOutgoing = leftGap > rightGap + 24; // 24px 容差，避免居中时抖动
+    wrapper.style.setProperty("--kol-translation-justify", isOutgoing ? "flex-end" : "flex-start");
     wrapper.style.setProperty(
       "--kol-translation-width",
-      `${Math.min(Math.max(bubbleRect.width, 180), 520)}px`
+      `${Math.min(Math.max(bubbleRect.width, 160), 520)}px`
     );
     wrapper.appendChild(translation);
     anchor.insertAdjacentElement("afterend", wrapper);
