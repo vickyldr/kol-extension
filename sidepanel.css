@@ -330,6 +330,8 @@ dialog::backdrop { background: rgba(20,24,36,.4); }
 .qr-item { display: grid; grid-template-columns: 1fr auto; gap: 4px; align-items: stretch; }
 .qr-pick { text-align: left; display: grid; gap: 2px; padding: 8px 10px; border: 1px solid #eee2c4; border-radius: 9px; background: #fff; cursor: pointer; }
 .qr-pick:hover { background: #fff6df; border-color: #f3d896; }
+.qr-item.qr-copied .qr-pick { background: #e9f9ee; border-color: #9bdcb1; }
+.qr-item.qr-copied .qr-trigger { color: #1a8a4a; }
 .qr-trigger { font-size: 13px; font-weight: 700; color: #6b4e00; }
 .qr-preview { font-size: 12px; color: #6b7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .qr-del { border: none; background: transparent; cursor: pointer; font-size: 14px; padding: 0 6px; border-radius: 8px; color: #b0455a; }

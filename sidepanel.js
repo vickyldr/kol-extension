@@ -2712,7 +2712,21 @@ initGuide();
       prev.className = "qr-preview";
       prev.textContent = item.target || item.chinese || "";
       main.append(trg, prev);
-      main.addEventListener("click", () => { fillReply(item); card.removeAttribute("open"); });
+      // 点一下直接复制外语（保留换行），不再跳到双语回复区让用户二次复制。
+      main.title = "点一下直接复制外语，去 IG 粘贴";
+      main.addEventListener("click", async () => {
+        const text = item.target || item.chinese || ""; // textarea 存的，换行原样保留
+        if (!text) return;
+        try {
+          await navigator.clipboard.writeText(text);
+          const old = trg.textContent;
+          trg.textContent = "已复制 ✓";
+          row.classList.add("qr-copied");
+          setTimeout(() => { trg.textContent = old; row.classList.remove("qr-copied"); }, 1200);
+        } catch (_) {
+          fillReply(item); card.removeAttribute("open"); // 复制失败才退回老行为
+        }
+      });
       const del = document.createElement("button");
       del.type = "button";
       del.className = "qr-del";
