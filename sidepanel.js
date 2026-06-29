@@ -69,6 +69,13 @@ const PRODUCT_LABEL = {
   通用: "通用（所有产品）"
 };
 const ALL_PRODUCTS = ["rythmix", "recco", "vivavideo", "vivacut", "aicatch", "通用"];
+let PRODUCT_MAP = {}; // id -> 完整产品对象（含 selling_points），loadProducts 填充
+// 当前选的产品有没有填卖点（generic 不算；填了就不提示）
+function productNeedsSellingPoints() {
+  const p = PRODUCT_MAP[productSelect && productSelect.value];
+  if (!p || p.id === "generic") return false;
+  return !(Array.isArray(p.selling_points) && p.selling_points.length);
+}
 
 const assetsPanel = document.getElementById("assets-panel");
 const assetsProduct = document.getElementById("assets-product");
@@ -116,9 +123,11 @@ async function loadProducts() {
       headers: authHeaders()
     });
     const products = await response.json();
+    PRODUCT_MAP = {};
     const selected = productSelect.value;
     productSelect.replaceChildren();
     for (const product of products) {
+      PRODUCT_MAP[product.id] = product; // 存全量(含 selling_points)，供"卖点没填"提示用
       const option = document.createElement("option");
       option.value = product.id;
       option.textContent = `${product.name}${product.status === "example" ? "（示例）" : ""}`;
@@ -1962,6 +1971,17 @@ async function doReply(mode) {
     return;
   }
   const redText = messageInput.value.trim(); // 红人原文
+  // 凭空生成话术(没有红人原文) + 当前产品没填卖点 → 跳出提示让用户去填，别让 AI 写空泛通用话术。
+  // 填了卖点就不会再提示；这是用户要的"不要瞎猜硬套，先提示补卖点"。
+  if (mode === "polish" && !redText && productNeedsSellingPoints()) {
+    const pname = (PRODUCT_MAP[productSelect.value] || {}).name || productSelect.value;
+    const go = window.confirm(
+      `产品「${pname}」还没填卖点，AI 只能写不带卖点的通用话术，可能不够吸引人。\n\n` +
+      `建议先到「服务器设置」找管理员补上卖点（或在 products.json 里加）。\n\n` +
+      `点「确定」= 仍然生成通用版；点「取消」= 先去补卖点。`
+    );
+    if (!go) return;
+  }
   // 回复语言：有原文让服务端从原文识别；没原文先扫对话窗口/读设置，
   // 都没有（红人只发图片/视频）就弹窗让运营选，避免 AI 默认编成英文。
   const fallbackLang = await resolveReplyLanguage(redText);
