@@ -17,6 +17,11 @@
       .rc-followup-draft .fd-target { font-size: 14px; color: #1f2329; line-height: 1.6; white-space: pre-wrap; }
       .rc-followup-draft .fd-cn { font-size: 12px; color: #8a8f99; margin: 6px 0 8px; white-space: pre-wrap; }
       .reminder-group-title { font-size: 13px; font-weight: 700; margin: 12px 0 4px; }
+      .twl-filters { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 8px; }
+      .twl-chip { font-size: 12px; padding: 4px 11px; border-radius: 14px; border: 1px solid #d8dced; background: #fff; color: #5e6470; cursor: pointer; }
+      .twl-chip:hover { border-color: #b9c2e0; }
+      .twl-chip.on { background: #1456f0; border-color: #1456f0; color: #fff; }
+      .twl-chip .n { opacity: .7; margin-left: 3px; }
     </style>
   </head>
   <body>
@@ -27,6 +32,7 @@
       </div>
       <button id="todo-window-refresh" class="status archive-entry">刷新</button>
     </div>
+    <div id="todo-window-filters" class="twl-filters"></div>
     <div id="todo-window-list" class="reminder-list"></div>
     <script src="reminders.js"></script>
   </body>

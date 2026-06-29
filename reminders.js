@@ -2,6 +2,7 @@
 // 自带读取+渲染逻辑，与侧边栏一致，但独立运行。
 const listEl = document.getElementById("todo-window-list");
 const subEl = document.getElementById("todo-window-sub");
+const filtersEl = document.getElementById("todo-window-filters");
 
 function daysSince(iso) {
   const t = Date.parse(iso);
@@ -147,6 +148,7 @@ function computeItems(threads, todos, summaries) {
         avatar: rec.avatarUrl || "",
         summary,
         online: !!rec.isOnline,
+        unread: !!rec.unread, // 未读 vs 已读不回，用于优先级分组
         meta: `${unreadTag} ${elapsedStr}${rec.isOnline ? " · 🟢 在线" : ""}`,
         elapsedMs
       });
@@ -162,7 +164,7 @@ function computeItems(threads, todos, summaries) {
         items.push({
           kind: "followup", level: lvl, levelLabel: LABELS[lvl],
           key: recKey, threadId: rec.threadId, account: rec.account || "", isGroup: rec.isGroup, title,
-          avatar: rec.avatarUrl || "", summary,
+          avatar: rec.avatarUrl || "", summary, online: !!rec.isOnline,
           lastMsgPreview: rec.lastMsgPreview || "", // 红人最后一句，给 AI 认语言
           meta: `已等 ${days} 天没回 · 该${LABELS[lvl]}`,
           elapsedMs: Date.now() - (Date.parse(rec.lastFollowUpAt) || Date.now())
@@ -171,10 +173,13 @@ function computeItems(threads, todos, summaries) {
     }
    } catch (e) { /* 单条记录坏了就跳过它，绝不让整个清单白屏（之前一条异常→render 静默失败→全空） */ }
   });
-  // 待办关联红人时，按 threadId 反查它属于哪个登录号（多账号开对话用）
-  const acctByThreadId = {};
+  // 待办关联红人时，按 threadId 反查它属于哪个登录号（多账号开对话用）+ 红人在不在线（优先级分组用）
+  const acctByThreadId = {}, onlineByThreadId = {};
   Object.values(threads || {}).forEach((rec) => {
-    if (rec && rec.threadId && rec.account) acctByThreadId[rec.threadId] = rec.account;
+    if (rec && rec.threadId) {
+      if (rec.account) acctByThreadId[rec.threadId] = rec.account;
+      if (rec.isOnline) onlineByThreadId[rec.threadId] = true;
+    }
   });
   // 待办：今天到点（含已过期）→🟠今天跟进；未来日期→📅以后
   (todos || []).forEach((t) => {
@@ -182,10 +187,11 @@ function computeItems(threads, todos, summaries) {
     const due = Date.parse(t.dueAt);
     if (!Number.isFinite(due)) return;
     const account = t.threadId ? (acctByThreadId[t.threadId] || "") : "";
+    const online = t.threadId ? !!onlineByThreadId[t.threadId] : false;
     if (due <= endOfToday()) {
-      items.push({ kind: "today", todoId: t.id, threadId: t.threadId || "", account, title: t.text, summary: "", meta: `到点：${fmt(t.dueAt)}`, elapsedMs: Date.now() - due });
+      items.push({ kind: "today", todoId: t.id, threadId: t.threadId || "", account, online, title: t.text, summary: "", meta: `到点：${fmt(t.dueAt)}`, elapsedMs: Date.now() - due });
     } else {
-      items.push({ kind: "future", todoId: t.id, threadId: t.threadId || "", account, title: t.text, summary: "", meta: fmt(t.dueAt), elapsedMs: due - Date.now() });
+      items.push({ kind: "future", todoId: t.id, threadId: t.threadId || "", account, online, title: t.text, summary: "", meta: fmt(t.dueAt), elapsedMs: due - Date.now() });
     }
   });
   // 🔴 在线优先、再按等最久降序；待办按到点先后
@@ -302,12 +308,47 @@ function card(it) {
   return el;
 }
 
+// 优先级分组：在线的(不管哪类)单独置顶一组；其余按 未读/已读不回/该催/今天/以后 分。
+const GROUPS = [
+  ["online", "🟢 在线 · 趁现在回（未读/已读不回/今日待办的在线都在这）"],
+  ["unread", "🔴 未读（红人发了还没点开）"],
+  ["read", "🟡 已读不回"],
+  ["followup", "📤 该催对方（红人不回 · 逐级跟进）"],
+  ["today", "🟠 今天跟进"],
+  ["future", "📅 以后"]
+];
+function priorityGroup(it) {
+  if (it.online) return "online";
+  if (it.kind === "reply") return it.unread ? "unread" : "read";
+  return it.kind; // followup / today / future
+}
+let twlFilter = "all"; // 当前筛选的分组（all=全部）
+
 async function render() {
  try {
   const store = await chrome.storage.local.get(["kolThreads", "kolTodos", "kolSummaries"]);
   const items = computeItems(store.kolThreads || {}, store.kolTodos || [], store.kolSummaries || {});
   listEl.replaceChildren();
   subEl.textContent = items.length ? `共 ${items.length} 项待处理` : "";
+  // 分到各优先级桶
+  const bucket = {};
+  items.forEach((it) => { (bucket[priorityGroup(it)] = bucket[priorityGroup(it)] || []).push(it); });
+  Object.values(bucket).forEach((arr) => arr.sort((a, b) => (b.elapsedMs || 0) - (a.elapsedMs || 0))); // 每组内：越久没回越靠上
+  // 筛选 chips（全部 + 有内容的分组）
+  if (filtersEl) {
+    if (twlFilter !== "all" && !(bucket[twlFilter] && bucket[twlFilter].length)) twlFilter = "all";
+    const chips = [["all", "全部", items.length]]
+      .concat(GROUPS.filter(([k]) => bucket[k] && bucket[k].length).map(([k, name]) => [k, name.split("（")[0].trim(), bucket[k].length]));
+    filtersEl.replaceChildren();
+    chips.forEach(([k, label, n]) => {
+      const c = document.createElement("button");
+      c.type = "button";
+      c.className = "twl-chip" + (twlFilter === k ? " on" : "");
+      c.innerHTML = `${label}<span class="n">${n}</span>`;
+      c.addEventListener("click", () => { twlFilter = k; render(); });
+      filtersEl.appendChild(c);
+    });
+  }
   if (!items.length) {
     const p = document.createElement("p");
     p.className = "twl-empty";
@@ -315,15 +356,10 @@ async function render() {
     listEl.appendChild(p);
     return;
   }
-  const groups = [
-    ["reply", "🔴 立即回复（含未读 + 已读不回）"],
-    ["followup", "📤 该催对方（红人不回 · 逐级跟进）"],
-    ["today", "🟠 今天跟进"],
-    ["future", "📅 以后"]
-  ];
-  groups.forEach(([kind, name]) => {
-    const sub = items.filter((i) => i.kind === kind);
-    if (!sub.length) return;
+  GROUPS.forEach(([key, name]) => {
+    const sub = bucket[key];
+    if (!sub || !sub.length) return;
+    if (twlFilter !== "all" && twlFilter !== key) return; // 筛选时只显示选中的组
     const h = document.createElement("div");
     h.className = "reminder-group-title";
     h.textContent = `${name} · ${sub.length}`;
