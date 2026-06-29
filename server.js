@@ -933,6 +933,13 @@ ${replyStyleFor(replyLanguage, payload.message)}
 不得自行编造价格、日期、授权期限、付款承诺、平台、产品账号或链接。
 信息不足时使用安全的澄清表达，不要脑补。
 
+【凭空生成话术（creator_message 和 conversation_context 都为空时）】
+说明运营是要从零写一段话术（例如触达 / 冷启动私信），不是回复某条已有消息。这时：
+- 完全按 chinese_draft_or_instruction 的意图来写，产出一段自然、自包含、可直接发出的话术。
+- 按「第一次联系」来写：不要假设此前已聊过、合作过、或对方问过什么；不要带"再次合作 / 老朋友 / 上次"这类暗示有过往来的措辞（除非指令明确要求）。
+- 除非指令明确点名，**不要提及其他产品的名字**，也不要写"和某某同一团队"这类与意图无关的角度——只围绕当前 selected_product 和运营意图写。
+- selected_product 的 description/selling_points 里若含括号备注或内部说明（如团队关系），那是给运营看的，**不要原样塞进发给红人的话术**。卖点为空就写不依赖具体卖点的通用话术，绝不编造卖点。
+
 ${replyStyleFor(replyLanguage, payload.message)}
 
 只返回 JSON：{"reply_target":"最终外语回复（不能为空）","reply_chinese":"最终中文对照"}。`,
