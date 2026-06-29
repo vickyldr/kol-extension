@@ -119,6 +119,19 @@ function prefixCode(s) {
   const m = (s || "").toLowerCase().match(/^(va|ac|rm|vc|rc|wm|ry|in)([_.\-\s\d]|$)/);
   return m ? m[1].toUpperCase() : "";
 }
+// 从群聊名里认产品：先全名（recco/rythmix…），再产品代码当独立词（"AC 8earts"、"rc-3"）。
+// 用来给「号里不带产品名」的对接人按群名内容兜底。
+function productFromTitle(title) {
+  const t = String(title || "").toLowerCase();
+  if (!t) return "";
+  for (const [name, code] of PRODUCTS) if (t.includes(name)) return code;
+  // 产品代码当独立词：**区分大小写、只认大写**（"AC 8earts"/"RM Jane"），
+  // 否则英文小词会误命中（"+30 if in 3 days" 里的 "in" 别当成 inspo/IN）。
+  for (const code of PRODUCT_CODES) {
+    if (new RegExp("(^|[\\s_\\-])" + code + "([\\s_\\-]|$)").test(String(title || ""))) return code;
+  }
+  return "";
+}
 // 砍掉群名开头的产品代码前缀（"AC 8earts" → "8earts"），得到更像 ig handle 的部分
 function stripProductPrefix(name) {
   const re = new RegExp(`^(${PRODUCT_CODES.join("|")})\\s+`, "i");
@@ -205,10 +218,23 @@ function buildRoster() {
   }
   // 对接人：手填 team > 员工名 > 我方号 > insid 文件名（兜底也比空好）
   const ownerName = (insid) => team[insid] || (insidInfo[insid] && (insidInfo[insid].staff || insidInfo[insid].handle)) || insid;
-  // 产品兜底：insid文件名 > 插件 myProduct > 我方号 > 缩写前缀(rm/rc/va/ac…) 逐级认
+  // 内容兜底：对接人的 handle/insid 认不出产品时（如 mima.kol、mirazhouuu 这种没带产品名的号），
+  // 就看 ta 的群聊名里最常出现哪个产品（"Ana Recco 80/2"→RC、"AC 8earts"→AC），按多数票定。
+  const titleProdByInsid = {};
+  for (const { insid, data } of backups) {
+    const counts = {};
+    for (const th of Object.values(data.kolThreads || {})) {
+      const c = th && productFromTitle(th.title || "");
+      if (c) counts[c] = (counts[c] || 0) + 1;
+    }
+    let best = "", bestN = 0;
+    for (const [c, n] of Object.entries(counts)) if (n > bestN) { best = c; bestN = n; }
+    if (best) titleProdByInsid[insid] = best;
+  }
+  // 产品兜底：insid文件名 > 插件 myProduct > 我方号 > 缩写前缀(rm/rc/va/ac…) > 群名内容多数票
   const prodOfInsid = (insid) => {
     const i = insidInfo[insid] || {};
-    return productOf(insid) || productOf(i.product) || productOf(i.handle) || prefixCode(insid) || prefixCode(i.handle) || "";
+    return productOf(insid) || productOf(i.product) || productOf(i.handle) || prefixCode(insid) || prefixCode(i.handle) || titleProdByInsid[insid] || "";
   };
 
   const map = {}; // personKey -> person
