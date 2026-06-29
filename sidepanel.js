@@ -1908,12 +1908,16 @@ function pickReplyLanguage() {
 //   3) 都没有（只有图片/视频，毫无文字线索）→ 弹窗让运营选
 // 注意：「回复语言」下拉必须始终保持「跟随红人语言」，不用作兜底。
 // 返回语言名字符串；返回 null 表示弹窗里用户取消了，调用方应中止生成。
+// 回复语言优先级（用户定的原则）：
+//   ① 有红人原文 → 永远忠于原文、跟随红人语言（交服务端从原文识别）。
+//      此时**忽略下拉框**——很多人会忘了把上次选的语言切回去，留着会误导 AI（红人明明发英语却被翻成泰语）。
+//   ② 没原文 → 用下拉里明确选的语言。
+//   ③ 没原文也没选 → 扫左边对话框识别（最后一步，有时会误判成英语，所以放最后）。
+//   ④ 都没有 → 弹窗让用户选。
 async function resolveReplyLanguage(redText) {
-  // 用户在「回复语言」下拉里明确选了语言 → 最高优先，永远照此（自动=空才走识别）。
-  // 之前漏了这一步：没原文时直接去识别/弹窗，把用户选的"西班牙语"忽略成了英语。
+  if (redText) return "";
   const explicit = (replyLanguageSelect && replyLanguageSelect.value || "").trim();
   if (explicit) return explicit;
-  if (redText) return ""; // 自动 + 有红人原文 → 交服务端从原文识别（跟随红人语言）
   const detected = await detectConversationLanguage();
   if (detected) return detected;
   return await pickReplyLanguage(); // 语言名 或 null（取消）
@@ -2146,6 +2150,13 @@ async function askAboutMessage(mode) {
 
 document.getElementById("do-faithful").addEventListener("click", () => doReply("faithful"));
 document.getElementById("do-polish").addEventListener("click", () => doReply("polish"));
+// 红人原文框一有内容，回复语言自动跳回「自动（跟随红人语言）」——
+// 防止有人忘了把上次选的语言切回去，留着会误导 AI（红人发英语却被翻成泰语）。
+if (messageInput && replyLanguageSelect) {
+  messageInput.addEventListener("input", () => {
+    if (messageInput.value.trim() && replyLanguageSelect.value) replyLanguageSelect.value = "";
+  });
+}
 document.getElementById("ask-meaning").addEventListener("click", explainMeaning);
 document.getElementById("rewrite-from-zh").addEventListener("click", rewriteFromChinese);
 document.getElementById("ask-howto").addEventListener("click", () => askAboutMessage("howto"));
