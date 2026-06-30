@@ -94,6 +94,8 @@ h1 { margin: 0; font-size: 23px; line-height: 1.2; }
 .ask-answer { margin: 11px 0 0; padding: 11px; border-radius: 11px; background: #f5f4ff; color: #30384d; font-size: 13px; line-height: 1.65; white-space: pre-wrap; }
 label, .card-label, .summary-grid span, .risk-card span { color: #6b7280; font-size: 12px; font-weight: 700; }
 textarea { display: block; width: 100%; margin: 9px 0 12px; padding: 12px; resize: vertical; border: 1px solid #dfe3ed; border-radius: 12px; outline: none; color: #20283a; background: #fafbfe; font: inherit; line-height: 1.55; }
+/* 两个主输入框：默认就大，贴长脚本/brief 时由 JS 自动撑高（封顶后内部滚动），也能手动拖 */
+#message, #reply-intent { min-height: 110px; max-height: 55vh; }
 textarea:focus { border-color: #7769ea; box-shadow: 0 0 0 3px rgba(119,105,234,.12); }
 input { width: 100%; margin: 7px 0 12px; padding: 11px 12px; border: 1px solid #dfe3ed; border-radius: 10px; outline: none; font: inherit; }
 select { width: 100%; margin: 7px 0 12px; padding: 11px 12px; border: 1px solid #dfe3ed; border-radius: 10px; background: #fff; color: #20283a; font: inherit; }

@@ -2166,6 +2166,19 @@ if (messageInput && replyLanguageSelect) {
     if (messageInput.value.trim() && replyLanguageSelect.value) replyLanguageSelect.value = "";
   });
 }
+// 两个主输入框随内容自动变高：贴长脚本/brief 时自动撑开(封顶 55vh 后内部滚动)，清空回到默认高。
+// 解决"框框太小、一长段就切去 GPT"的痛点。
+function autoGrowTextarea(el) {
+  if (!el) return;
+  el.style.height = "auto";
+  const cap = Math.max(220, Math.floor(window.innerHeight * 0.55));
+  el.style.height = Math.min(el.scrollHeight + 2, cap) + "px";
+}
+[messageInput, replyIntentInput].forEach((el) => {
+  if (!el) return;
+  el.addEventListener("input", () => autoGrowTextarea(el)); // 打字/粘贴/被清空(clear-btn 会派发 input)都触发
+  autoGrowTextarea(el); // 初始也量一次
+});
 document.getElementById("ask-meaning").addEventListener("click", explainMeaning);
 document.getElementById("rewrite-from-zh").addEventListener("click", rewriteFromChinese);
 document.getElementById("ask-howto").addEventListener("click", () => askAboutMessage("howto"));
