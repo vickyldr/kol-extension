@@ -510,6 +510,31 @@
     return { ok: false };
   }
 
+  // 「我发过的」发件箱：把我发的实质消息(够长、含字/数字、去重)记到本地，供侧边栏搜索复用，
+  // 不用再去群里翻历史。只存文本+红人名+时间+我方号，纯本地、随云备份，不喂 AI。
+  const SENT_KEY = "kolSentHistory";
+  async function captureSentHistory(messages, name) {
+    try {
+      const mine = (messages || [])
+        .filter((m) => m && m.from === "me" && typeof m.text === "string")
+        .map((m) => m.text.trim())
+        .filter((t) => t.length >= 12 && /[\p{L}\p{N}]/u.test(t)); // 够长 + 含字母/数字（滤掉纯表情/"好的"这类）
+      if (!mine.length) return;
+      const s = await chrome.storage.local.get(SENT_KEY);
+      const list = Array.isArray(s[SENT_KEY]) ? s[SENT_KEY] : [];
+      const seen = new Set(list.map((x) => x && x.text));
+      const add = [];
+      for (const text of mine) {
+        if (seen.has(text)) continue;
+        seen.add(text);
+        add.push({ text, name: name || "", at: nowIso(), account: settings.myHandle || "" });
+      }
+      if (!add.length) return; // 没有新内容就不写，避免每轮 scan 都落盘
+      const next = add.concat(list).slice(0, 200); // 新的在前，留最近 200 条
+      await chrome.storage.local.set({ [SENT_KEY]: next });
+    } catch (_) { /* 记不上就算了，不影响主流程 */ }
+  }
+
   // 行内找一个蓝色的小圆点（IG 未读指示）
   function hasUnreadDot(container) {
     const els = container.querySelectorAll("div, span");
@@ -895,6 +920,8 @@
           // 记到累积缓冲，供"离开时自动更新合作进展"
           convBuffer.key = key;
           convBuffer.name = displayName;
+          // 顺手把"我发过的实质消息"记进发件箱，供侧边栏搜索复用（去重，没新内容不落盘）
+          captureSentHistory(conv.messages, displayName);
 
           await upsertThread(
             key, // 用归一化名字当 key

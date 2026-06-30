@@ -2282,7 +2282,8 @@ statusButton.addEventListener("click", checkService);
 const BACKUP_KEYS = [
   "kolSummaries", "kolThreads", "kolTodos", "kolQuickReplies",
   "kolReminderSettings", "kolProactiveLang", "kolThreadsSchema", "kolProfiles",
-  "kolUnderstanding" // AI 当前阶段，供红人资源库/进度看板读
+  "kolUnderstanding", // AI 当前阶段，供红人资源库/进度看板读
+  "kolSentHistory" // 「我发过的」发件箱，搜索复用
 ];
 function showBackupStatus(msg, ok) {
   const el = document.getElementById("backup-status");
@@ -2706,6 +2707,17 @@ initGuide();
   async function setQR(list) {
     await chrome.storage.local.set({ kolQuickReplies: list });
   }
+  // 「我发过的」发件箱（采集层自动记的）：搜索时和快捷一起出，点一下直接复制复用。
+  async function getSent() {
+    const s = await chrome.storage.local.get("kolSentHistory");
+    return Array.isArray(s.kolSentHistory) ? s.kolSentHistory : [];
+  }
+  async function setSent(list) { await chrome.storage.local.set({ kolSentHistory: list }); }
+  function relTime(iso) {
+    const t = Date.parse(iso); if (!Number.isFinite(t)) return "";
+    const d = Math.floor((Date.now() - t) / 86400000);
+    if (d <= 0) return "今天"; if (d === 1) return "昨天"; if (d < 7) return d + "天前"; return Math.floor(d / 7) + "周前";
+  }
   function newId() {
     return "qr_" + Math.random().toString(36).slice(2, 9) + (performance.now() | 0);
   }
@@ -2731,11 +2743,12 @@ initGuide();
       p.className = "qr-empty";
       p.textContent = query
         ? "没搜到。换个词，或在下面「＋ 手动加一条」存一条。"
-        : "还没有快捷回复。生成回复后点「⭐ 存为快捷」，或在下面手动加。";
+        : "还没有内容。正常和红人聊天后，你发过的消息会自动进来可搜复用；也可点「⭐ 存为快捷」或手动加。";
       results.appendChild(p);
       return;
     }
     list.forEach((item) => {
+      const isSent = item._type === "sent";
       const row = document.createElement("div");
       row.className = "qr-item";
       const main = document.createElement("button");
@@ -2743,15 +2756,16 @@ initGuide();
       main.className = "qr-pick";
       const trg = document.createElement("span");
       trg.className = "qr-trigger";
-      trg.textContent = item.trigger || "（无触发词）";
+      trg.textContent = isSent
+        ? "📤 我发过" + (item.name ? " · 给" + item.name : "") + (item.at ? " · " + relTime(item.at) : "")
+        : (item.trigger || "（无触发词）");
       const prev = document.createElement("span");
       prev.className = "qr-preview";
-      prev.textContent = item.target || item.chinese || "";
+      prev.textContent = isSent ? (item.text || "") : (item.target || item.chinese || "");
       main.append(trg, prev);
-      // 点一下直接复制外语（保留换行），不再跳到双语回复区让用户二次复制。
-      main.title = "点一下直接复制外语，去 IG 粘贴";
+      main.title = "点一下直接复制，去 IG 粘贴";
       main.addEventListener("click", async () => {
-        const text = item.target || item.chinese || ""; // textarea 存的，换行原样保留
+        const text = item.copyText || ""; // textarea 存的，换行原样保留
         if (!text) return;
         try {
           await navigator.clipboard.writeText(text);
@@ -2760,18 +2774,18 @@ initGuide();
           row.classList.add("qr-copied");
           setTimeout(() => { trg.textContent = old; row.classList.remove("qr-copied"); }, 1200);
         } catch (_) {
-          fillReply(item); card.removeAttribute("open"); // 复制失败才退回老行为
+          if (!isSent) { fillReply(item); card.removeAttribute("open"); } // 复制失败：快捷退回老行为
         }
       });
       const del = document.createElement("button");
       del.type = "button";
       del.className = "qr-del";
-      del.title = "删除这条快捷";
+      del.title = isSent ? "从发件箱删除这条" : "删除这条快捷";
       del.textContent = "🗑";
       del.addEventListener("click", async (e) => {
         e.stopPropagation();
-        const next = (await getQR()).filter((q) => q.id !== item.id);
-        await setQR(next);
+        if (isSent) await setSent((await getSent()).filter((x) => x.text !== item.text));
+        else await setQR((await getQR()).filter((q) => q.id !== item.id));
         doSearch();
       });
       row.append(main, del);
@@ -2781,16 +2795,16 @@ initGuide();
 
   async function doSearch() {
     const q = search.value.trim().toLowerCase();
-    const all = await getQR();
+    const quick = (await getQR()).map((it) => ({ _type: "quick", id: it.id, trigger: it.trigger, target: it.target, chinese: it.chinese, copyText: it.target || it.chinese || "" }));
+    const sent = (await getSent()).map((it) => ({ _type: "sent", text: it.text, name: it.name, at: it.at, copyText: it.text || "" }));
     let list;
     if (!q) {
-      list = all.slice(-8).reverse(); // 没输入时显示最近 8 条
+      // 没输入：最近发过的 6 条 + 最近存的快捷 6 条（发过的更动态、靠前）
+      list = sent.slice(0, 6).concat(quick.slice(-6).reverse()).slice(0, 12);
     } else {
-      list = all.filter((it) =>
-        [it.trigger, it.target, it.chinese].some(
-          (f) => String(f || "").toLowerCase().includes(q)
-        )
-      );
+      const fq = quick.filter((it) => [it.trigger, it.target, it.chinese].some((f) => String(f || "").toLowerCase().includes(q)));
+      const fs = sent.filter((it) => [it.text, it.name].some((f) => String(f || "").toLowerCase().includes(q)));
+      list = fq.concat(fs);
     }
     renderResults(list, q);
   }
