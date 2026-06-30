@@ -17,20 +17,39 @@
   try {
     const originalRemoveChild = Node.prototype.removeChild;
     Node.prototype.removeChild = function (child) {
-      if (child && child.parentNode !== this) {
-        // 要删的节点已经不在我名下（多半被插入的译文节点扰动过）→ 直接返回，别抛错
-        return child;
+      try {
+        if (child && child.parentNode !== this) return child; // 已不在我名下 → 别抛错
+        return originalRemoveChild.apply(this, arguments);
+      } catch (e) {
+        return child; // 原生调用万一还抛(React 内部状态错位)→ 一律吞掉，绝不让它冒泡卸载整棵树
       }
-      return originalRemoveChild.apply(this, arguments);
     };
 
     const originalInsertBefore = Node.prototype.insertBefore;
     Node.prototype.insertBefore = function (newNode, referenceNode) {
-      if (referenceNode && referenceNode.parentNode !== this) {
-        // 参照节点不在我名下 → 退化成 append，避免 NotFoundError
-        return originalInsertBefore.call(this, newNode, null);
+      try {
+        if (referenceNode && referenceNode.parentNode !== this) {
+          return originalInsertBefore.call(this, newNode, null); // 参照节点不在我名下 → 退化成 append
+        }
+        return originalInsertBefore.apply(this, arguments);
+      } catch (e) {
+        try { return originalInsertBefore.call(this, newNode, null); } catch (_) { return newNode; }
       }
-      return originalInsertBefore.apply(this, arguments);
+    };
+
+    // React 18 卸载/重排也会用 replaceChild —— 之前没盖，是残留白屏的口子。一并兜住。
+    const originalReplaceChild = Node.prototype.replaceChild;
+    Node.prototype.replaceChild = function (newChild, oldChild) {
+      try {
+        if (oldChild && oldChild.parentNode !== this) {
+          // 要替换的旧节点已不在我名下 → 只把新节点 append 进来，别抛错
+          if (newChild) { try { originalInsertBefore.call(this, newChild, null); } catch (_) {} }
+          return oldChild;
+        }
+        return originalReplaceChild.apply(this, arguments);
+      } catch (e) {
+        return oldChild;
+      }
     };
   } catch (e) {
     /* 万一某些环境禁止改原型，放弃护栏也别影响页面 */
