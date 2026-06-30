@@ -323,6 +323,17 @@ function priorityGroup(it) {
   return it.kind; // followup / today / future
 }
 let twlFilter = "all"; // 当前筛选的分组（all=全部）
+let collapsed = null;  // 已收起的分组（Set）；null=还没初始化
+// 默认收起规则：在线/今天永远摊开(现在该做)；其它组超过 6 条就默认收起，
+// 避免一开窗几十条未读/已读不回一股脑全堆上来——只留个数字，想清积压再点开。
+function defaultCollapsed(bucket) {
+  const s = new Set();
+  GROUPS.forEach(([k]) => {
+    if (k === "online" || k === "today") return;
+    if ((bucket[k] || []).length > 6) s.add(k);
+  });
+  return s;
+}
 
 async function render() {
  try {
@@ -356,15 +367,19 @@ async function render() {
     listEl.appendChild(p);
     return;
   }
+  if (collapsed === null) collapsed = defaultCollapsed(bucket); // 首次按规则初始化，之后保留用户手动展开/收起
   GROUPS.forEach(([key, name]) => {
     const sub = bucket[key];
     if (!sub || !sub.length) return;
     if (twlFilter !== "all" && twlFilter !== key) return; // 筛选时只显示选中的组
+    // 筛选某一组时强制展开；全部视图下按 collapsed 状态
+    const isCol = twlFilter === "all" && collapsed.has(key);
     const h = document.createElement("div");
-    h.className = "reminder-group-title";
-    h.textContent = `${name} · ${sub.length}`;
+    h.className = "reminder-group-title twl-toggle";
+    h.innerHTML = `<span class="cw">${isCol ? "▸" : "▾"}</span> ${name} · ${sub.length}` + (isCol ? ` <span class="twl-hint">点开看</span>` : "");
+    h.addEventListener("click", () => { collapsed.has(key) ? collapsed.delete(key) : collapsed.add(key); render(); });
     listEl.appendChild(h);
-    sub.forEach((it) => { try { listEl.appendChild(card(it)); } catch (e) {} });
+    if (!isCol) sub.forEach((it) => { try { listEl.appendChild(card(it)); } catch (e) {} });
   });
  } catch (e) {
   // 兜底：万一渲染抛错，给个提示而不是整窗空白（之前 async render 抛错=静默失败=全空）。
