@@ -308,79 +308,81 @@ function card(it) {
   return el;
 }
 
-// 优先级分组：在线的(不管哪类)单独置顶一组；其余按 未读/已读不回/该催/今天/以后 分。
-const GROUPS = [
-  ["online", "🟢 在线 · 趁现在回（未读/已读不回/今日待办的在线都在这）"],
-  ["unread", "🔴 未读（红人发了还没点开）"],
-  ["read", "🟡 已读不回"],
-  ["followup", "📤 该催对方（红人不回 · 逐级跟进）"],
-  ["today", "🟠 今天跟进"],
-  ["future", "📅 以后"]
+// 四象限（艾森豪威尔）：紧急 = 红人此刻在线 或 今天到期；重要 = 久等/隔夜没回 或 该催 或 今天该做。
+// 用 tab 左右切，默认开「🔥马上做」，每个 tab 只看一类——不再一股脑竖排堆。
+const QUADRANTS = [
+  ["now", "🔥 马上做", "红人在线又久等 / 今天到期 — 立刻处理"],
+  ["quick", "⚡ 顺手回", "红人在线但只是刚来 — 趁在线顺手回"],
+  ["plan", "⭐ 尽快安排", "久等 / 隔夜没回 或 该催，但红人不在线 — 排时间做"],
+  ["later", "🧊 有空清", "刚来的、不在线、不急 — 有空再清"]
 ];
-function priorityGroup(it) {
-  if (it.online) return "online";
-  if (it.kind === "reply") return it.unread ? "unread" : "read";
-  return it.kind; // followup / today / future
+const IMPORTANT_MS = 12 * 3600 * 1000; // 等待≥12小时(含隔夜) = 久等 = 重要
+function isUrgent(it) { return !!it.online || it.kind === "today"; }      // 红人在线 或 今天到期
+function isImportant(it) {
+  if (it.kind === "followup" || it.kind === "today") return true;        // 该催 / 今天该做
+  if (it.kind === "future") return false;                                // 以后
+  return (it.elapsedMs || 0) >= IMPORTANT_MS;                            // 待回复：久等/隔夜=重要
 }
-let twlFilter = "all"; // 当前筛选的分组（all=全部）
-let collapsed = null;  // 已收起的分组（Set）；null=还没初始化
-// 默认收起规则：在线/今天永远摊开(现在该做)；其它组超过 6 条就默认收起，
-// 避免一开窗几十条未读/已读不回一股脑全堆上来——只留个数字，想清积压再点开。
-function defaultCollapsed(bucket) {
-  const s = new Set();
-  GROUPS.forEach(([k]) => {
-    if (k === "online" || k === "today") return;
-    if ((bucket[k] || []).length > 6) s.add(k);
-  });
-  return s;
+function quadrant(it) {
+  const u = isUrgent(it), im = isImportant(it);
+  if (u && im) return "now";
+  if (u && !im) return "quick";
+  if (!u && im) return "plan";
+  return "later";
 }
+let twlTab = "now"; // 当前 tab，默认「马上做」
 
 async function render() {
  try {
   const store = await chrome.storage.local.get(["kolThreads", "kolTodos", "kolSummaries"]);
-  const items = computeItems(store.kolThreads || {}, store.kolTodos || [], store.kolSummaries || {});
+  const todos = store.kolTodos || [];
+  const items = computeItems(store.kolThreads || {}, todos, store.kolSummaries || {});
   listEl.replaceChildren();
-  subEl.textContent = items.length ? `共 ${items.length} 项待处理` : "";
-  // 分到各优先级桶
-  const bucket = {};
-  items.forEach((it) => { (bucket[priorityGroup(it)] = bucket[priorityGroup(it)] || []).push(it); });
-  Object.values(bucket).forEach((arr) => arr.sort((a, b) => (b.elapsedMs || 0) - (a.elapsedMs || 0))); // 每组内：越久没回越靠上
-  // 筛选 chips（全部 + 有内容的分组）
+  // 今日待办进度（成就感）：今天到期(含过期)的待办，完成了几条 / 共几条
+  const dueToday = todos.filter((t) => { if (!t || t.dismissed) return false; const d = Date.parse(t.dueAt); return Number.isFinite(d) && d <= endOfToday(); });
+  const doneN = dueToday.filter((t) => t.done).length, totalN = dueToday.length;
+  subEl.textContent = totalN ? `今日待办 ${doneN}/${totalN} 完成` : (items.length ? `共 ${items.length} 项待处理` : "");
+  // 分到四象限
+  const bucket = { now: [], quick: [], plan: [], later: [] };
+  items.forEach((it) => { (bucket[quadrant(it)] || bucket.later).push(it); });
+  Object.values(bucket).forEach((arr) => arr.sort((a, b) => (b.elapsedMs || 0) - (a.elapsedMs || 0)));
+  // tab 行（当前 tab 空了就跳到第一个有内容的）
   if (filtersEl) {
-    if (twlFilter !== "all" && !(bucket[twlFilter] && bucket[twlFilter].length)) twlFilter = "all";
-    const chips = [["all", "全部", items.length]]
-      .concat(GROUPS.filter(([k]) => bucket[k] && bucket[k].length).map(([k, name]) => [k, name.split("（")[0].trim(), bucket[k].length]));
+    if (!bucket[twlTab] || !bucket[twlTab].length) {
+      const f = QUADRANTS.map(([k]) => k).find((k) => bucket[k] && bucket[k].length);
+      if (f) twlTab = f;
+    }
     filtersEl.replaceChildren();
-    chips.forEach(([k, label, n]) => {
+    QUADRANTS.forEach(([k, label]) => {
+      const n = bucket[k].length;
       const c = document.createElement("button");
       c.type = "button";
-      c.className = "twl-chip" + (twlFilter === k ? " on" : "");
+      c.className = "twl-tab" + (twlTab === k ? " on" : "") + (n ? "" : " empty");
       c.innerHTML = `${label}<span class="n">${n}</span>`;
-      c.addEventListener("click", () => { twlFilter = k; render(); });
+      c.addEventListener("click", () => { twlTab = k; render(); });
       filtersEl.appendChild(c);
     });
   }
-  if (!items.length) {
+  // 今日待办进度条
+  if (totalN) {
+    const pct = Math.round((doneN / totalN) * 100);
+    const pr = document.createElement("div");
+    pr.className = "twl-progress";
+    pr.innerHTML = `<div class="twl-pbar"><div class="twl-pfill" style="width:${pct}%"></div></div><span class="twl-ptext">今日待办 ${doneN}/${totalN} ✅</span>`;
+    listEl.appendChild(pr);
+  }
+  // 当前 tab 说明 + 内容
+  const meta = QUADRANTS.find(([k]) => k === twlTab) || [];
+  if (meta[2]) { const d = document.createElement("div"); d.className = "twl-tabdesc"; d.textContent = meta[2]; listEl.appendChild(d); }
+  const sub = bucket[twlTab] || [];
+  if (!sub.length) {
     const p = document.createElement("p");
     p.className = "twl-empty";
-    p.textContent = "🎉 都处理完了，没有待办。";
+    p.textContent = items.length ? "这一类暂时没有，点上面别的 tab 看看 👆" : "🎉 都处理完了，没有待办。";
     listEl.appendChild(p);
-    return;
+  } else {
+    sub.forEach((it) => { try { listEl.appendChild(card(it)); } catch (e) {} });
   }
-  if (collapsed === null) collapsed = defaultCollapsed(bucket); // 首次按规则初始化，之后保留用户手动展开/收起
-  GROUPS.forEach(([key, name]) => {
-    const sub = bucket[key];
-    if (!sub || !sub.length) return;
-    if (twlFilter !== "all" && twlFilter !== key) return; // 筛选时只显示选中的组
-    // 筛选某一组时强制展开；全部视图下按 collapsed 状态
-    const isCol = twlFilter === "all" && collapsed.has(key);
-    const h = document.createElement("div");
-    h.className = "reminder-group-title twl-toggle";
-    h.innerHTML = `<span class="cw">${isCol ? "▸" : "▾"}</span> ${name} · ${sub.length}` + (isCol ? ` <span class="twl-hint">点开看</span>` : "");
-    h.addEventListener("click", () => { collapsed.has(key) ? collapsed.delete(key) : collapsed.add(key); render(); });
-    listEl.appendChild(h);
-    if (!isCol) sub.forEach((it) => { try { listEl.appendChild(card(it)); } catch (e) {} });
-  });
  } catch (e) {
   // 兜底：万一渲染抛错，给个提示而不是整窗空白（之前 async render 抛错=静默失败=全空）。
   try {
