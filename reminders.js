@@ -393,10 +393,18 @@ async function render() {
  }
 }
 
-document.getElementById("todo-window-refresh").addEventListener("click", render);
-chrome.storage.onChanged.addListener((changes, area) => {
-  // kolSummaries 也要听：离开对话生成的「真总结」常单独写入（不动 kolThreads），
-  // 漏听会导致已打开的窗口不刷新、新中文总结迟迟不出现。
-  if (area === "local" && (changes.kolThreads || changes.kolTodos || changes.kolSummaries)) render();
-});
+// 顶层接线各自包 try/catch：任何一处抛错都不能挡住 render()——之前若 addEventListener
+// 命中 null 等，render() 就永远不会跑，整窗一片空白（连"🎉/出错提示"都不显示）。
+try {
+  const rb = document.getElementById("todo-window-refresh");
+  if (rb) rb.addEventListener("click", () => render());
+} catch (_) {}
+try {
+  chrome.storage.onChanged.addListener((changes, area) => {
+    // kolSummaries 也要听：离开对话生成的「真总结」常单独写入（不动 kolThreads），漏听则不刷新。
+    if (area === "local" && (changes.kolThreads || changes.kolTodos || changes.kolSummaries)) render();
+  });
+} catch (_) {}
 render();
+// 兜底再跑一次：首帧 storage 偶尔还没就绪
+setTimeout(() => { try { render(); } catch (_) {} }, 400);

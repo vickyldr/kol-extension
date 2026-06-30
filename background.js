@@ -1,4 +1,8 @@
 const MENU_ID = "kol-analyze-selection";
+// service worker 启动时间（≈刚打开浏览器/插件被唤醒）。开头 10 分钟内不弹桌面通知，
+// 避免一开浏览器就被一堆积压提醒糊一脸。之后只为"紧急"(红人在线/今天到期)弹，积压不弹。
+const SW_START = Date.now();
+const NOTIFY_QUIET_MS = 10 * 60 * 1000;
 
 function ignoreLastError() {
   void chrome.runtime.lastError;
@@ -306,6 +310,7 @@ async function computeReminders() {
               kind: "reply",
               recKey,
               threadId: rec.threadId,
+              online: !!rec.isOnline,
               title,
               label: rec.isOnline
                 ? `${title} 在线！快回复`
@@ -326,6 +331,7 @@ async function computeReminders() {
               kind: "reply",
               recKey,
               threadId: rec.threadId,
+              online: !!rec.isOnline,
               title,
               label: `${title} 有未读消息（1小时了）`,
               waitingDays: Math.max(0, Math.floor(elapsed / 60 / 24)),
@@ -350,6 +356,7 @@ async function computeReminders() {
           kind: "follow",
           recKey,
           threadId: rec.threadId,
+          online: !!rec.isOnline,
           title,
           label: j.reminder_label || `${title}：${j.waiting_for || "该跟进了"}`,
           waitingDays: Math.max(0, Math.floor(elapsed)),
@@ -424,12 +431,16 @@ async function refreshReminders() {
     chrome.action.setBadgeBackgroundColor({ color: "#e0245e" }, ignoreLastError);
     chrome.action.setBadgeText({ text: items.length ? String(items.length) : "" }, ignoreLastError);
 
-    // ② 桌面弹窗：只对「新出现的」弹，避免每分钟重复轰炸
+    // ② 桌面弹窗降噪：① 开头 10 分钟静默(刚开浏览器不糊脸)；② 只为"紧急"(红人在线/今天到期)弹，
+    //    积压不弹(只留在角标和窗口里)；③ 同一条只弹一次。
     const { kolNotified } = await chrome.storage.local.get("kolNotified");
     const already = new Set(kolNotified || []);
+    const inQuiet = Date.now() - SW_START < NOTIFY_QUIET_MS;
+    const isUrgent = (i) => i.online || i.kind === "todo"; // 红人此刻在线 或 今天到期待办
     const fresh = items.filter((i) => !already.has(i.key));
-    if (fresh.length) {
-      const head = fresh[0];
+    const freshUrgent = inQuiet ? [] : fresh.filter(isUrgent);
+    if (freshUrgent.length) {
+      const head = freshUrgent[0];
       // 固定 ID "kol-reminder"：同 ID 的通知会覆盖旧的，而不是叠出两个。
       // 之前用 "kol-" + Date.now() 导致每次都新建，两次快速触发就会同时弹两条一样的通知。
       // 头像：优先用红人/群聊真实头像（采集时存的 avatarUrl）；取不到再退回首字母彩色圆。
@@ -447,7 +458,7 @@ async function refreshReminders() {
       const sumText = ((sumRec?.text || "").trim() || (headRec?.autoSummary || "").trim()).slice(0, 80);
       const msgParts = [head.label || head.title];
       if (sumText) msgParts.push(`📋 ${sumText}`);
-      if (fresh.length > 1) msgParts.push(`…等共 ${fresh.length} 条待处理`);
+      if (freshUrgent.length > 1) msgParts.push(`…等共 ${freshUrgent.length} 个紧急待处理`);
       chrome.notifications.create(
         "kol-reminder",
         {
@@ -464,7 +475,7 @@ async function refreshReminders() {
       // ③ 回写「已提醒」标记，避免下一分钟重复触发同一条
       const threadsCopy = (await chrome.storage.local.get("kolThreads")).kolThreads || {};
       let changed = false;
-      fresh.forEach((item) => {
+      freshUrgent.forEach((item) => {
         if (!item.recKey || !threadsCopy[item.recKey]) return;
         if (item.markReplyReminderSent) { threadsCopy[item.recKey].replyReminderSent = true; changed = true; }
         if (item.markUnreadReminderSent) { threadsCopy[item.recKey].unreadReminderSent = true; changed = true; }
@@ -472,7 +483,11 @@ async function refreshReminders() {
       if (changed) await chrome.storage.local.set({ kolThreads: threadsCopy });
     }
 
-    await chrome.storage.local.set({ kolNotified: items.map((i) => i.key) });
+    // 只把"已弹过的紧急项"记为已通知；非紧急/静默期的不记，等它变紧急(红人上线)再弹。
+    const urgentKeys = new Set(freshUrgent.map((i) => i.key));
+    await chrome.storage.local.set({
+      kolNotified: items.filter((i) => already.has(i.key) || urgentKeys.has(i.key)).map((i) => i.key)
+    });
   } finally {
     _refreshing = false;
   }

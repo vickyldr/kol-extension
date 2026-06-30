@@ -160,13 +160,15 @@ async function addTranslation(element) {
   try {
     row.classList.add("kol-message-row");
     // 把译文钉在原文气泡的正下方、贴同一侧：对方消息靠左 → 译文靠左；我方消息靠右 → 译文靠右。
-    // 用 flex 的 justify 控制左右（比之前算像素缩进稳——之前我方那条常算出缩进≈0、译文跑到最左）。
-    // 判断哪一侧：气泡左边空白 > 右边空白 → 气泡偏右 = 我方。
+    // 关键：用「对话面板(main)」当参照来判左右，**别用 row(anchor.parentElement)**——
+    // 我方那条 row 的宽度/位置不稳，之前据此判一直判错，译文老跑到最左。
+    // main 是稳定的对话区：气泡在 main 里偏右(右边空白比左边小) = 我方。
     const bubbleRect = element.getBoundingClientRect();
-    const rowRect = row.getBoundingClientRect();
-    const leftGap = bubbleRect.left - rowRect.left;
-    const rightGap = rowRect.right - bubbleRect.right;
-    const isOutgoing = leftGap > rightGap + 24; // 24px 容差，避免居中时抖动
+    const mainEl = element.closest("main") || document.querySelector("main") || row;
+    const mainRect = mainEl.getBoundingClientRect();
+    const leftGap = bubbleRect.left - mainRect.left;   // 气泡左边的留白
+    const rightGap = mainRect.right - bubbleRect.right; // 气泡右边的留白
+    const isOutgoing = leftGap > rightGap;             // 左留白更多 = 气泡靠右 = 我方
     wrapper.style.setProperty("--kol-translation-justify", isOutgoing ? "flex-end" : "flex-start");
     wrapper.style.setProperty(
       "--kol-translation-width",
