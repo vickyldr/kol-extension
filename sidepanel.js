@@ -455,6 +455,19 @@ async function rewriteFromChinese() {
 function renderBilingualSplit(target, chinese) {
   const box = document.getElementById("bi-split");
   if (!box) return;
+  // 多行内容(brief/脚本/分点)：按行对照、保留换行，不再逐句拆+AI对齐（那会把分点压成一段）。
+  // 这样复制出来、改完再拼回去，分点换行都在。短回复(单行)维持逐句对照不变。
+  const multiline = /\n/.test(String(target || "").trim());
+  box.dataset.multiline = multiline ? "1" : "";
+  if (multiline) {
+    const ts = String(target).split("\n");
+    const zs = String(chinese).split("\n");
+    const n = Math.max(ts.length, zs.length, 1);
+    const pairs = [];
+    for (let i = 0; i < n; i += 1) pairs.push({ target: ts[i] || "", chinese: zs[i] || "" });
+    renderBiRows(pairs);
+    return; // 不调 autoAlignSplit，避免重新按句子合并打散结构
+  }
   // 先用按标点的快速切分即时显示（瞬间出来），随后自动逐句对齐替换成可信版本
   const ts = splitSentences(target);
   const zs = splitSentences(chinese);
@@ -490,11 +503,12 @@ async function autoAlignSplit(target, chinese) {
 
 // 外语格被编辑后，把整条外语回复同步回隐藏数据载体（供复制/保存/改写）
 function syncTargetFromSplit() {
+  const box = document.getElementById("bi-split");
+  const multiline = box && box.dataset.multiline === "1";
   const cells = document.querySelectorAll("#bi-split .bi-target");
-  const joined = Array.from(cells)
-    .map((c) => c.textContent.trim())
-    .filter(Boolean)
-    .join(" ");
+  // 多行(brief)按行拼、用换行连接，保留分点结构；短回复按句拼、用空格连接。
+  const parts = Array.from(cells).map((c) => c.textContent.replace(/\s+$/g, ""));
+  const joined = multiline ? parts.join("\n") : parts.map((s) => s.trim()).filter(Boolean).join(" ");
   replyTargetInput.value = joined;
   if (lastAnalysis) lastAnalysis.reply_target = joined;
 }

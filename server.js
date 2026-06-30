@@ -840,6 +840,9 @@ async function rewriteReply(payload) {
       system: `你是翻译器。把运营给的中文（chinese_text）准确翻译成目标外语。
 忠实原意、一字不改地传达：不增不减、不加问候语、不加结尾客套、不润色、不扩写、不改语气。
 准确保留主语、宾语、动作方向、时态、否定、数字和语气。
+【保留排版结构，翻译 brief/脚本这类长内容时尤其重要】
+- 完整保留原文的换行、分点(1. 2. 3. / ① / • / -)、空行结构，逐行对应翻译。
+- 绝不把多行或分点合并成一段；reply_target 的行数与分点数应与原文一致。
 【目标语言规则，最重要】
 - 如果提供了 reply_language，就翻成 reply_language。
 - 如果 reply_language 为空，先判断 creator_message（红人原消息）是什么语言，再把 chinese_text 翻成那个语言；红人说泰语就用泰语、说日语就用日语，绝不无故改成英语。
@@ -934,6 +937,7 @@ ${replyStyleFor(replyLanguage, payload.message)}
 必须准确区分谁让谁做什么，不得虚构此前发生的事情。
 不得自行编造价格、日期、授权期限、付款承诺、平台、产品账号或链接。
 信息不足时使用安全的澄清表达，不要脑补。
+如果运营输入是分点 / 多行内容（如 brief、脚本），保留其换行和分点结构，不要合并成一段。
 
 【不串其他产品 / 品牌（始终生效）】reply_target 里**绝不能出现**运营中文（chinese_draft_or_instruction）里没有写、且不属于当前 selected_product 的其他产品名、品牌名或团队名——**即使 selected_product 的 description/selling_points 里提到过别的产品**（那是给运营看的内部信息，不是要发给红人的内容）。运营中文里没提的关联产品，一律不要出现在外语里。
 
