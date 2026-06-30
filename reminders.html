@@ -21,6 +21,11 @@
       .twl-toggle:hover { background: #eef2ff; }
       .twl-toggle .cw { color: #8b90a0; width: 12px; display: inline-block; }
       .twl-toggle .twl-hint { font-size: 11px; font-weight: 500; color: #9aa3c0; }
+      .twl-digest { background: linear-gradient(180deg,#f3f7ff,#ffffff); border: 1px solid #e4ebfb; border-radius: 12px; padding: 11px 14px; margin-bottom: 11px; }
+      .twl-digest .dg1 { font-size: 14px; font-weight: 700; color: #1f2329; }
+      .twl-digest .dg2 { font-size: 12.5px; color: #5e6470; margin-top: 5px; display: flex; gap: 14px; flex-wrap: wrap; }
+      .twl-digest .dg2 b { color: #1f2329; }
+      .twl-digest .twl-progress { margin: 9px 0 0; }
       .twl-priohint { font-size: 11px; color: #9aa3b8; margin: 0 2px 5px; }
       .twl-filters { display: flex; gap: 6px; margin: 0 0 10px; flex-wrap: wrap; }
       /* 四档配色：红→橙→蓝→灰，左到右优先级递减，一眼看出不是平行 */
@@ -53,6 +58,7 @@
       </div>
       <button id="todo-window-refresh" class="status archive-entry">刷新</button>
     </div>
+    <div id="todo-window-digest" class="twl-digest"></div>
     <div class="twl-priohint">👇 按 ①→④ 顺序处理：🔥最该做 · 🧊最不急（左到右优先级递减）</div>
     <div id="todo-window-filters" class="twl-filters"></div>
     <div id="todo-window-list" class="reminder-list"></div>

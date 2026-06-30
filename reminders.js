@@ -3,6 +3,7 @@
 const listEl = document.getElementById("todo-window-list");
 const subEl = document.getElementById("todo-window-sub");
 const filtersEl = document.getElementById("todo-window-filters");
+const digestEl = document.getElementById("todo-window-digest");
 
 function daysSince(iso) {
   const t = Date.parse(iso);
@@ -354,11 +355,31 @@ async function render() {
   // 今日待办进度（成就感）：今天到期(含过期)的待办，完成了几条 / 共几条
   const dueToday = todos.filter((t) => { if (!t || t.dismissed) return false; const d = Date.parse(t.dueAt); return Number.isFinite(d) && d <= endOfToday(); });
   const doneN = dueToday.filter((t) => t.done).length, totalN = dueToday.length;
-  subEl.textContent = totalN ? `今日待办 ${doneN}/${totalN} 完成` : (items.length ? `共 ${items.length} 项待处理` : "");
+  subEl.textContent = items.length ? `共 ${items.length} 项待处理` : "";
   // 分到四象限
   const bucket = { now: [], quick: [], plan: [], later: [] };
   items.forEach((it) => { (bucket[quadrant(it)] || bucket.later).push(it); });
   Object.values(bucket).forEach((arr) => arr.sort((a, b) => (b.elapsedMs || 0) - (a.elapsedMs || 0)));
+  // 置顶「今日概览」（晨间摘要常驻版）：问候 + 各档数量 + 待办进度条。每次刷新实时更新。
+  if (digestEl) {
+    const hr = new Date().getHours();
+    const greet = hr < 11 ? "☀️ 早上好" : hr < 18 ? "👋 下午好" : "🌙 晚上好";
+    const onlineN = items.filter((i) => i.online).length;
+    if (!items.length) {
+      digestEl.innerHTML = `<div class="dg1">${greet}　🎉 今天都处理完啦，休息一下</div>`;
+    } else {
+      const pct = totalN ? Math.round((doneN / totalN) * 100) : 0;
+      digestEl.innerHTML =
+        `<div class="dg1">${greet}　今天 <b>${items.length}</b> 项待处理</div>` +
+        `<div class="dg2">` +
+          `<span>🔥 马上做 <b>${bucket.now.length}</b></span>` +
+          `<span>⭐ 隔夜该催 <b>${bucket.plan.length}</b></span>` +
+          `<span>🟢 在线 <b>${onlineN}</b></span>` +
+          (totalN ? `<span>✅ 待办 <b>${doneN}/${totalN}</b></span>` : "") +
+        `</div>` +
+        (totalN ? `<div class="twl-progress"><div class="twl-pbar"><div class="twl-pfill" style="width:${pct}%"></div></div><span class="twl-ptext">${doneN}/${totalN}</span></div>` : "");
+    }
+  }
   // tab 行（当前 tab 空了就跳到第一个有内容的）
   if (filtersEl) {
     if (!bucket[twlTab] || !bucket[twlTab].length) {
@@ -376,14 +397,6 @@ async function render() {
       c.addEventListener("click", () => { twlTab = k; render(); });
       filtersEl.appendChild(c);
     });
-  }
-  // 今日待办进度条
-  if (totalN) {
-    const pct = Math.round((doneN / totalN) * 100);
-    const pr = document.createElement("div");
-    pr.className = "twl-progress";
-    pr.innerHTML = `<div class="twl-pbar"><div class="twl-pfill" style="width:${pct}%"></div></div><span class="twl-ptext">今日待办 ${doneN}/${totalN} ✅</span>`;
-    listEl.appendChild(pr);
   }
   // 当前 tab 说明 + 内容
   const meta = QUADRANTS.find(([k]) => k === twlTab) || [];
