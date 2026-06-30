@@ -481,11 +481,21 @@
   }
 
   // 按名字打开对话：先在当前可见列表里找；找不到就滚动列表多试几次（懒加载的行）
+  // 返回 {ok, tid}：点开后把 URL 里的对话数字 ID 抓回来（学到了就回传，提醒侧存上→下次深链直达）
   async function openThreadByName(targetKey) {
-    if (!targetKey) return false;
+    if (!targetKey) return { ok: false };
     for (let attempt = 0; attempt < 6; attempt += 1) {
       const row = findInboxRowEl(targetKey);
-      if (row) { realClick(row); return true; }
+      if (row) {
+        realClick(row);
+        // 等 IG 跳转、URL 变成 /direct/t/<id>/，把这个 id 抓回来
+        for (let i = 0; i < 12; i += 1) {
+          const tid = currentThreadId();
+          if (tid) return { ok: true, tid };
+          await new Promise((res) => setTimeout(res, 200));
+        }
+        return { ok: true, tid: "" };
+      }
       // 没找到：把收件箱列表往下滚一屏再试（找装着多行头像的可滚动容器）
       const firstImg = document.querySelector("img");
       let scroller = firstImg ? firstImg.parentElement : null;
@@ -497,7 +507,7 @@
       if (scroller) scroller.scrollTop += scroller.clientHeight * 0.8;
       await new Promise((res) => setTimeout(res, 300));
     }
-    return false;
+    return { ok: false };
   }
 
   // 行内找一个蓝色的小圆点（IG 未读指示）
@@ -1024,8 +1034,8 @@
     if (message?.type === "KOL_OPEN_THREAD_BY_NAME") {
       (async () => {
         try {
-          const ok = await openThreadByName(message.key || "");
-          sendResponse({ ok });
+          const r = await openThreadByName(message.key || "");
+          sendResponse(r && typeof r === "object" ? r : { ok: !!r });
         } catch (e) {
           sendResponse({ ok: false });
         }

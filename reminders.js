@@ -69,6 +69,8 @@ function openConversation(it) {
           // 内容脚本没加载/没找到：退回收件箱首页，至少能手动找
           if (chrome.runtime.lastError || !resp || !resp.ok) {
             chrome.tabs.update(tab.id, { url: "https://www.instagram.com/direct/inbox/", active: true });
+          } else if (resp.tid) {
+            learnThreadId(it.key, resp.tid); // 学到对话数字 ID → 存上，下次深链直达
           }
         });
       };
@@ -210,6 +212,17 @@ async function patchThread(id, patch) {
   const store = await chrome.storage.local.get("kolThreads");
   const map = store.kolThreads || {};
   if (map[id]) { map[id] = { ...map[id], ...patch }; await chrome.storage.local.set({ kolThreads: map }); }
+}
+// 按名字点开成功后，把抓回来的对话数字 ID 存上（原来没有才补），下次「打开对话」就深链直达。
+async function learnThreadId(key, tid) {
+  try {
+    const store = await chrome.storage.local.get("kolThreads");
+    const map = store.kolThreads || {};
+    if (map[key] && !map[key].threadId && tid) {
+      map[key].threadId = tid;
+      await chrome.storage.local.set({ kolThreads: map });
+    }
+  } catch (_) {}
 }
 async function dismissThread(id, kind) {
   const store = await chrome.storage.local.get("kolThreads");
@@ -353,12 +366,13 @@ async function render() {
       if (f) twlTab = f;
     }
     filtersEl.replaceChildren();
-    QUADRANTS.forEach(([k, label]) => {
+    QUADRANTS.forEach(([k, label], i) => {
       const n = bucket[k].length;
       const c = document.createElement("button");
       c.type = "button";
-      c.className = "twl-tab" + (twlTab === k ? " on" : "") + (n ? "" : " empty");
-      c.innerHTML = `${label}<span class="n">${n}</span>`;
+      // tab-${k} 给每档配色(红→橙→蓝→灰，左到右优先级递减)；序号①②③④强化"先做哪个"。
+      c.className = `twl-tab tab-${k}` + (twlTab === k ? " on" : "") + (n ? "" : " empty");
+      c.innerHTML = `<b class="ord">${"①②③④"[i]}</b> ${label}<span class="n">${n}</span>`;
       c.addEventListener("click", () => { twlTab = k; render(); });
       filtersEl.appendChild(c);
     });
