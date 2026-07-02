@@ -1,4 +1,4 @@
-let API_BASE = "http://106.54.206.174:3210";
+let API_BASE = "https://kol-assistant.lianquapp.com";
 let API_TOKEN = "";
 
 // 与侧边栏共用的服务器配置（地址 + 团队口令），存在 chrome.storage.local。
@@ -11,7 +11,7 @@ chrome.storage.local.get("kolConfig").then((stored) => {
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area === "local" && changes.kolConfig) {
     const next = changes.kolConfig.newValue || {};
-    API_BASE = next.apiBase || "http://106.54.206.174:3210";
+    API_BASE = next.apiBase || "https://kol-assistant.lianquapp.com";
     API_TOKEN = next.token || "";
   }
 });

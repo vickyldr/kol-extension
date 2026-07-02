@@ -1,4 +1,4 @@
-let API_BASE = "http://106.54.206.174:3210";
+let API_BASE = "https://kol-assistant.lianquapp.com";
 let API_TOKEN = "";
 let API_ADMIN = "";
 let API_INSID = ""; // 用户 ins id：云端自动备份的身份钥匙 + 提醒认人

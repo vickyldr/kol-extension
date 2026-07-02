@@ -70,7 +70,7 @@ chrome.runtime.onMessage.addListener((message, sender) => {
 // 网页内联翻译：由后台代发请求，绕过 HTTPS 页面对 HTTP 服务的混合内容拦截。
 async function handleTranslate(text) {
   const { kolConfig } = await chrome.storage.local.get("kolConfig");
-  const base = kolConfig?.apiBase || "http://106.54.206.174:3210";
+  const base = kolConfig?.apiBase || "https://kol-assistant.lianquapp.com";
   const token = kolConfig?.token || "";
   const headers = { "Content-Type": "application/json" };
   if (token) headers["X-KOL-Token"] = token;
@@ -99,7 +99,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
 async function handleJudge(payload) {
   const { kolConfig } = await chrome.storage.local.get("kolConfig");
-  const base = kolConfig?.apiBase || "http://106.54.206.174:3210";
+  const base = kolConfig?.apiBase || "https://kol-assistant.lianquapp.com";
   const token = kolConfig?.token || "";
   const headers = { "Content-Type": "application/json" };
   if (token) headers["X-KOL-Token"] = token;
@@ -125,7 +125,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 // 代发 /api/parse-todo：把一句话解析成事项+时间（供会话内"已约好"用）
 async function handleParseTodo(payload) {
   const { kolConfig } = await chrome.storage.local.get("kolConfig");
-  const base = kolConfig?.apiBase || "http://106.54.206.174:3210";
+  const base = kolConfig?.apiBase || "https://kol-assistant.lianquapp.com";
   const token = kolConfig?.token || "";
   const headers = { "Content-Type": "application/json" };
   if (token) headers["X-KOL-Token"] = token;
@@ -151,7 +151,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 // 代发 /api/summary：内容脚本在你离开对话时自动更新合作进展
 async function handleSummary(payload) {
   const { kolConfig } = await chrome.storage.local.get("kolConfig");
-  const base = kolConfig?.apiBase || "http://106.54.206.174:3210";
+  const base = kolConfig?.apiBase || "https://kol-assistant.lianquapp.com";
   const token = kolConfig?.token || "";
   const headers = { "Content-Type": "application/json" };
   if (token) headers["X-KOL-Token"] = token;
